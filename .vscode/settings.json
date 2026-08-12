@@ -1,0 +1,61 @@
+{
+  // --- Keep generated/secret material out of search, and out of sight in the explorer.
+  // These mirror .gitignore's dedicated sections - if you add a new generated-material path
+  // there, add it here too. ---
+  "files.exclude": {
+    "pki/root-ca/private": true,
+    "pki/root-ca/db": true,
+    "pki/intermediate-ca/private": true,
+    "pki/intermediate-ca/db": true,
+    "pki/issued": true,
+    "federation/class-registry/ca/private": true,
+    "federation/class-registry/ca/db": true,
+    "federation/class-registry/bind/keys": true,
+    "federation/class-registry-cert": true,
+    "federation/registry/*.yaml": true,
+    "federation/wireguard-clients/*.conf": true,
+    "**/.generated-secrets": true
+  },
+  "search.exclude": {
+    "**/*.env": true,
+    "**/vault.yml": true
+  },
+
+  // --- File associations: this repo uses a few extensions/filenames VS Code doesn't guess
+  // correctly by default. ---
+  "files.associations": {
+    "*.j2": "jinja-txt",
+    "*.cnf": "ini",
+    "hosts.ini": "ini",
+    "ansible.cfg": "ini",
+    "Caddyfile": "caddyfile",
+    "named.conf": "ini",
+    "*.seed": "ini"
+  },
+
+  // --- Ansible (redhat.ansible) ---
+  "ansible.python.interpreterPath": "python3",
+
+  // Compose-spec JSON schema for docker-compose.yml validation via redhat.vscode-yaml. If
+  // this URL 404s (compose-spec's repo layout has moved before), remove this block - it's
+  // a nice-to-have, not required, and yaml.schemas just silently skips validation without it.
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json": [
+      "docker/**/docker-compose.yml",
+      "federation/**/docker-compose.yml"
+    ]
+  },
+
+  // --- Shell scripts: every *.sh in this repo is bash (or explicitly POSIX sh, marked by
+  // its own shebang) - shellcheck should always be on. ---
+  "shellcheck.enable": true,
+  "shellcheck.run": "onType",
+
+  // --- Editor defaults that match what's already in the repo (2-space YAML, LF line
+  // endings throughout, tabs for the Makefile per make's own requirement). ---
+  "files.eol": "\n",
+  "editor.formatOnSave": false,
+  "[yaml]": { "editor.tabSize": 2, "editor.insertSpaces": true },
+  "[makefile]": { "editor.insertSpaces": false },
+  "[shellscript]": { "editor.tabSize": 2, "editor.insertSpaces": true }
+}

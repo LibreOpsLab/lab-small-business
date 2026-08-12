@@ -59,6 +59,7 @@ repo-root/
 | ----------------------------------------------- | --------------------------------------------------------------------- |
 | [Architecture.md](docs/Architecture.md)         | Component inventory, design principles, trade-offs                    |
 | [DeploymentGuide.md](docs/DeploymentGuide.md)   | Ordered, repeatable bring-up procedure                                |
+| [WSLSetup.md](docs/WSLSetup.md)                 | Setting up WSL2 as the Ansible control host, and why it's needed      |
 | [PKI.md](docs/PKI.md)                           | Two-tier CA design, issuance, renewal, revocation, trust distribution |
 | [SambaAdmin.md](docs/SambaAdmin.md)             | AD provisioning, OUs, users/groups, DNS, backup, health checks        |
 | [AuthentikAdmin.md](docs/AuthentikAdmin.md)     | LDAP source, OIDC providers, MFA, recovery                            |

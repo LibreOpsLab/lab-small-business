@@ -1,0 +1,43 @@
+{
+  // Recommendations tailored to what's actually in this repo: Ansible/YAML, Dockerfiles +
+  // Compose, a small Flask app (federation/class-registry), Bash + PowerShell scripts,
+  // Jinja2 templates, and a lot of Markdown/Mermaid documentation. See docs/WSLSetup.md for
+  // why ms-vscode-remote.remote-wsl matters more than usual for this particular repo.
+  "recommendations": [
+    // WSL — the Ansible control node work in this repo needs a real Linux environment; see
+    // docs/WSLSetup.md for why Git Bash alone isn't enough.
+    "ms-vscode-remote.remote-wsl",
+
+    // Ansible / YAML — playbooks, roles, group_vars, inventory
+    "redhat.ansible",
+    "redhat.vscode-yaml",
+
+    // Docker — docker-compose.yml files throughout docker/ and federation/, plus the
+    // hand-authored Dockerfiles (postfix, class-registry app, dnsmasq)
+    "ms-azuretools.vscode-docker",
+    "exiasr.hadolint",
+
+    // Python — federation/class-registry/app/app.py (Flask)
+    "ms-python.python",
+
+    // Shell scripts — every *.sh under pki/, samba/, scripts/, federation/, docker/*/scripts/
+    "timonwong.shellcheck",
+    "foxundermoon.shell-format",
+
+    // PowerShell — workstation/scripts, pki/gpo, samba/scripts/*.ps1, desktop-apps/windows
+    "ms-vscode.powershell",
+
+    // Jinja2 templates — samba/templates/*.j2, ansible/roles/*/templates/*.j2, templates/
+    "wholroyd.jinja",
+
+    // Markdown + Mermaid — docs/ and diagrams/ are almost entirely Markdown with embedded
+    // Mermaid diagrams; this previews them inline without leaving the editor
+    "bierner.markdown-mermaid",
+    "davidanson.vscode-markdownlint",
+
+    // .env.example files throughout docker/*/ and federation/*/
+    "mikestead.dotenv",
+
+    "editorconfig.editorconfig"
+  ]
+}

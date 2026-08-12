@@ -9,10 +9,12 @@ all Linux VMs unless stated otherwise.
 - VMware Workstation Pro installed, virtualization enabled in host BIOS.
 - Ubuntu Server 24.04 LTS ISO, Windows 11 ISO, pfSense CE ISO, Ubuntu Desktop 24.04 ISO
   downloaded to the host.
-- This repository cloned to the host, e.g. `C:\Users\<you>\Development\lab-small-business`.
-- `ansible` (2.16+), `openssl` (3.x), and an SSH client available — either directly on the
-  Windows host (via WSL2/Git Bash) or run from `linux-client01` once it exists (chicken-and-egg
-  for the very first run, so WSL2 is recommended for stage 1-3).
+- `ansible` (2.16+), `openssl` (3.x), and an SSH client available as the **control host** for
+  everything from step 3 onward — this needs to be WSL2, not Git Bash or PowerShell alone;
+  Ansible does not support Windows as a control node. See
+  [docs/WSLSetup.md](WSLSetup.md) for installing WSL2, the networking fix it needs to reach
+  `VMnet-LAB` (this trips up almost everyone on first try), and cloning this repository inside
+  it — do that clone (not a separate Windows-side one) before continuing.
 
 ## 1. Networking (VMware Workstation)
 

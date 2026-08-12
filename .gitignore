@@ -44,8 +44,12 @@ workstation/vms/**/*.log
 .DS_Store
 Thumbs.db
 *.swp
-.vscode/
 .idea/
+
+# --- VS Code: share extensions.json/settings.json, ignore personal machine-specific state ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 
 # --- Ansible ---
 *.retry
