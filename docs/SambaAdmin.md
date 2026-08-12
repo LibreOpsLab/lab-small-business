@@ -2,12 +2,12 @@
 
 ## Domain facts
 
-| Item | Value |
-|---|---|
-| Domain (DNS) | `lab.local` |
-| Realm | `LAB.LOCAL` |
-| NetBIOS | `LAB` |
-| DC hostname | `samba-dc01.lab.local` (`10.10.0.10`) |
+| Item             | Value                                                      |
+| ---------------- | ---------------------------------------------------------- |
+| Domain (DNS)     | `lab.local`                                                |
+| Realm            | `LAB.LOCAL`                                                |
+| NetBIOS          | `LAB`                                                      |
+| DC hostname      | `samba-dc01.lab.local` (`10.10.0.10`)                      |
 | Functional level | 2016 (`samba-tool domain provision --function-level=2016`) |
 
 ## Provisioning
@@ -55,12 +55,12 @@ Seed data lives in [`samba/data/users.csv`](../samba/data/users.csv) and
 [`create-groups.sh`](../samba/scripts/create-groups.sh) are idempotent wrappers around
 `samba-tool user create` / `samba-tool group add` + `group addmembers` that read those CSVs.
 
-| Account | OU | Groups | Notes |
-|---|---|---|---|
-| `administrator` | built-in | `Domain Admins` | Break-glass; day-to-day admin work should use a named `it-*` account added to `IT-Admins` |
-| `lecturer01` | Staff/Lecturers | `Lecturers` | Sample teaching-staff account |
-| `student01`, `student02` | Students | `Students` | Sample student accounts |
-| `svc-authentik` | Service-Accounts | `IT-Admins` (read-only via ACL, see below) | LDAP bind account for Authentik's LDAP source |
+| Account                  | OU               | Groups                                     | Notes                                                                                     |
+| ------------------------ | ---------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| `administrator`          | built-in         | `Domain Admins`                            | Break-glass; day-to-day admin work should use a named `it-*` account added to `IT-Admins` |
+| `lecturer01`             | Staff/Lecturers  | `Lecturers`                                | Sample teaching-staff account                                                             |
+| `student01`, `student02` | Students         | `Students`                                 | Sample student accounts                                                                   |
+| `svc-authentik`          | Service-Accounts | `IT-Admins` (read-only via ACL, see below) | LDAP bind account for Authentik's LDAP source                                             |
 
 Groups: `Students`, `Lecturers`, `IT-Admins`, `Docker-Admins` (mapped to Portainer/Traefik
 dashboard access via Authentik's OIDC group claim, see

@@ -22,13 +22,13 @@ Authentik blueprints (`authentik/blueprints/*.yaml`) are applied automatically o
 start (mounted into `/blueprints/` per the Compose file) so the identity provider configures
 itself declaratively rather than via manual admin-UI clicks:
 
-| Blueprint | Purpose |
-|---|---|
-| [`ldap-source.yaml`](../authentik/blueprints/ldap-source.yaml) | Federates Samba AD as an LDAP Source: bind DN `svc-authentik@lab.local`, base DN `DC=lab,DC=local`, group sync every 5 minutes. |
-| [`groups-roles.yaml`](../authentik/blueprints/groups-roles.yaml) | Maps synced AD groups (`IT-Admins`, `Docker-Admins`, `Lecturers`, `Students`) to Authentik groups used in policy bindings. |
-| [`oidc-nextcloud.yaml`](../authentik/blueprints/oidc-nextcloud.yaml) | OIDC provider + application for NextCloud, `groups` scope mapping included. |
-| [`oidc-onlyoffice.yaml`](../authentik/blueprints/oidc-onlyoffice.yaml) | OIDC provider + application for OnlyOffice (used via NextCloud's ONLYOFFICE connector). |
-| [`mfa-policy.yaml`](../authentik/blueprints/mfa-policy.yaml) | TOTP-based MFA stage + policy binding, enforced for `IT-Admins` and `Docker-Admins`, optional (prompted, skippable) for `Students`/`Lecturers`. |
+| Blueprint                                                              | Purpose                                                                                                                                         |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`ldap-source.yaml`](../authentik/blueprints/ldap-source.yaml)         | Federates Samba AD as an LDAP Source: bind DN `svc-authentik@lab.local`, base DN `DC=lab,DC=local`, group sync every 5 minutes.                 |
+| [`groups-roles.yaml`](../authentik/blueprints/groups-roles.yaml)       | Maps synced AD groups (`IT-Admins`, `Docker-Admins`, `Lecturers`, `Students`) to Authentik groups used in policy bindings.                      |
+| [`oidc-nextcloud.yaml`](../authentik/blueprints/oidc-nextcloud.yaml)   | OIDC provider + application for NextCloud, `groups` scope mapping included.                                                                     |
+| [`oidc-onlyoffice.yaml`](../authentik/blueprints/oidc-onlyoffice.yaml) | OIDC provider + application for OnlyOffice (used via NextCloud's ONLYOFFICE connector).                                                         |
+| [`mfa-policy.yaml`](../authentik/blueprints/mfa-policy.yaml)           | TOTP-based MFA stage + policy binding, enforced for `IT-Admins` and `Docker-Admins`, optional (prompted, skippable) for `Students`/`Lecturers`. |
 
 ## LDAP source configuration
 
@@ -47,10 +47,10 @@ itself declaratively rather than via manual admin-UI clicks:
 
 Each application gets its own OIDC provider/client (never share client secrets across apps):
 
-| Application | Client type | Redirect URI | Scopes |
-|---|---|---|---|
-| NextCloud (`cloud.lab.local`) | Confidential | `https://cloud.lab.local/apps/user_oidc/code` | `openid profile email groups` |
-| OnlyOffice (`docs.lab.local`) | Confidential | delegated via NextCloud's ONLYOFFICE app (no direct browser-facing OIDC) | n/a |
+| Application                   | Client type  | Redirect URI                                                             | Scopes                        |
+| ----------------------------- | ------------ | ------------------------------------------------------------------------ | ----------------------------- |
+| NextCloud (`cloud.lab.local`) | Confidential | `https://cloud.lab.local/apps/user_oidc/code`                            | `openid profile email groups` |
+| OnlyOffice (`docs.lab.local`) | Confidential | delegated via NextCloud's ONLYOFFICE app (no direct browser-facing OIDC) | n/a                           |
 
 Client secrets are generated at blueprint-apply time and written to
 `authentik/scripts/.generated-secrets/` (gitignored) for the bootstrap script to hand to the

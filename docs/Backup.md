@@ -80,7 +80,7 @@ lab-wide, which is why it gets the extra manual care.
 ## Configuration files
 
 Everything under version control (this repository) is definitionally backed up by `git` — push
-to a remote regularly. The only things that must exist *outside* git are the generated secrets
+to a remote regularly. The only things that must exist _outside_ git are the generated secrets
 covered above (Vault-encrypted vars, `.env` files, PKI key material) — see
 [Security.md](Security.md#secrets-management) for what's excluded and why.
 

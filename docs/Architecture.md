@@ -10,14 +10,14 @@ containerised applications — end to end, on a single VMware Workstation host.
 
 ## Component inventory
 
-| Component        | VM/Host        | IP             | Role |
-|-------------------|-----------------|----------------|------|
-| pfSense            | `pfsense01`     | `10.10.0.1`    | Perimeter firewall, DHCP, NAT, Unbound DNS forwarder |
-| Samba AD DC         | `samba-dc01`    | `10.10.0.10`   | AD DC, LDAP, Kerberos KDC, internal DNS, NTP |
-| Docker App Server   | `docker01`      | `10.10.0.20`   | Docker Engine, Traefik reverse proxy, NextCloud, OnlyOffice, Dovecot |
-| Authentik           | `authentik01`   | `10.10.0.30`   | IAM/SSO — LDAP source + OIDC provider |
-| Linux Desktop       | `linux-client01`| DHCP           | Ubuntu Desktop, SSSD domain member |
-| Windows Desktop     | `win-client01`  | DHCP           | Windows 11, native AD domain member |
+| Component         | VM/Host          | IP           | Role                                                                 |
+| ----------------- | ---------------- | ------------ | -------------------------------------------------------------------- |
+| pfSense           | `pfsense01`      | `10.10.0.1`  | Perimeter firewall, DHCP, NAT, Unbound DNS forwarder                 |
+| Samba AD DC       | `samba-dc01`     | `10.10.0.10` | AD DC, LDAP, Kerberos KDC, internal DNS, NTP                         |
+| Docker App Server | `docker01`       | `10.10.0.20` | Docker Engine, Traefik reverse proxy, NextCloud, OnlyOffice, Dovecot |
+| Authentik         | `authentik01`    | `10.10.0.30` | IAM/SSO — LDAP source + OIDC provider                                |
+| Linux Desktop     | `linux-client01` | DHCP         | Ubuntu Desktop, SSSD domain member                                   |
+| Windows Desktop   | `win-client01`   | DHCP         | Windows 11, native AD domain member                                  |
 
 See [network-topology.md](../diagrams/network-topology.md) for the full network diagram.
 

@@ -1,15 +1,15 @@
 # Docker Application Server — `docker01`
 
-| Spec | Value |
-|---|---|
-| vCPU | 4 |
-| RAM | 8192 MB |
-| Disk | 80 GB (thin) — NextCloud/mail data grows |
-| NIC | `VMnet-LAB` |
-| ISO | Ubuntu Server 24.04 LTS |
-| IP | `10.10.0.20/24` (static) |
-| Gateway | `10.10.0.1` |
-| DNS | `10.10.0.10` |
+| Spec    | Value                                    |
+| ------- | ---------------------------------------- |
+| vCPU    | 4                                        |
+| RAM     | 8192 MB                                  |
+| Disk    | 80 GB (thin) — NextCloud/mail data grows |
+| NIC     | `VMnet-LAB`                              |
+| ISO     | Ubuntu Server 24.04 LTS                  |
+| IP      | `10.10.0.20/24` (static)                 |
+| Gateway | `10.10.0.1`                              |
+| DNS     | `10.10.0.10`                             |
 
 Hosts the Traefik reverse proxy plus NextCloud, OnlyOffice, and Dovecot Compose stacks (see
 [`docker/`](../../docker/)). Autoinstall seed is the same pattern as

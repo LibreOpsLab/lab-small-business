@@ -49,14 +49,14 @@ own session cookies `Secure`.
 Baseline rules (see [`pfsense/config/config.xml.template`](../pfsense/config/config.xml.template)
 and [`pfsense/README.md`](../pfsense/README.md)):
 
-| Rule | Source | Destination | Ports | Action |
-|---|---|---|---|---|
-| LAN → DC | LAN net | `10.10.0.10` | 53, 88, 123, 135, 137-139, 389, 445, 464, 636, 3268-3269 | allow |
-| LAN → Docker apps | LAN net | `10.10.0.20` | 80, 443 | allow |
-| LAN → Authentik | LAN net | `10.10.0.30` | 443 | allow |
-| Client LDAP (plain) block | `10.10.0.30` (Authentik) | `10.10.0.10:389` | 389 | **block** (forces LDAPS) |
-| LAN → WAN | LAN net | any | 443, 80, 53 | allow (outbound only, for updates/DNS forwarding) |
-| default deny | any | any | any | deny + log |
+| Rule                      | Source                   | Destination      | Ports                                                    | Action                                            |
+| ------------------------- | ------------------------ | ---------------- | -------------------------------------------------------- | ------------------------------------------------- |
+| LAN → DC                  | LAN net                  | `10.10.0.10`     | 53, 88, 123, 135, 137-139, 389, 445, 464, 636, 3268-3269 | allow                                             |
+| LAN → Docker apps         | LAN net                  | `10.10.0.20`     | 80, 443                                                  | allow                                             |
+| LAN → Authentik           | LAN net                  | `10.10.0.30`     | 443                                                      | allow                                             |
+| Client LDAP (plain) block | `10.10.0.30` (Authentik) | `10.10.0.10:389` | 389                                                      | **block** (forces LDAPS)                          |
+| LAN → WAN                 | LAN net                  | any              | 443, 80, 53                                              | allow (outbound only, for updates/DNS forwarding) |
+| default deny              | any                      | any              | any                                                      | deny + log                                        |
 
 Anti-lockout rule for the pfSense GUI itself is left in place per pfSense defaults. All rules
 are logged for the [Troubleshooting.md](Troubleshooting.md) log-review workflow.

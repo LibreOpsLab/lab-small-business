@@ -93,6 +93,7 @@ issued `samba-dc01.lab.local` cert/key into `/etc/samba/tls/` on the DC and enab
    `02-docker-server.yml` (installs Docker Engine + brings up the reverse proxy stack), and
    `03-authentik.yml` (brings up Authentik and applies blueprints via
    [`bootstrap-authentik.sh`](../authentik/scripts/bootstrap-authentik.sh)).
+
 3. Verify: `https://auth.lab.local` loads with a trusted cert and you can sign in as
    `akadmin` (bootstrap credentials in `ansible/inventory/host_vars/authentik01/vault.yml`).
 
@@ -100,8 +101,7 @@ issued `samba-dc01.lab.local` cert/key into `/etc/samba/tls/` on the DC and enab
 
 Still via `ansible-playbook playbooks/02-docker-server.yml --tags apps` (already included in
 `site.yml`, listed separately here for iterative re-runs): brings up NextCloud, OnlyOffice, and
-Dovecot Compose stacks under `docker/`, wired to Traefik and to the OIDC clients created in step
-5. Confirm:
+Dovecot Compose stacks under `docker/`, wired to Traefik and to the OIDC clients created in step 5. Confirm:
 
 - `https://cloud.lab.local` → NextCloud, "Log in with Authentik" button present and working.
 - `https://docs.lab.local` → OnlyOffice Document Server status page.

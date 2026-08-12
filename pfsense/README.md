@@ -9,9 +9,9 @@ CLI automation the way Linux does).
 
 - [`config/config.xml.template`](config/config.xml.template) — a reviewed baseline
   configuration (interfaces, DHCP scope, firewall rules, DNS Resolver settings) with
-  placeholders for anything environment-specific. Import via **Diagnostics > Backup & Restore
-  > Restore config** after a fresh install (see
-  [`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md)).
+  placeholders for anything environment-specific. Import via \*\*Diagnostics > Backup & Restore
+  > Restore config\*\* after a fresh install (see
+  > [`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md)).
 - [`scripts/pfsense-post-install.sh`](scripts/pfsense-post-install.sh) — runs over SSH
   (`Diagnostics > Command Prompt` also works) to install the `pfSense-pkg-Cron` and
   `pfSense-pkg-Notes` packages and apply anything not expressible in `config.xml`.
@@ -20,11 +20,11 @@ CLI automation the way Linux does).
 
 Replace these placeholders (search for `__` prefixed tokens):
 
-| Placeholder | Meaning | Example |
-|---|---|---|
-| `__WAN_IF__` | WAN interface name as pfSense enumerated it | `em0` |
-| `__LAN_IF__` | LAN interface name as pfSense enumerated it | `em1` |
-| `__HOSTNAME__` | pfSense's own hostname | `pfsense01` |
+| Placeholder    | Meaning                                     | Example     |
+| -------------- | ------------------------------------------- | ----------- |
+| `__WAN_IF__`   | WAN interface name as pfSense enumerated it | `em0`       |
+| `__LAN_IF__`   | LAN interface name as pfSense enumerated it | `em1`       |
+| `__HOSTNAME__` | pfSense's own hostname                      | `pfsense01` |
 
 Interface names are shown during the console "Assign Interfaces" step at install time — note
 them down before importing.

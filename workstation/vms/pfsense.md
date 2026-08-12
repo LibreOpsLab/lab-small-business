@@ -1,15 +1,15 @@
 # pfSense — `pfsense01`
 
-| Spec | Value |
-|---|---|
-| vCPU | 2 |
-| RAM | 2048 MB |
-| Disk | 20 GB (thin) |
-| NIC 1 | `VMnet8` (WAN, NAT) |
-| NIC 2 | `VMnet-LAB` (LAN) |
-| ISO | pfSense CE (latest stable) |
+| Spec   | Value                                       |
+| ------ | ------------------------------------------- |
+| vCPU   | 2                                           |
+| RAM    | 2048 MB                                     |
+| Disk   | 20 GB (thin)                                |
+| NIC 1  | `VMnet8` (WAN, NAT)                         |
+| NIC 2  | `VMnet-LAB` (LAN)                           |
+| ISO    | pfSense CE (latest stable)                  |
 | LAN IP | `10.10.0.1/24` (static, set during install) |
-| WAN | DHCP from VMware NAT |
+| WAN    | DHCP from VMware NAT                        |
 
 ## Install (manual — no unattended installer available for pfSense on Workstation)
 

@@ -1,13 +1,13 @@
 # Linux Desktop Client — `linux-client01`
 
-| Spec | Value |
-|---|---|
-| vCPU | 2 |
-| RAM | 4096 MB |
-| Disk | 40 GB (thin) |
-| NIC | `VMnet-LAB` |
-| ISO | Ubuntu Desktop 24.04 LTS |
-| IP | DHCP (`10.10.0.100-199`, served by pfSense) |
+| Spec | Value                                       |
+| ---- | ------------------------------------------- |
+| vCPU | 2                                           |
+| RAM  | 4096 MB                                     |
+| Disk | 40 GB (thin)                                |
+| NIC  | `VMnet-LAB`                                 |
+| ISO  | Ubuntu Desktop 24.04 LTS                    |
+| IP   | DHCP (`10.10.0.100-199`, served by pfSense) |
 
 Install interactively (Ubuntu Desktop's installer is graphical; unattended desktop installs
 are out of scope for a lab teaching manual desktop use). After first boot:

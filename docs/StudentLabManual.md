@@ -6,10 +6,10 @@ application hosting.
 
 ## Your accounts
 
-| Account | Use for |
-|---|---|
+| Account                   | Use for                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------- |
 | `student01` / `student02` | Day-to-day logon on `linux-client01` and `win-client01`, NextCloud file storage, mail |
-| `lecturer01` | Instructor demonstrations — has broader NextCloud group-folder rights |
+| `lecturer01`              | Instructor demonstrations — has broader NextCloud group-folder rights                 |
 
 Default lab password for seeded accounts is distributed by your instructor out-of-band (never
 committed to this repository — see [Security.md](Security.md#secrets-management)). You will be

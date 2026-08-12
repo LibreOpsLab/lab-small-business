@@ -1,13 +1,13 @@
 # Windows Desktop Client — `win-client01`
 
-| Spec | Value |
-|---|---|
-| vCPU | 2 |
-| RAM | 4096 MB |
-| Disk | 60 GB (thin) |
-| NIC | `VMnet-LAB` |
-| ISO | Windows 11 (23H2+) |
-| IP | DHCP (`10.10.0.100-199`, served by pfSense) |
+| Spec | Value                                       |
+| ---- | ------------------------------------------- |
+| vCPU | 2                                           |
+| RAM  | 4096 MB                                     |
+| Disk | 60 GB (thin)                                |
+| NIC  | `VMnet-LAB`                                 |
+| ISO  | Windows 11 (23H2+)                          |
+| IP   | DHCP (`10.10.0.100-199`, served by pfSense) |
 
 Install interactively. VMware Tools (or open-vm-tools equivalent installer bundled with
 Workstation) should be installed post-OS-install for clipboard/display integration.

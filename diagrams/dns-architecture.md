@@ -26,17 +26,17 @@ flowchart TB
 
 ## Zone contents (`lab.local`)
 
-| Record type | Name                              | Value             | Purpose                        |
-|-------------|------------------------------------|--------------------|---------------------------------|
-| A           | `samba-dc01.lab.local`             | `10.10.0.10`       | Domain controller                |
-| A           | `docker01.lab.local`               | `10.10.0.20`       | Docker application host          |
-| A           | `authentik01.lab.local`            | `10.10.0.30`       | Authentik IAM                    |
-| CNAME       | `cloud.lab.local`                  | `docker01.lab.local` | NextCloud (via reverse proxy)  |
-| CNAME       | `docs.lab.local`                   | `docker01.lab.local` | OnlyOffice (via reverse proxy) |
-| CNAME       | `mail.lab.local`                   | `docker01.lab.local` | Dovecot IMAP                   |
-| CNAME       | `auth.lab.local`                   | `authentik01.lab.local` | Authentik                   |
-| SRV         | `_kerberos._udp.lab.local`         | `samba-dc01.lab.local:88`  | KDC discovery            |
-| SRV         | `_ldap._tcp.lab.local`             | `samba-dc01.lab.local:389` | LDAP discovery           |
+| Record type | Name                       | Value                      | Purpose                        |
+| ----------- | -------------------------- | -------------------------- | ------------------------------ |
+| A           | `samba-dc01.lab.local`     | `10.10.0.10`               | Domain controller              |
+| A           | `docker01.lab.local`       | `10.10.0.20`               | Docker application host        |
+| A           | `authentik01.lab.local`    | `10.10.0.30`               | Authentik IAM                  |
+| CNAME       | `cloud.lab.local`          | `docker01.lab.local`       | NextCloud (via reverse proxy)  |
+| CNAME       | `docs.lab.local`           | `docker01.lab.local`       | OnlyOffice (via reverse proxy) |
+| CNAME       | `mail.lab.local`           | `docker01.lab.local`       | Dovecot IMAP                   |
+| CNAME       | `auth.lab.local`           | `authentik01.lab.local`    | Authentik                      |
+| SRV         | `_kerberos._udp.lab.local` | `samba-dc01.lab.local:88`  | KDC discovery                  |
+| SRV         | `_ldap._tcp.lab.local`     | `samba-dc01.lab.local:389` | LDAP discovery                 |
 
 DNS forwarding from Samba's internal DNS to pfSense's Unbound resolver is configured via the
 `dns forwarder` setting in `smb.conf` (see

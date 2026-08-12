@@ -30,12 +30,12 @@ sequenceDiagram
 
 ## Claim / group mapping
 
-| Authentik Group | OIDC `groups` claim value | Application role mapping        |
-|------------------|---------------------------|----------------------------------|
-| IT-Admins        | `IT-Admins`               | NextCloud admin, Authentik admin |
-| Docker-Admins    | `Docker-Admins`           | Traefik dashboard, Portainer     |
-| Lecturers        | `Lecturers`               | NextCloud group folder owner     |
-| Students         | `Students`                | NextCloud standard user          |
+| Authentik Group | OIDC `groups` claim value | Application role mapping         |
+| --------------- | ------------------------- | -------------------------------- |
+| IT-Admins       | `IT-Admins`               | NextCloud admin, Authentik admin |
+| Docker-Admins   | `Docker-Admins`           | Traefik dashboard, Portainer     |
+| Lecturers       | `Lecturers`               | NextCloud group folder owner     |
+| Students        | `Students`                | NextCloud standard user          |
 
 Group sync from Samba AD into Authentik is configured in
 [authentik/blueprints/ldap-source.yaml](../authentik/blueprints/ldap-source.yaml); the OIDC

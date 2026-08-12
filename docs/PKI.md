@@ -39,13 +39,13 @@ all generated key material is excluded via [`.gitignore`](../.gitignore).
 
 ## Scripts
 
-| Script | Purpose |
-|---|---|
-| [`00-init-root-ca.sh`](../pki/scripts/00-init-root-ca.sh) | One-time: generates Root CA key + self-signed cert, initialises the OpenSSL CA database. |
-| [`01-init-intermediate-ca.sh`](../pki/scripts/01-init-intermediate-ca.sh) | One-time: generates Issuing CA key + CSR, signs it with the Root CA, builds the chain bundle. |
-| [`02-issue-server-cert.sh`](../pki/scripts/02-issue-server-cert.sh) | Repeatable: issues a leaf certificate for a given CN/SAN list, signed by the Issuing CA. |
-| [`03-renew-cert.sh`](../pki/scripts/03-renew-cert.sh) | Re-issues a certificate ahead of expiry, reusing the existing key unless `--new-key` is passed. |
-| [`04-revoke-cert.sh`](../pki/scripts/04-revoke-cert.sh) | Revokes a certificate by serial or CN and regenerates the Issuing CA's CRL. |
+| Script                                                                    | Purpose                                                                                         |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [`00-init-root-ca.sh`](../pki/scripts/00-init-root-ca.sh)                 | One-time: generates Root CA key + self-signed cert, initialises the OpenSSL CA database.        |
+| [`01-init-intermediate-ca.sh`](../pki/scripts/01-init-intermediate-ca.sh) | One-time: generates Issuing CA key + CSR, signs it with the Root CA, builds the chain bundle.   |
+| [`02-issue-server-cert.sh`](../pki/scripts/02-issue-server-cert.sh)       | Repeatable: issues a leaf certificate for a given CN/SAN list, signed by the Issuing CA.        |
+| [`03-renew-cert.sh`](../pki/scripts/03-renew-cert.sh)                     | Re-issues a certificate ahead of expiry, reusing the existing key unless `--new-key` is passed. |
+| [`04-revoke-cert.sh`](../pki/scripts/04-revoke-cert.sh)                   | Revokes a certificate by serial or CN and regenerates the Issuing CA's CRL.                     |
 
 All scripts source [`pki/scripts/lib/common.sh`](../pki/scripts/lib/common.sh) for shared
 paths, colour logging, and `openssl` version checks, and are safe to re-run (they check for
@@ -77,7 +77,7 @@ Linux host and bind-mounts them into containers; see the next section for Window
 - **Windows (GPO):** [`pki/gpo/deploy-root-ca.ps1`](../pki/gpo/deploy-root-ca.ps1) imports the
   Root CA certificate into a domain GPO's
   `Computer Configuration > Policies > Windows Settings > Security Settings > Public Key
-  Policies > Trusted Root Certification Authorities` store and the Issuing CA into
+Policies > Trusted Root Certification Authorities` store and the Issuing CA into
   `Intermediate Certification Authorities`, then links the GPO to the domain. Run once from an
   elevated PowerShell session on `samba-dc01` (or an RSAT-equipped admin workstation) after
   the Intermediate CA is issued.

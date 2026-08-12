@@ -79,7 +79,7 @@ logging in.
   `bootstrap-authentik.sh` was re-run and regenerated secrets, NextCloud's `.env` is now stale;
   re-run `authentik/scripts/bootstrap-authentik.sh --sync-secrets`.
 - Check Authentik's own logs: `docker compose -f docker/authentik/docker-compose.yml logs
-  server | grep -i error`.
+server | grep -i error`.
 - If the user can authenticate to Authentik itself but the `groups` claim is empty in
   NextCloud, the LDAP group sync interval (5 min) may not have run yet, or the user's AD group
   membership was changed after the last sync — check "Last successful sync" on the LDAP Source
@@ -92,20 +92,20 @@ logging in.
 - `docker compose -f docker/reverse-proxy/docker-compose.yml logs traefik` — look for
   "unable to obtain certificate" or backend connection refused.
 - Confirm the target container is on the `lab-proxy` external Docker network (`docker network
-  inspect lab-proxy`) — a container not attached to that network is invisible to Traefik
+inspect lab-proxy`) — a container not attached to that network is invisible to Traefik
   regardless of correct labels.
 - Confirm Traefik labels on the target service match `docker/reverse-proxy/traefik/dynamic.yml`
   routing conventions (`traefik.http.routers.<name>.rule=Host(...)`).
 
 ## General log locations
 
-| Component | Log |
-|---|---|
-| Samba AD | `journalctl -u samba-ad-dc`, `/var/log/samba/log.samba` |
-| SSSD | `journalctl -u sssd`, `/var/log/sssd/*.log` |
-| pfSense | GUI: Status > System Logs; SSH: `/var/log/system.log` |
-| Authentik | `docker compose -f docker/authentik/docker-compose.yml logs -f` |
-| Traefik | `docker compose -f docker/reverse-proxy/docker-compose.yml logs -f traefik` |
+| Component | Log                                                                                                       |
+| --------- | --------------------------------------------------------------------------------------------------------- |
+| Samba AD  | `journalctl -u samba-ad-dc`, `/var/log/samba/log.samba`                                                   |
+| SSSD      | `journalctl -u sssd`, `/var/log/sssd/*.log`                                                               |
+| pfSense   | GUI: Status > System Logs; SSH: `/var/log/system.log`                                                     |
+| Authentik | `docker compose -f docker/authentik/docker-compose.yml logs -f`                                           |
+| Traefik   | `docker compose -f docker/reverse-proxy/docker-compose.yml logs -f traefik`                               |
 | NextCloud | `docker compose -f docker/nextcloud/docker-compose.yml exec app tail -f /var/www/html/data/nextcloud.log` |
 
 When in doubt, run `samba/scripts/health-check.sh` and

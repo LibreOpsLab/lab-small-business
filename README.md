@@ -7,16 +7,16 @@ Built for repeatable deployment and hands-on sysadmin/DevOps teaching.
 
 ## What's in the box
 
-| Layer | Technology |
-|---|---|
-| Perimeter firewall / DHCP / DNS forwarder | pfSense |
-| Directory / Kerberos / LDAP / DNS / NTP | Samba Active Directory |
-| Identity federation / SSO | Authentik (LDAP source + OIDC) |
-| Application host | Docker Engine + Traefik reverse proxy |
-| Applications | NextCloud, OnlyOffice, Dovecot (IMAP) |
-| Internal PKI | Two-tier OpenSSL CA (offline Root + online Issuing CA) |
-| Endpoints | Ubuntu Desktop (SSSD) + Windows 11 (native AD) |
-| Automation | Bash, Ansible, Docker Compose, PowerShell |
+| Layer                                     | Technology                                             |
+| ----------------------------------------- | ------------------------------------------------------ |
+| Perimeter firewall / DHCP / DNS forwarder | pfSense                                                |
+| Directory / Kerberos / LDAP / DNS / NTP   | Samba Active Directory                                 |
+| Identity federation / SSO                 | Authentik (LDAP source + OIDC)                         |
+| Application host                          | Docker Engine + Traefik reverse proxy                  |
+| Applications                              | NextCloud, OnlyOffice, Dovecot (IMAP)                  |
+| Internal PKI                              | Two-tier OpenSSL CA (offline Root + online Issuing CA) |
+| Endpoints                                 | Ubuntu Desktop (SSSD) + Windows 11 (native AD)         |
+| Automation                                | Bash, Ansible, Docker Compose, PowerShell              |
 
 Domain: `lab.local` / realm `LAB.LOCAL` / NetBIOS `LAB`, on `10.10.0.0/24`. Full addressing
 and component inventory: [docs/Architecture.md](docs/Architecture.md).
@@ -49,17 +49,17 @@ repo-root/
 
 ## Documentation index
 
-| Doc | Covers |
-|---|---|
-| [Architecture.md](docs/Architecture.md) | Component inventory, design principles, trade-offs |
-| [DeploymentGuide.md](docs/DeploymentGuide.md) | Ordered, repeatable bring-up procedure |
-| [PKI.md](docs/PKI.md) | Two-tier CA design, issuance, renewal, revocation, trust distribution |
-| [SambaAdmin.md](docs/SambaAdmin.md) | AD provisioning, OUs, users/groups, DNS, backup, health checks |
-| [AuthentikAdmin.md](docs/AuthentikAdmin.md) | LDAP source, OIDC providers, MFA, recovery |
-| [Security.md](docs/Security.md) | RBAC, cert validation, firewall rules, hardening, Fail2Ban, secrets |
-| [Backup.md](docs/Backup.md) | Backup/restore for AD, Authentik, Docker volumes, PKI, config |
-| [Troubleshooting.md](docs/Troubleshooting.md) | DNS, Kerberos, LDAP, certs, OIDC, Docker/proxy issues |
-| [StudentLabManual.md](docs/StudentLabManual.md) | Day-1 checklist and hands-on exercises |
+| Doc                                             | Covers                                                                |
+| ----------------------------------------------- | --------------------------------------------------------------------- |
+| [Architecture.md](docs/Architecture.md)         | Component inventory, design principles, trade-offs                    |
+| [DeploymentGuide.md](docs/DeploymentGuide.md)   | Ordered, repeatable bring-up procedure                                |
+| [PKI.md](docs/PKI.md)                           | Two-tier CA design, issuance, renewal, revocation, trust distribution |
+| [SambaAdmin.md](docs/SambaAdmin.md)             | AD provisioning, OUs, users/groups, DNS, backup, health checks        |
+| [AuthentikAdmin.md](docs/AuthentikAdmin.md)     | LDAP source, OIDC providers, MFA, recovery                            |
+| [Security.md](docs/Security.md)                 | RBAC, cert validation, firewall rules, hardening, Fail2Ban, secrets   |
+| [Backup.md](docs/Backup.md)                     | Backup/restore for AD, Authentik, Docker volumes, PKI, config         |
+| [Troubleshooting.md](docs/Troubleshooting.md)   | DNS, Kerberos, LDAP, certs, OIDC, Docker/proxy issues                 |
+| [StudentLabManual.md](docs/StudentLabManual.md) | Day-1 checklist and hands-on exercises                                |
 
 ## Diagrams
 

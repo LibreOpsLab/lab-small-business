@@ -1,14 +1,14 @@
 # Samba AD DC — `samba-dc01`
 
-| Spec | Value |
-|---|---|
-| vCPU | 2 |
-| RAM | 4096 MB |
-| Disk | 40 GB (thin) |
-| NIC | `VMnet-LAB` |
-| ISO | Ubuntu Server 24.04 LTS |
-| IP | `10.10.0.10/24` (static) |
-| Gateway | `10.10.0.1` |
+| Spec                 | Value                                                             |
+| -------------------- | ----------------------------------------------------------------- |
+| vCPU                 | 2                                                                 |
+| RAM                  | 4096 MB                                                           |
+| Disk                 | 40 GB (thin)                                                      |
+| NIC                  | `VMnet-LAB`                                                       |
+| ISO                  | Ubuntu Server 24.04 LTS                                           |
+| IP                   | `10.10.0.10/24` (static)                                          |
+| Gateway              | `10.10.0.1`                                                       |
 | DNS (during install) | `127.0.0.1` (will become authoritative for itself post-provision) |
 
 ## Autoinstall
