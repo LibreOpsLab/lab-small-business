@@ -4,16 +4,16 @@
 
 [sssd]
 services = nss, pam
-domains = {{ lab_domain | default('lab.local') }}
+domains = {{ lab_domain | default('lab.internal') }}
 
-[domain/{{ lab_domain | default('lab.local') }}]
+[domain/{{ lab_domain | default('lab.internal') }}]
 id_provider = ad
 access_provider = ad
 auth_provider = ad
 chpass_provider = ad
 
-ad_domain = {{ lab_domain | default('lab.local') }}
-krb5_realm = {{ lab_realm | default('LAB.LOCAL') }}
+ad_domain = {{ lab_domain | default('lab.internal') }}
+krb5_realm = {{ lab_realm | default('LAB.INTERNAL') }}
 realmd_tags = manages-system joined-with-adcli
 
 cache_credentials = True

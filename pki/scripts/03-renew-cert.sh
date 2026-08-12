@@ -5,7 +5,7 @@
 #
 # Usage:
 #   ./03-renew-cert.sh --check
-#   ./03-renew-cert.sh --cn cloud.lab.local [--days 397] [--new-key]
+#   ./03-renew-cert.sh --cn cloud.lab.internal [--days 397] [--new-key]
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

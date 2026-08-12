@@ -24,13 +24,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - traefik.enable=true
-      - traefik.http.routers.traefik-dashboard.rule=Host(`docker01.lab.local`) && PathPrefix(`/dashboard`)
+      - traefik.http.routers.traefik-dashboard.rule=Host(`docker01.lab.internal`) && PathPrefix(`/dashboard`)
       - traefik.http.routers.traefik-dashboard.service=api@internal
       - traefik.http.routers.traefik-dashboard.tls=true
       - traefik.http.routers.traefik-dashboard.middlewares=security-headers@file
 
   # Minimal static file server exposing the Issuing CA cert + CRL at /pki and /crl, routed
-  # to by traefik/dynamic.yml's pki-distribution router (auth.lab.local/pki, /crl).
+  # to by traefik/dynamic.yml's pki-distribution router (auth.lab.internal/pki, /crl).
   pki-static-server:
     image: nginx:1.27-alpine
     container_name: pki-static-server

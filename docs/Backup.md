@@ -42,21 +42,27 @@ Blueprints re-apply automatically on `server` start and are idempotent, so provi
 config self-heals even from an empty database — only user-specific state (sessions, enrolled
 MFA devices, LDAP sync cache) actually needs the SQL restore.
 
-## Docker volumes (NextCloud / OnlyOffice / mail)
+## Docker volumes (NextCloud / OnlyOffice / mail / WordPress / Stirling PDF)
 
-Named volumes (`nextcloud_data`, `nextcloud_db`, `onlyoffice_data`, `mail_data`) are backed up
-by [`scripts/lib/common.sh`](../scripts/lib/common.sh)'s `backup_volume()` helper, invoked from
-`ansible/playbooks/99-backups.yml`, which runs a throwaway container that tars each volume to
-`/opt/lab-backups/<volume>-<date>.tar.gz`:
+Named volumes (`nextcloud_data`, `nextcloud_db`, `onlyoffice_data`, `mail_data`,
+`wordpress_data`, `wordpress_db`, `stirling_pdf_data`, `stirling_pdf_config`) are backed up by
+the `lab-docker-backup.sh` script installed by
+[`ansible/playbooks/99-backups.yml`](../ansible/playbooks/99-backups.yml) (daily systemd timer,
+14-day retention), which runs a throwaway container per volume:
 
 ```bash
 docker run --rm -v nextcloud_data:/data -v /opt/lab-backups:/backup \
   alpine tar czf /backup/nextcloud_data-$(date +%F).tar.gz -C /data .
 ```
 
-NextCloud is also put into maintenance mode (`occ maintenance:mode --on`) for the duration of
-its DB dump to guarantee a consistent snapshot; see the `nextcloud-backup` task in
-`99-backups.yml`.
+This is a filesystem-level snapshot, not an application-consistent one — for NextCloud/
+WordPress specifically, put the app into maintenance mode first if you need a guaranteed-
+consistent backup mid-write (`occ maintenance:mode --on` /
+`wp maintenance-mode activate --allow-root`), run the tar, then take it back out. The shipped
+timer does not do this automatically (accepted risk for a lab: a backup taken mid-write to a
+low-traffic teaching instance is very unlikely to land on an inconsistent moment, and the
+restore procedure below still works even if it does — worst case is losing the one in-flight
+write, not the whole dataset).
 
 **Restore:** stop the stack, extract the tarball back into a fresh named volume, start the
 stack, run `occ maintenance:mode --off` and `occ files:scan --all` for NextCloud.

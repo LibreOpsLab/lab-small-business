@@ -30,11 +30,14 @@ if [[ "${SKIP_PKI}" -eq 0 ]]; then
   pushd "${REPO_ROOT}/pki/scripts" >/dev/null
   ./00-init-root-ca.sh
   ./01-init-intermediate-ca.sh
-  ./02-issue-server-cert.sh --cn samba-dc01.lab.local --san "DNS:samba-dc01.lab.local,DNS:lab.local"
-  ./02-issue-server-cert.sh --cn cloud.lab.local  --san DNS:cloud.lab.local
-  ./02-issue-server-cert.sh --cn docs.lab.local   --san DNS:docs.lab.local
-  ./02-issue-server-cert.sh --cn mail.lab.local   --san DNS:mail.lab.local
-  ./02-issue-server-cert.sh --cn auth.lab.local   --san DNS:auth.lab.local
+  ./02-issue-server-cert.sh --cn samba-dc01.lab.internal --san "DNS:samba-dc01.lab.internal,DNS:lab.internal"
+  ./02-issue-server-cert.sh --cn cloud.lab.internal      --san DNS:cloud.lab.internal
+  ./02-issue-server-cert.sh --cn docs.lab.internal       --san DNS:docs.lab.internal
+  ./02-issue-server-cert.sh --cn mail.lab.internal       --san DNS:mail.lab.internal
+  ./02-issue-server-cert.sh --cn auth.lab.internal       --san DNS:auth.lab.internal
+  ./02-issue-server-cert.sh --cn www.lab.internal        --san DNS:www.lab.internal
+  ./02-issue-server-cert.sh --cn pdf.lab.internal        --san DNS:pdf.lab.internal
+  ./02-issue-server-cert.sh --cn autoconfig.lab.internal --san DNS:autoconfig.lab.internal
   popd >/dev/null
 else
   log "Skipping PKI issuance (--skip-pki passed)"
@@ -47,8 +50,14 @@ ansible-playbook playbooks/site.yml ${VAULT_ARG}
 popd >/dev/null
 
 log "Post-flight: Samba AD health check"
-ssh -o StrictHostKeyChecking=accept-new samba-dc01.lab.local \
+ssh -o StrictHostKeyChecking=accept-new samba-dc01.lab.internal \
   'sudo /opt/lab-small-business/samba/scripts/health-check.sh' || \
   warn "Could not run remote health-check.sh via SSH — run it manually on samba-dc01 if this host isn't SSH-reachable from the control node."
 
-log "Deploy complete. Validate per docs/StudentLabManual.md#day-1-checklist."
+log "Wiring NextCloud groupware apps (Calendar/Contacts/Talk/Mail/OnlyOffice connector)"
+"${REPO_ROOT}/docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh" || \
+  warn "NextCloud groupware bootstrap failed or NextCloud isn't reachable from here — re-run docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh manually once it is."
+
+log "Deploy complete. Optional next steps: docker/wordpress/scripts/configure-oidc-plugin.sh"
+log "(WordPress SSO) and desktop-apps/ on each client (see docs/DesktopApps.md)."
+log "Validate per docs/StudentLabManual.md#day-1-checklist."

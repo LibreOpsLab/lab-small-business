@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Thunderbird (and any Mozilla-autoconfig-aware client) account setup discovery file.
+  Served at https://autoconfig.lab.internal/mail/config-v1.1.xml by the tiny nginx
+  container in docker/mail/docker-compose.yml (service: autoconfig). When a user types
+  their email address into Thunderbird's account wizard, Thunderbird automatically fetches
+  this file and fills in IMAP/SMTP host, port, and encryption — no manual server entry.
+  See docs/DesktopApps.md#thunderbird-zero-click-via-autoconfig.
+-->
+<clientConfig version="1.1">
+  <emailProvider id="lab.internal">
+    <domain>lab.internal</domain>
+    <displayName>LAB</displayName>
+    <displayShortName>LAB</displayShortName>
+    <incomingServer type="imap">
+      <hostname>mail.lab.internal</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+    <outgoingServer type="smtp">
+      <hostname>mail.lab.internal</hostname>
+      <port>587</port>
+      <socketType>STARTTLS</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+  </emailProvider>
+</clientConfig>

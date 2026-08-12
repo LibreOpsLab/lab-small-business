@@ -4,7 +4,7 @@
 # Run on samba-dc01 as root (or any host with samba-tool + admin Kerberos ticket).
 
 set -euo pipefail
-DOMAIN_DN="DC=lab,DC=local"
+DOMAIN_DN="DC=lab,DC=internal"
 
 log() { printf '\033[1;34m[create-ous]\033[0m %s\n' "$*"; }
 

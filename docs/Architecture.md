@@ -8,18 +8,37 @@ application platform, and both Windows and Linux endpoints. It exists to teach r
 sysadmin/DevOps workflows — domain administration, PKI, IAM/SSO, reverse proxying,
 containerised applications — end to end, on a single VMware Workstation host.
 
+## Domain and subnet naming
+
+The domain is `lab.internal` (realm `LAB.INTERNAL`, NetBIOS `LAB`) rather than the more
+commonly-tutorialized `lab.local`. This is a deliberate choice: RFC 6762 reserves `.local` for
+multicast DNS (Bonjour on macOS, Avahi on Linux), and the NSS resolver chain on those platforms
+routes `.local` lookups through mDNS first — a definitive "not found" from mDNS can short-circuit
+before unicast DNS is ever tried, so AD lookups on `.local` can fail intermittently on
+non-domain-joined or unmanaged devices. `.internal` has been IANA-reserved specifically for
+private-network use since 2024 ([RFC 9476](https://www.rfc-editor.org/rfc/rfc9476)) and has no
+mDNS collision risk. Every hostname, DN, and cert SAN in this repository derives from
+`lab_domain`/`lab_realm` (Ansible) or the equivalent shell variables (scripts), so the whole
+tree can be re-based onto a different domain/realm/NetBIOS/subnet with
+[`scripts/provision-business.sh`](../scripts/provision-business.sh) — see
+[docs/MultiBusiness.md](MultiBusiness.md) for why you'd want more than one.
+
 ## Component inventory
 
 | Component         | VM/Host          | IP           | Role                                                                 |
 | ----------------- | ---------------- | ------------ | -------------------------------------------------------------------- |
 | pfSense           | `pfsense01`      | `10.10.0.1`  | Perimeter firewall, DHCP, NAT, Unbound DNS forwarder                 |
 | Samba AD DC       | `samba-dc01`     | `10.10.0.10` | AD DC, LDAP, Kerberos KDC, internal DNS, NTP                         |
-| Docker App Server | `docker01`       | `10.10.0.20` | Docker Engine, Traefik reverse proxy, NextCloud, OnlyOffice, Dovecot |
+| Docker App Server | `docker01`       | `10.10.0.20` | Docker Engine, Traefik reverse proxy, NextCloud, OnlyOffice, Dovecot+Postfix, WordPress, Stirling PDF |
 | Authentik         | `authentik01`    | `10.10.0.30` | IAM/SSO — LDAP source + OIDC provider                                |
 | Linux Desktop     | `linux-client01` | DHCP         | Ubuntu Desktop, SSSD domain member                                   |
 | Windows Desktop   | `win-client01`   | DHCP         | Windows 11, native AD domain member                                  |
 
-See [network-topology.md](../diagrams/network-topology.md) for the full network diagram.
+See [network-topology.md](../diagrams/network-topology.md) for the full network diagram and
+[docs/DesktopApps.md](DesktopApps.md) for the client-side app/experience layer on top of these
+servers. For scaling this out to more than one independent business, see
+[docs/MultiBusiness.md](MultiBusiness.md) (built now) and [docs/LabInternet.md](LabInternet.md)
+(design doc for a deferred capstone extension).
 
 ## Design principles
 
@@ -54,7 +73,9 @@ flowchart LR
         TR["Traefik\n(reverse proxy, TLS termination)"]
         NC["NextCloud"]
         OO["OnlyOffice"]
-        DV["Dovecot"]
+        DV["Dovecot + Postfix"]
+        WP["WordPress"]
+        PDF["Stirling PDF\n(forward-auth via AK)"]
     end
     subgraph Endpoints
         LC["Linux client (SSSD)"]
@@ -68,9 +89,13 @@ flowchart LR
     AK -->|LDAP bind| DC
     TR --> NC
     TR --> OO
+    TR --> WP
+    TR -->|forwardAuth| PDF
     NC -->|OIDC| AK
     OO -->|OIDC via NextCloud| AK
-    DV -->|LDAP auth| DC
+    WP -->|OIDC, optional| AK
+    PDF -.->|auth check| AK
+    DV -->|LDAP auth/validation| DC
     LC -.HTTPS via Traefik.-> NC
     WC -.HTTPS via Traefik.-> NC
 ```
@@ -97,10 +122,13 @@ repo-root/
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
-├── docker/          Docker Compose stacks: reverse proxy, Authentik, NextCloud, OnlyOffice, mail
-├── authentik/       Authentik blueprints (LDAP source, OIDC providers, groups, MFA) + bootstrap
+├── docker/          Docker Compose stacks: proxy, Authentik, NextCloud, OnlyOffice, mail, WordPress, Stirling PDF
+├── authentik/       Authentik blueprints (LDAP source, OIDC/proxy providers, groups, MFA) + bootstrap
 ├── ansible/         Playbooks and roles that tie every component together
-├── scripts/         Top-level orchestration entry points (deploy-all.sh, issue-cert.sh, ...)
+├── scripts/         Top-level orchestration entry points (deploy-all.sh, provision-business.sh, ...)
+├── federation/      Multi-business bridging: IPSec/VPN tooling (docs/MultiBusiness.md) and the
+│                    deferred LAB Internet skeleton (docs/LabInternet.md)
+├── desktop-apps/    Client-side app install/preconfig scripts (docs/DesktopApps.md)
 └── templates/       Shared Jinja2 templates (motd, hosts, resolv.conf)
 ```
 

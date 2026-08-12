@@ -43,12 +43,12 @@
     state: started
     enabled: true
 
-- name: Allow ufw traffic for HTTP/HTTPS and IMAPS
+- name: Allow ufw traffic for HTTP/HTTPS, IMAPS, and mail submission
   community.general.ufw:
     rule: allow
     port: "{{ item }}"
     proto: tcp
-  loop: ["80", "443", "993"]
+  loop: ["80", "443", "993", "587", "465"]
 
 - name: Create the shared lab-proxy Docker network
   community.docker.docker_network:
@@ -69,12 +69,19 @@
     dest: "/opt/lab-small-business/docker/{{ item }}/.env"
     mode: "0600"
   loop: "{{ docker_compose_stacks | default([]) }}"
-  when: item in ['nextcloud', 'onlyoffice']  # authentik/.env is rendered by the authentik playbook; mail/reverse-proxy need no secrets
+  when: item in ['nextcloud', 'onlyoffice', 'wordpress']  # authentik/.env is rendered by the authentik playbook; mail/reverse-proxy/stirling-pdf need no per-stack .env
 
 - name: Render Dovecot's LDAP auth config with the real bind password
   ansible.builtin.template:
     src: dovecot-ldap.conf.ext.j2
     dest: /opt/lab-small-business/docker/mail/dovecot/dovecot-ldap.conf.ext
+    mode: "0640"
+  when: "'mail' in docker_compose_stacks | default([])"
+
+- name: Render Postfix's LDAP recipient-validation config with the real bind password
+  ansible.builtin.template:
+    src: postfix-ldap-virtual-mailbox.cf.j2
+    dest: /opt/lab-small-business/docker/mail/postfix/ldap-virtual-mailbox.cf
     mode: "0640"
   when: "'mail' in docker_compose_stacks | default([])"
 

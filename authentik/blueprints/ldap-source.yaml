@@ -8,15 +8,15 @@ entries:
     identifiers:
       slug: lab-samba-ad
     attrs:
-      name: "Samba AD (lab.local)"
+      name: "Samba AD (lab.internal)"
       enabled: true
-      server_uri: "ldaps://samba-dc01.lab.local:636"
+      server_uri: "ldaps://samba-dc01.lab.internal:636"
       # Validates against the lab's own Issuing CA chain, bind-mounted into the server/worker
       # containers - see docker/authentik/docker-compose.yml. TLS validation is never disabled.
       peer_certificate: null
-      bind_cn: "CN=svc-authentik,OU=Service-Accounts,OU=LAB,DC=lab,DC=local"
+      bind_cn: "CN=svc-authentik,OU=Service-Accounts,OU=LAB,DC=lab,DC=internal"
       bind_password: "!Env{AUTHENTIK_LDAP_BIND_PASSWORD}"
-      base_dn: "DC=lab,DC=local"
+      base_dn: "DC=lab,DC=internal"
       additional_user_dn: "OU=LAB"
       additional_group_dn: "OU=LAB"
       user_object_filter: "(&(objectClass=person)(objectCategory=person))"

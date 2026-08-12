@@ -9,11 +9,11 @@ removable media after each Intermediate operation) for the lifetime of the lab.
 flowchart TD
     ROOT["LAB Root CA\n(Offline)\nCN=LAB Root CA\nValidity: 20 years\nKey: kept offline / air-gapped VM"]
     INT["LAB Issuing CA\n(Online)\nCN=LAB Issuing CA\nValidity: 10 years\nHosted on docker01 / pki tooling"]
-    LEAF1["cloud.lab.local\n(NextCloud)"]
-    LEAF2["docs.lab.local\n(OnlyOffice)"]
-    LEAF3["mail.lab.local\n(Dovecot)"]
-    LEAF4["auth.lab.local\n(Authentik)"]
-    LEAF5["samba-dc01.lab.local\n(LDAPS)"]
+    LEAF1["cloud.lab.internal\n(NextCloud)"]
+    LEAF2["docs.lab.internal\n(OnlyOffice)"]
+    LEAF3["mail.lab.internal\n(Dovecot)"]
+    LEAF4["auth.lab.internal\n(Authentik)"]
+    LEAF5["samba-dc01.lab.internal\n(LDAPS)"]
 
     ROOT -->|signs| INT
     INT -->|signs| LEAF1

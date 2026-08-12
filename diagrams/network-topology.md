@@ -56,5 +56,5 @@ flowchart TB
 | win-client01   | Windows 11, domain member                 | DHCP `10.10.0.100-199` |
 
 DHCP pool `10.10.0.100–10.10.0.199` is served by pfSense; DHCP option 6 (DNS) points clients
-at `10.10.0.10` so domain-joined machines resolve `lab.local` correctly. See
+at `10.10.0.10` so domain-joined machines resolve `lab.internal` correctly. See
 [dns-architecture.md](dns-architecture.md) for resolution details.

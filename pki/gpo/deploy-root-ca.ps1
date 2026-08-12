@@ -11,7 +11,7 @@
     Creates (if missing) a GPO named "LAB - PKI Trust", imports:
       - Root CA cert  -> Trusted Root Certification Authorities
       - Issuing CA cert -> Intermediate Certification Authorities
-    and links the GPO to the domain root (DC=lab,DC=local) so it applies to every OU,
+    and links the GPO to the domain root (DC=lab,DC=internal) so it applies to every OU,
     including OU=Windows,OU=Workstations,OU=LAB.
 
 .PARAMETER RepoRoot
@@ -24,7 +24,7 @@
 param(
     [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
     [string]$GpoName  = "LAB - PKI Trust",
-    [string]$DomainDn = "DC=lab,DC=local"
+    [string]$DomainDn = "DC=lab,DC=internal"
 )
 
 $ErrorActionPreference = "Stop"

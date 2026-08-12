@@ -9,7 +9,7 @@ for realm".
   `resolvectl status` (Linux) / `ipconfig /all` (Windows). If wrong, check pfSense's DHCP scope
   (`pfsense/config/config.xml.template`, `<dnsserver>` under the LAN DHCP block) — option 6
   must point at `10.10.0.10` only.
-- `dig @10.10.0.10 _kerberos._udp.lab.local SRV` should return `samba-dc01.lab.local:88`. If
+- `dig @10.10.0.10 _kerberos._udp.lab.internal SRV` should return `samba-dc01.lab.internal:88`. If
   empty, run `samba_dnsupdate --verbose --all-names` on the DC to repair auto-generated SRV
   records.
 - Confirm forwarding works: `dig @10.10.0.10 example.com` should resolve via pfSense's Unbound
@@ -41,18 +41,18 @@ for realm".
 **Symptom:** Authentik's LDAP source shows "connection failed" or a TLS validation error.
 
 - Test manually from `authentik01`:
-  `openssl s_client -connect samba-dc01.lab.local:636 -CAfile /path/to/ca-chain.cert.pem`.
+  `openssl s_client -connect samba-dc01.lab.internal:636 -CAfile /path/to/ca-chain.cert.pem`.
   A validation failure almost always means the CA chain bind-mount in
   [`docker/authentik/docker-compose.yml`](../docker/authentik/docker-compose.yml) is stale —
   re-run `ansible-playbook playbooks/05-pki-trust.yml --limit authentik01` and restart the
   Authentik containers.
-- Confirm the DC's LDAPS cert CN/SAN actually includes `samba-dc01.lab.local` (re-issue with
+- Confirm the DC's LDAPS cert CN/SAN actually includes `samba-dc01.lab.internal` (re-issue with
   `pki/scripts/02-issue-server-cert.sh` if it was issued before the SAN was corrected).
-- Bind test: `ldapwhoami -x -D "svc-authentik@lab.local" -W -H ldaps://samba-dc01.lab.local`.
+- Bind test: `ldapwhoami -x -D "svc-authentik@lab.internal" -W -H ldaps://samba-dc01.lab.internal`.
 
 ## Certificates
 
-**Symptom:** browser shows "Not Secure" / cert warning for `*.lab.local` sites even after
+**Symptom:** browser shows "Not Secure" / cert warning for `*.lab.internal` sites even after
 GPO/`update-ca-certificates` deployment.
 
 - On Linux: `ls /etc/ssl/certs/ | grep -i lab` should show the Root and Issuing CA; if missing,
@@ -61,8 +61,8 @@ GPO/`update-ca-certificates` deployment.
 - On Windows: `certutil -verifystore -enterprise Root` should list "LAB Root CA"; if absent,
   the GPO hasn't applied — `gpupdate /force` then re-check, and confirm the computer object is
   actually inside an OU the GPO is linked to (`OU=Windows,OU=Workstations,OU=LAB`).
-- Confirm you're hitting the CN/SAN the cert was actually issued for — `cloud.lab.local`, not
-  `docker01.lab.local` — mismatched name is a separate warning from untrusted issuer.
+- Confirm you're hitting the CN/SAN the cert was actually issued for — `cloud.lab.internal`, not
+  `docker01.lab.internal` — mismatched name is a separate warning from untrusted issuer.
 - Check expiry: `pki/scripts/03-renew-cert.sh --check` lists days-to-expiry for every issued
   cert.
 
@@ -73,7 +73,7 @@ logging in.
 
 - Check the redirect URI registered on the Authentik OIDC provider
   ([`authentik/blueprints/oidc-nextcloud.yaml`](../authentik/blueprints/oidc-nextcloud.yaml))
-  exactly matches `https://cloud.lab.local/apps/user_oidc/code` (trailing slash mismatches are
+  exactly matches `https://cloud.lab.internal/apps/user_oidc/code` (trailing slash mismatches are
   the most common cause).
 - Confirm the client secret in `docker/nextcloud/.env` matches what Authentik generated — if
   `bootstrap-authentik.sh` was re-run and regenerated secrets, NextCloud's `.env` is now stale;
@@ -97,6 +97,30 @@ inspect lab-proxy`) — a container not attached to that network is invisible to
 - Confirm Traefik labels on the target service match `docker/reverse-proxy/traefik/dynamic.yml`
   routing conventions (`traefik.http.routers.<name>.rule=Host(...)`).
 
+## Mail (Postfix/Dovecot)
+
+**Symptom:** Thunderbird/Evolution can log in (IMAP) but sending fails.
+
+- Postfix only accepts submission from SASL-authenticated senders — confirm the client is
+  actually using port `587`/STARTTLS or `465`/SSL, not `25`. Check:
+  `docker compose -f docker/mail/docker-compose.yml logs postfix | grep -i sasl`.
+- "Recipient address rejected" means the recipient's AD account has no `mail` attribute set, or
+  it doesn't match — see [docker/mail/README.md](../docker/mail/README.md#adding-real-users-mailboxes).
+- If Thunderbird didn't autoconfigure: confirm `https://autoconfig.lab.internal/mail/config-v1.1.xml`
+  loads in a browser and the cert is trusted — same PKI trust prerequisites as every other
+  `*.lab.internal` host.
+
+## Forward-auth (Stirling PDF)
+
+**Symptom:** `https://pdf.lab.internal` shows a Traefik/Authentik error instead of a login page.
+
+- Confirm the "Stirling PDF" provider is actually attached to Authentik's embedded outpost
+  (Applications > Outposts > authentik Embedded Outpost in the admin UI) — the blueprint's
+  attempt to do this automatically is not 100% reliable, see the comment in
+  [`authentik/blueprints/proxy-stirling-pdf.yaml`](../authentik/blueprints/proxy-stirling-pdf.yaml).
+- `docker compose -f docker/reverse-proxy/docker-compose.yml logs traefik | grep forwardauth`
+  for the specific rejection reason.
+
 ## General log locations
 
 | Component | Log                                                                                                       |
@@ -107,6 +131,10 @@ inspect lab-proxy`) — a container not attached to that network is invisible to
 | Authentik | `docker compose -f docker/authentik/docker-compose.yml logs -f`                                           |
 | Traefik   | `docker compose -f docker/reverse-proxy/docker-compose.yml logs -f traefik`                               |
 | NextCloud | `docker compose -f docker/nextcloud/docker-compose.yml exec app tail -f /var/www/html/data/nextcloud.log` |
+| Postfix   | `docker compose -f docker/mail/docker-compose.yml logs -f postfix`                                        |
+| Dovecot   | `docker compose -f docker/mail/docker-compose.yml logs -f dovecot`                                        |
+| WordPress | `docker compose -f docker/wordpress/docker-compose.yml logs -f app`                                       |
+| Stirling PDF | `docker compose -f docker/stirling-pdf/docker-compose.yml logs -f stirling-pdf`                        |
 
 When in doubt, run `samba/scripts/health-check.sh` and
 `ansible-playbook playbooks/site.yml --check --diff` first — the latter surfaces any

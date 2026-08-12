@@ -14,7 +14,7 @@ Workstation) should be installed post-OS-install for clipboard/display integrati
 
 ## Post-install
 
-1. Confirm DNS is being served correctly: `Resolve-DnsName lab.local` should return
+1. Confirm DNS is being served correctly: `Resolve-DnsName lab.internal` should return
    `10.10.0.10`.
 2. Run [`samba/scripts/join-windows-client.ps1`](../../samba/scripts/join-windows-client.ps1)
    elevated to join the domain into `OU=Windows,OU=Workstations,OU=LAB`.

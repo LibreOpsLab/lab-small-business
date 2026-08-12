@@ -23,4 +23,4 @@ pfSsh.php playback svc restart filter
 echo "[pfsense-post-install] Done. Verify from the GUI:"
 echo "  Status > DHCP Leases        (confirm scope 10.10.0.100-199 is live)"
 echo "  Status > System Logs > Firewall  (confirm rules are hit, not falling through to default deny)"
-echo "  Diagnostics > DNS Lookup    (confirm lab.local resolves via 10.10.0.10)"
+echo "  Diagnostics > DNS Lookup    (confirm lab.internal resolves via 10.10.0.10)"

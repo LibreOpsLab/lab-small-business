@@ -23,7 +23,7 @@ entries:
       client_type: confidential
       client_id: nextcloud
       client_secret: "!Env{NEXTCLOUD_OIDC_CLIENT_SECRET}"
-      redirect_uris: "https://cloud.lab.local/apps/user_oidc/code"
+      redirect_uris: "https://cloud.lab.internal/apps/user_oidc/code"
       sub_mode: hashed_user_id
       property_mappings:
         - !Find [authentik_providers_oauth2.scopemapping, [managed, "goauthentik.io/providers/oauth2/scope-openid"]]
@@ -38,6 +38,6 @@ entries:
     attrs:
       name: NextCloud
       provider: !KeyOf nextcloud-provider
-      meta_launch_url: "https://cloud.lab.local"
+      meta_launch_url: "https://cloud.lab.internal"
       meta_description: "Lab file storage and collaboration (SSO via Authentik)."
       policy_engine_mode: any

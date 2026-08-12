@@ -1,0 +1,37 @@
+version: 1
+metadata:
+  name: "LAB - WordPress OIDC Provider"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+entries:
+  - model: authentik_flows.flow
+    identifiers:
+      slug: default-provider-authorization-implicit-consent
+    id: default-authz-flow
+
+  - model: authentik_providers_oauth2.oauth2provider
+    identifiers:
+      name: "WordPress"
+    attrs:
+      authorization_flow: !KeyOf default-authz-flow
+      client_type: confidential
+      client_id: wordpress
+      client_secret: "!Env{WORDPRESS_OIDC_CLIENT_SECRET}"
+      redirect_uris: "https://www.lab.internal/wp-admin/admin-ajax.php?action=openid-connect-authorize"
+      sub_mode: hashed_user_id
+      property_mappings:
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, "goauthentik.io/providers/oauth2/scope-openid"]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, "goauthentik.io/providers/oauth2/scope-profile"]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, "goauthentik.io/providers/oauth2/scope-email"]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, "goauthentik.io/providers/oauth2/scope-groups"]]
+    id: wordpress-provider
+
+  - model: authentik_core.application
+    identifiers:
+      slug: wordpress
+    attrs:
+      name: WordPress
+      provider: !KeyOf wordpress-provider
+      meta_launch_url: "https://www.lab.internal"
+      meta_description: "Lab business website (SSO via Authentik, optional - see docker/wordpress/scripts/configure-oidc-plugin.sh)."
+      policy_engine_mode: any

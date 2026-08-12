@@ -5,9 +5,9 @@
 #   ./02-issue-server-cert.sh --cn <common-name> --san <SAN-list> [--days 397] [--force]
 #
 # Example:
-#   ./02-issue-server-cert.sh --cn cloud.lab.local --san DNS:cloud.lab.local
-#   ./02-issue-server-cert.sh --cn samba-dc01.lab.local \
-#       --san "DNS:samba-dc01.lab.local,DNS:lab.local"
+#   ./02-issue-server-cert.sh --cn cloud.lab.internal --san DNS:cloud.lab.internal
+#   ./02-issue-server-cert.sh --cn samba-dc01.lab.internal \
+#       --san "DNS:samba-dc01.lab.internal,DNS:lab.internal"
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

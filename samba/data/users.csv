@@ -3,3 +3,5 @@ lecturer01,Lena,Carter,"OU=Lecturers,OU=Staff,OU=LAB",Lecturers,"Sample teaching
 student01,Sam,Ahmed,"OU=Students,OU=LAB",Students,"Sample student account"
 student02,Priya,Nair,"OU=Students,OU=LAB",Students,"Sample student account"
 svc-authentik,svc,authentik,"OU=Service-Accounts,OU=LAB",,"LDAP bind account for Authentik LDAP Source - no privileged group membership"
+svc-dovecot,svc,dovecot,"OU=Service-Accounts,OU=LAB",,"LDAP bind account for Dovecot IMAP auth - no privileged group membership"
+svc-postfix,svc,postfix,"OU=Service-Accounts,OU=LAB",,"LDAP bind account for Postfix recipient validation - no privileged group membership"

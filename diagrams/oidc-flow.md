@@ -8,11 +8,11 @@ source of truth for identity even though two protocols (Kerberos/LDAP and OIDC) 
 ```mermaid
 sequenceDiagram
     participant U as User Browser
-    participant APP as Application\n(cloud.lab.local)
-    participant AK as Authentik\n(auth.lab.local)
+    participant APP as Application\n(cloud.lab.internal)
+    participant AK as Authentik\n(auth.lab.internal)
     participant DC as samba-dc01\n(LDAP Source)
 
-    U->>APP: GET https://cloud.lab.local
+    U->>APP: GET https://cloud.lab.internal
     APP-->>U: 302 Redirect to Authentik\n(authorize endpoint + PKCE challenge)
     U->>AK: GET /application/o/authorize/?client_id=...&code_challenge=...
     AK-->>U: Login form (or SSO session reuse)

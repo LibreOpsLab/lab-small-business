@@ -34,9 +34,9 @@ them down before importing.
 - WAN: DHCP client (from VMware NAT).
 - LAN: static `10.10.0.1/24`.
 - DHCP server on LAN: pool `10.10.0.100–10.10.0.199`, DNS option = `10.10.0.10` only, domain
-  name `lab.local`, gateway `10.10.0.1`.
+  name `lab.internal`, gateway `10.10.0.1`.
 - DNS Resolver (Unbound): enabled, LAN-only access, forwarding to Samba AD's DNS for
-  `lab.local` and to the WAN interface's upstream DNS for everything else — see
+  `lab.internal` and to the WAN interface's upstream DNS for everything else — see
   [dns-architecture.md](../diagrams/dns-architecture.md).
 - Firewall rules per [Security.md](../docs/Security.md#firewall-recommendations-pfsense).
 - NTP server enabled on LAN (falls back to public pool servers on WAN; domain members

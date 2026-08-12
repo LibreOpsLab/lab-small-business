@@ -1,0 +1,18 @@
+\
+# {{ ansible_managed }}
+# See docker/mail/postfix/ldap-virtual-mailbox.cf for the checked-in reference copy.
+
+server_host = ldaps://{{ samba_dc_fqdn }}
+server_port = 636
+start_tls = no
+version = 3
+
+bind = yes
+bind_dn = {{ postfix_ldap_bind_dn }}
+bind_pw = {{ postfix_ldap_bind_pass }}
+
+search_base = OU=LAB,DC=lab,DC=internal
+scope = sub
+
+query_filter = (&(objectClass=person)(mail=%s))
+result_attribute = sAMAccountName

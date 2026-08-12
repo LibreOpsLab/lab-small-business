@@ -8,7 +8,7 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CSV="${SCRIPT_DIR}/../data/users.csv"
-DOMAIN_DN="DC=lab,DC=local"
+DOMAIN_DN="DC=lab,DC=internal"
 
 log() { printf '\033[1;34m[create-users]\033[0m %s\n' "$*"; }
 
@@ -31,9 +31,10 @@ while IFS=',' read -r username given surname ou groups description; do
     samba-tool user create "${username}" "${SEED_PASSWORD}" \
       --given-name="${given}" --surname="${surname}" \
       --userou="${ou}" \
+      --mail-address="${username}@lab.internal" \
       --description="${description}" \
       --must-change-at-next-login
-    log "Created user: ${username} in ${ou},${DOMAIN_DN}"
+    log "Created user: ${username} in ${ou},${DOMAIN_DN} (mail: ${username}@lab.internal)"
   fi
 
   if [[ -n "${groups}" ]]; then

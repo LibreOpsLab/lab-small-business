@@ -1,0 +1,93 @@
+services:
+  db:
+    image: mariadb:11.4
+    container_name: wordpress-db
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - wordpress_db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${WORDPRESS_DB_ROOT_PASS}
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASS}
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME:-wordpress}
+      MYSQL_USER: ${WORDPRESS_DB_USER:-wordpress}
+    networks:
+      - wordpress-internal
+
+  app:
+    image: wordpress:6.6-php8.3-apache
+    container_name: wordpress-app
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASS}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('FORCE_SSL_ADMIN', true);
+        $$_SERVER['HTTPS'] = 'on';
+    volumes:
+      - wordpress_data:/var/www/html
+      - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/etc/ssl/certs/lab-ca-chain.pem:ro
+    networks:
+      - wordpress-internal
+      - lab-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=lab-proxy
+      - traefik.http.routers.wordpress.rule=Host(`www.lab.internal`)
+      - traefik.http.routers.wordpress.tls=true
+      - traefik.http.routers.wordpress.middlewares=security-headers@file
+      - traefik.http.services.wordpress.loadbalancer.server.port=80
+
+  # One-shot WP-CLI init: waits for WordPress to be installable, runs `wp core install`
+  # (idempotent - skips if already installed), and installs/activates the OIDC plugin so
+  # docker/wordpress/scripts/configure-oidc-plugin.sh has something to configure once
+  # Authentik's WordPress provider exists. See docs/DesktopApps.md and authentik/blueprints/oidc-wordpress.yaml.
+  wp-init:
+    image: wordpress:cli-2.11-php8.3
+    container_name: wordpress-wp-init
+    restart: "no"
+    user: "33:33"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASS}
+      WORDPRESS_SITE_URL: https://www.lab.internal
+      WORDPRESS_SITE_TITLE: "LAB — the business"
+      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER:-wp-admin}
+      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL:-wp-admin@lab.internal}
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./scripts/wp-init.sh:/wp-init.sh:ro
+    entrypoint: ["/bin/sh", "/wp-init.sh"]
+    networks:
+      - wordpress-internal
+
+networks:
+  wordpress-internal:
+    name: wordpress-internal
+  lab-proxy:
+    name: lab-proxy
+    external: true
+
+volumes:
+  wordpress_db:
+  wordpress_data:

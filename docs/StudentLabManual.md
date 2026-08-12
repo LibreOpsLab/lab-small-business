@@ -1,6 +1,6 @@
 # Student Lab Manual
 
-Welcome to the LAB.LOCAL environment — a simulated small-business IT estate you'll use to
+Welcome to the LAB.INTERNAL environment — a simulated small-business IT estate you'll use to
 practice real sysadmin and DevOps skills: Active Directory, PKI, single sign-on, and containerised
 application hosting.
 
@@ -23,15 +23,22 @@ Work through these in order; each exercises a different layer of the stack.
    `whoami /groups` shows you as a member of `LAB\Students`.
 2. **Linux logon.** Log into `linux-client01` as `student01` (no `LAB\` prefix needed — SSSD is
    configured for short names). Run `id` and confirm group membership matches.
-3. **Certificate trust.** Open a browser on `win-client01` and visit `https://auth.lab.local`.
+3. **Certificate trust.** Open a browser on `win-client01` and visit `https://auth.lab.internal`.
    You should see a padlock with **no warnings** — this confirms the GPO-deployed CA trust is
    working. Repeat on `linux-client01`.
-4. **Single sign-on.** Visit `https://cloud.lab.local`, click "Log in with Authentik", and sign
+4. **Single sign-on.** Visit `https://cloud.lab.internal`, click "Log in with Authentik", and sign
    in with your domain credentials. You should land in NextCloud without entering your password
    a second time.
-5. **Mail.** Configure a mail client (Thunderbird is pre-installed on `linux-client01`) with
-   IMAP host `mail.lab.local`, port `993`, and your domain credentials — confirm you can log in
-   (LDAP-backed auth via Dovecot).
+5. **Mail.** Run `desktop-apps/linux/install-desktop-apps.sh` if you haven't already, then set
+   up Thunderbird with `student01@lab.internal` — it should autoconfigure IMAP/SMTP with no
+   hostnames typed (see [DesktopApps.md](DesktopApps.md#thunderbird-zero-click-via-autoconfig)).
+   Send yourself a test email and confirm it arrives — this exercises both Dovecot (receive)
+   and Postfix (send).
+6. **A different access pattern.** Visit `https://pdf.lab.internal` (Stirling PDF). You'll hit
+   an Authentik login before you ever see the app — unlike NextCloud's "click a button" SSO,
+   this is Traefik asking Authentik "is this request allowed?" before proxying it at all. See
+   [DesktopApps.md](DesktopApps.md) and [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md)
+   for why this app needed a different integration than NextCloud/WordPress.
 
 If any step fails, check [Troubleshooting.md](Troubleshooting.md) before asking your instructor
 — the fix is almost always documented there.
@@ -43,8 +50,11 @@ If any step fails, check [Troubleshooting.md](Troubleshooting.md) before asking 
 - Step 3 exercised the **PKI trust chain** — see [cert-trust-chain.md](../diagrams/cert-trust-chain.md).
 - Step 4 exercised **OIDC federation** — see [oidc-flow.md](../diagrams/oidc-flow.md). NextCloud
   never saw your AD password at all; it trusted an identity token from Authentik.
-- Step 5 exercised **direct LDAP bind authentication** (Dovecot), a different (older, simpler)
-  pattern than OIDC — worth comparing the two.
+- Step 5 exercised **direct LDAP bind authentication** (Dovecot/Postfix), a different (older,
+  simpler) pattern than OIDC — worth comparing the two.
+- Step 6 exercised **forward-auth**, a third pattern — used when an app (Stirling PDF) has no
+  SSO support of its own, so the reverse proxy enforces auth in front of it instead. See
+  [Security.md](Security.md#two-access-control-patterns-oidc-vs-forward-auth).
 
 ## Exercises
 
@@ -53,10 +63,10 @@ If any step fails, check [Troubleshooting.md](Troubleshooting.md) before asking 
    [dns-architecture.md](../diagrams/dns-architecture.md)) and revert.
 2. **Group-driven access.** Ask your instructor to add you to `Docker-Admins` in AD
    (`samba-tool group addmembers Docker-Admins student01`). Log out and back into
-   `cloud.lab.local` and observe your new access (Traefik dashboard becomes visible). Note the
+   `cloud.lab.internal` and observe your new access (Traefik dashboard becomes visible). Note the
    propagation delay — why isn't it instant? (LDAP sync interval — see
    [AuthentikAdmin.md](AuthentikAdmin.md#ldap-source-configuration).)
-3. **Certificate lifecycle.** Using `pki/scripts/03-renew-cert.sh`, renew the `cloud.lab.local`
+3. **Certificate lifecycle.** Using `pki/scripts/03-renew-cert.sh`, renew the `cloud.lab.internal`
    certificate before it expires, and observe that Traefik picks it up without a restart (it
    watches the mounted cert path). Then deliberately revoke it with `04-revoke-cert.sh` and
    explain what a client checking the CRL would see.
@@ -66,10 +76,19 @@ If any step fails, check [Troubleshooting.md](Troubleshooting.md) before asking 
 5. **Least privilege audit.** Using `samba-tool group listmembers`, produce a report of who is
    in `IT-Admins` vs `Domain Admins` and explain why the distinction matters (see
    [Security.md](Security.md#least-privilege--rbac)).
+6. **WordPress SSO, deliberately.** Run `docker/wordpress/scripts/configure-oidc-plugin.sh`,
+   then log into `https://www.lab.internal/wp-admin` via Authentik. Check which WordPress role
+   you were given by default — is it appropriate? Fix the role mapping if not (see
+   [docker/wordpress/README.md](../docker/wordpress/README.md)).
+7. **Partner with another business.** If a classmate has their own deployment running, work
+   through [MultiBusiness.md](MultiBusiness.md) together to bridge them via IPSec, scoped to
+   one specific service only. Afterwards, try to visit a page on their NextCloud that you did
+   *not* explicitly allow through the firewall — confirm it's blocked, and explain why that's
+   the correct behaviour, not a bug.
 
 ## Getting help
 
 1. Check [Troubleshooting.md](Troubleshooting.md).
 2. Check the relevant admin guide: [SambaAdmin.md](SambaAdmin.md),
-   [AuthentikAdmin.md](AuthentikAdmin.md), or [PKI.md](PKI.md).
+   [AuthentikAdmin.md](AuthentikAdmin.md), [PKI.md](PKI.md), or [DesktopApps.md](DesktopApps.md).
 3. Ask your instructor — but bring what you've already tried.

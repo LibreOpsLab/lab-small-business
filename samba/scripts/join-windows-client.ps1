@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Joins a Windows 11 client to the LAB.LOCAL domain into the correct OU.
+    Joins a Windows 11 client to the LAB.INTERNAL domain into the correct OU.
 
 .DESCRIPTION
-    Run elevated on the Windows client after confirming DNS resolves lab.local to
-    10.10.0.10 (Resolve-DnsName lab.local). Prompts for domain admin credentials
+    Run elevated on the Windows client after confirming DNS resolves lab.internal to
+    10.10.0.10 (Resolve-DnsName lab.internal). Prompts for domain admin credentials
     interactively — never pass a plaintext password on the command line.
 
 .EXAMPLE
@@ -12,8 +12,8 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$DomainName = "lab.local",
-    [string]$TargetOU   = "OU=Windows,OU=Workstations,OU=LAB,DC=lab,DC=local"
+    [string]$DomainName = "lab.internal",
+    [string]$TargetOU   = "OU=Windows,OU=Workstations,OU=LAB,DC=lab,DC=internal"
 )
 
 $ErrorActionPreference = "Stop"

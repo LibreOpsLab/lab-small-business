@@ -10,7 +10,7 @@
   <version>22.1</version>
   <system>
     <hostname>__HOSTNAME__</hostname>
-    <domain>lab.local</domain>
+    <domain>lab.internal</domain>
     <timezone>Etc/UTC</timezone>
     <timeservers>10.10.0.10</timeservers>
     <webgui>
@@ -42,7 +42,7 @@
         <to>10.10.0.199</to>
       </range>
       <gateway>10.10.0.1</gateway>
-      <domain>lab.local</domain>
+      <domain>lab.internal</domain>
       <dnsserver>10.10.0.10</dnsserver>
       <defaultleasetime>7200</defaultleasetime>
       <maxleasetime>86400</maxleasetime>
@@ -50,7 +50,7 @@
   </dhcpd>
 
   <unbound>
-    <!-- DNS Resolver: forwarding mode, LAN-only, forwards *.lab.local queries and PTR
+    <!-- DNS Resolver: forwarding mode, LAN-only, forwards *.lab.internal queries and PTR
          for 10.10.0.0/24 to Samba AD; everything else follows normal recursive/forwarding
          resolution out the WAN. -->
     <enable>1</enable>
@@ -60,9 +60,9 @@
     <outgoing_interface>wan</outgoing_interface>
     <custom_options><![CDATA[
 server:
-  private-domain: "lab.local"
+  private-domain: "lab.internal"
 forward-zone:
-  name: "lab.local."
+  name: "lab.internal."
   forward-addr: 10.10.0.10
 forward-zone:
   name: "0.10.10.in-addr.arpa."

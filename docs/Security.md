@@ -26,7 +26,7 @@ demonstrate real controls rather than skip them for convenience.
 - Authentik's LDAP source and Dovecot's LDAP auth both validate the DC's certificate against
   the mounted CA chain rather than disabling TLS verification.
 - Traefik ([`docker/reverse-proxy/traefik/traefik.yml`](../docker/reverse-proxy/traefik/traefik.yml))
-  terminates TLS with the issued `*.lab.local` service certs, redirects all HTTP → HTTPS, and
+  terminates TLS with the issued `*.lab.internal` service certs, redirects all HTTP → HTTPS, and
   sets `minVersion: VersionTLS12`.
 
 ## MFA
@@ -34,9 +34,28 @@ demonstrate real controls rather than skip them for convenience.
 Enforced for `IT-Admins` and `Docker-Admins` via Authentik's TOTP stage; optional for
 `Students`/`Lecturers`. See [AuthentikAdmin.md](AuthentikAdmin.md#mfa-policy).
 
+## Two access-control patterns: OIDC vs. forward-auth
+
+Applications that speak OIDC (NextCloud, WordPress-with-plugin) authenticate directly against
+Authentik. Stirling PDF doesn't, so it's protected differently: Traefik's `authentik-forwardauth`
+middleware ([`docker/reverse-proxy/traefik/dynamic.yml`](../docker/reverse-proxy/traefik/dynamic.yml))
+asks Authentik's embedded outpost to authenticate every request before Traefik ever proxies it
+to the container, and the app's own login (if any) is disabled (`DOCKER_ENABLE_SECURITY=false`
+for Stirling PDF) so there's exactly one gate, not two independently-managed ones. See
+[docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md) and
+[authentik/blueprints/proxy-stirling-pdf.yaml](../authentik/blueprints/proxy-stirling-pdf.yaml).
+
+## Mail: closed relay, LDAP-validated recipients
+
+Postfix ([`docker/mail/postfix`](../docker/mail/postfix)) accepts submission only from
+authenticated senders (`mynetworks = 127.0.0.0/8`, everything else must SASL-authenticate via
+Dovecot) and only ever relays to `lab.internal` addresses that resolve to an enabled AD
+account's `mail` attribute over LDAP — there is no internet mail relay in either direction. See
+[docker/mail/README.md](../docker/mail/README.md).
+
 ## Secure cookie settings
 
-Authentik's Compose env sets `AUTHENTIK_COOKIE_DOMAIN=lab.local`,
+Authentik's Compose env sets `AUTHENTIK_COOKIE_DOMAIN=lab.internal`,
 `AUTHENTIK_SESSION_STORAGE=cache` with Redis-backed sessions, and Traefik injects
 `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, and `X-Frame-Options: SAMEORIGIN`
 headers via the `security-headers` middleware in
@@ -52,11 +71,15 @@ and [`pfsense/README.md`](../pfsense/README.md)):
 | Rule                      | Source                   | Destination      | Ports                                                    | Action                                            |
 | ------------------------- | ------------------------ | ---------------- | -------------------------------------------------------- | ------------------------------------------------- |
 | LAN → DC                  | LAN net                  | `10.10.0.10`     | 53, 88, 123, 135, 137-139, 389, 445, 464, 636, 3268-3269 | allow                                             |
-| LAN → Docker apps         | LAN net                  | `10.10.0.20`     | 80, 443                                                  | allow                                             |
+| LAN → Docker apps         | LAN net                  | `10.10.0.20`     | 80, 443, 587, 465, 993                                   | allow                                             |
 | LAN → Authentik           | LAN net                  | `10.10.0.30`     | 443                                                      | allow                                             |
 | Client LDAP (plain) block | `10.10.0.30` (Authentik) | `10.10.0.10:389` | 389                                                      | **block** (forces LDAPS)                          |
 | LAN → WAN                 | LAN net                  | any              | 443, 80, 53                                              | allow (outbound only, for updates/DNS forwarding) |
 | default deny              | any                      | any              | any                                                      | deny + log                                        |
+
+`www.lab.internal` (WordPress), `pdf.lab.internal` (Stirling PDF), and `autoconfig.lab.internal`
+share the existing "LAN → Docker apps, 80/443" rule — no extra firewall entries needed, they're
+new Traefik routers on an already-allowed host/port pair, not new listeners.
 
 Anti-lockout rule for the pfSense GUI itself is left in place per pfSense defaults. All rules
 are logged for the [Troubleshooting.md](Troubleshooting.md) log-review workflow.

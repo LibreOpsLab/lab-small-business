@@ -1,0 +1,47 @@
+# Postfix main.cf — LAB.INTERNAL internal-only mail relay + submission server.
+# Lab-internal only: no outbound internet relay, no inbound from the internet. Delivers via
+# LMTP to Dovecot (docker/mail/dovecot/dovecot.conf), which owns the actual mailboxes.
+# Recipient validity is checked against Samba AD over LDAP, not a local flat file, so a
+# disabled/deleted AD account stops receiving mail automatically. See docs/SambaAdmin.md.
+
+myhostname = mail.lab.internal
+mydomain = lab.internal
+myorigin = $mydomain
+inet_interfaces = all
+inet_protocols = ipv4
+
+# This is not an internet-facing MTA: only relay for our own domain, never for anyone else,
+# and never forward to the internet — this is a closed, lab-internal mail system.
+mydestination =
+relay_domains =
+virtual_mailbox_domains = $mydomain
+virtual_transport = lmtp:inet:dovecot:24
+virtual_mailbox_maps = ldap:/etc/postfix/ldap-virtual-mailbox.cf
+
+# Reject anything not addressed to our own domain outright.
+smtpd_relay_restrictions = reject_unauth_destination
+smtpd_recipient_restrictions =
+    reject_non_fqdn_recipient,
+    reject_unknown_recipient_domain,
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination
+
+# SASL auth via Dovecot (submission only - see master.cf). Unauthenticated senders can only
+# deliver to local recipients from mynetworks (i.e. nothing, from outside this Docker network).
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = inet:dovecot:12345
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_local_domain = $mydomain
+mynetworks = 127.0.0.0/8
+
+# TLS — same PKI-issued cert as Dovecot. No plaintext auth ever accepted.
+smtpd_tls_cert_file = /etc/postfix/tls/fullchain.pem
+smtpd_tls_key_file = /etc/postfix/tls/key.pem
+smtpd_tls_CAfile = /etc/postfix/tls/ca-chain.pem
+smtpd_tls_security_level = encrypt
+smtpd_tls_auth_only = yes
+smtp_tls_security_level = may
+
+compatibility_level = 3.6

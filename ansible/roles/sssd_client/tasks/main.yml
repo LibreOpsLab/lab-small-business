@@ -1,5 +1,5 @@
 ---
-# Joins Ansible-managed Linux hosts to LAB.LOCAL via SSSD. Mirrors
+# Joins Ansible-managed Linux hosts to LAB.INTERNAL via SSSD. Mirrors
 # samba/scripts/join-linux-client.sh but driven declaratively for hosts already under
 # Ansible control (docker01, authentik01). See docs/SambaAdmin.md#linux-client-integration-sssd.
 

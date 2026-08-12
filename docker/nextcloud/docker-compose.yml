@@ -38,16 +38,16 @@ services:
       MYSQL_USER: ${NEXTCLOUD_DB_USER:-nextcloud}
       NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER:-nc-admin}
       NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
-      NEXTCLOUD_TRUSTED_DOMAINS: cloud.lab.local
+      NEXTCLOUD_TRUSTED_DOMAINS: cloud.lab.internal
       OVERWRITEPROTOCOL: https
-      OVERWRITECLIURL: https://cloud.lab.local
+      OVERWRITECLIURL: https://cloud.lab.internal
       TRUSTED_PROXIES: 172.16.0.0/12
       # OIDC client for Authentik SSO - see authentik/blueprints/oidc-nextcloud.yaml.
       # user_oidc app itself is configured post-install via `occ user_oidc:provider`
       # in authentik/scripts/bootstrap-authentik.sh --sync-secrets.
       NEXTCLOUD_OIDC_CLIENT_ID: ${NEXTCLOUD_OIDC_CLIENT_ID}
       NEXTCLOUD_OIDC_CLIENT_SECRET: ${NEXTCLOUD_OIDC_CLIENT_SECRET}
-      NEXTCLOUD_OIDC_DISCOVERY_URL: https://auth.lab.local/application/o/nextcloud/.well-known/openid-configuration
+      NEXTCLOUD_OIDC_DISCOVERY_URL: https://auth.lab.internal/application/o/nextcloud/.well-known/openid-configuration
     volumes:
       - nextcloud_data:/var/www/html
       - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/etc/ssl/certs/lab-ca-chain.pem:ro
@@ -57,7 +57,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=lab-proxy
-      - traefik.http.routers.nextcloud.rule=Host(`cloud.lab.local`)
+      - traefik.http.routers.nextcloud.rule=Host(`cloud.lab.internal`)
       - traefik.http.routers.nextcloud.tls=true
       - traefik.http.routers.nextcloud.middlewares=security-headers@file
       - traefik.http.services.nextcloud.loadbalancer.server.port=80

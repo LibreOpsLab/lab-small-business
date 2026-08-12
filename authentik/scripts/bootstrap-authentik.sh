@@ -35,14 +35,18 @@ gen_secret() {
 
 export NEXTCLOUD_OIDC_CLIENT_SECRET="$(gen_secret nextcloud-oidc-client-secret)"
 export ONLYOFFICE_OIDC_CLIENT_SECRET="$(gen_secret onlyoffice-oidc-client-secret)"
+export WORDPRESS_OIDC_CLIENT_SECRET="$(gen_secret wordpress-oidc-client-secret)"
 export AUTHENTIK_LDAP_BIND_PASSWORD="${AUTHENTIK_LDAP_BIND_PASSWORD:-$(gen_secret ldap-bind-password)}"
+# Stirling PDF is protected via an Authentik Proxy Provider + forward-auth (see
+# authentik/blueprints/proxy-stirling-pdf.yaml), not an OIDC client secret embedded in the
+# app itself, so it needs no gen_secret entry here.
 
 log "Bringing up the Authentik Compose stack (docker/authentik)"
 docker compose -f "${AUTHENTIK_DIR}/docker-compose.yml" --env-file "${AUTHENTIK_DIR}/.env" up -d
 
 log "Waiting for Authentik API to become healthy..."
 for i in $(seq 1 60); do
-  if curl -ksf https://auth.lab.local/-/health/live/ >/dev/null 2>&1 || \
+  if curl -ksf https://auth.lab.internal/-/health/live/ >/dev/null 2>&1 || \
      docker compose -f "${AUTHENTIK_DIR}/docker-compose.yml" exec -T server ak healthcheck >/dev/null 2>&1; then
     log "Authentik is healthy."
     break
@@ -59,6 +63,8 @@ docker compose -f "${AUTHENTIK_DIR}/docker-compose.yml" exec -T worker \
                        /blueprints/groups-roles.yaml \
                        /blueprints/oidc-nextcloud.yaml \
                        /blueprints/oidc-onlyoffice.yaml \
+                       /blueprints/oidc-wordpress.yaml \
+                       /blueprints/proxy-stirling-pdf.yaml \
                        /blueprints/mfa-policy.yaml
 
 if [[ "${1:-}" == "--sync-secrets" ]]; then
@@ -77,4 +83,4 @@ if [[ "${1:-}" == "--sync-secrets" ]]; then
   log "Secrets synced. Restart the NextCloud stack to pick them up: docker compose -f docker/nextcloud/docker-compose.yml up -d"
 fi
 
-log "Bootstrap complete. Admin login: https://auth.lab.local (user: akadmin, password: from AUTHENTIK_BOOTSTRAP_PASSWORD in docker/authentik/.env)"
+log "Bootstrap complete. Admin login: https://auth.lab.internal (user: akadmin, password: from AUTHENTIK_BOOTSTRAP_PASSWORD in docker/authentik/.env)"

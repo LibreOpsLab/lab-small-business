@@ -10,7 +10,7 @@ pool 2.pool.ntp.org iburst
 allow 10.10.0.0/24
 local stratum 10
 {% else %}
-server {{ samba_dc_fqdn | default('samba-dc01.lab.local') }} iburst
+server {{ samba_dc_fqdn | default('samba-dc01.lab.internal') }} iburst
 {% endif %}
 
 driftfile /var/lib/chrony/chrony.drift

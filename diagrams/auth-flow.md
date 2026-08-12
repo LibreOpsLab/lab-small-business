@@ -12,8 +12,8 @@ sequenceDiagram
     participant APP as Application\n(e.g. file share, RDP)
 
     U->>C: Enter LAB\username + password
-    C->>DC: DNS SRV lookup _kerberos._udp.lab.local
-    DC-->>C: KDC = samba-dc01.lab.local
+    C->>DC: DNS SRV lookup _kerberos._udp.lab.internal
+    DC-->>C: KDC = samba-dc01.lab.internal
     C->>DC: AS-REQ (request TGT)
     DC-->>C: AS-REP (TGT, encrypted with user key)
     C->>DC: TGS-REQ (request service ticket for APP)

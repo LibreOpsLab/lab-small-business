@@ -29,7 +29,7 @@ echo "=== Samba AD health check: $(date -u +%FT%TZ) ==="
 check "samba-tool dbcheck (no repair)" samba-tool dbcheck --cross-ncs
 check "samba-tool drs showrepl" samba-tool drs showrepl
 check "DNS zone update dry-run (samba_dnsupdate)" samba_dnsupdate --verbose --all-names --use-file=/dev/null
-check "Kerberos ticket acquisition (machine keytab)" bash -c 'kinit -k -t /etc/krb5.keytab "$(hostname -s | tr a-z A-Z)\$@LAB.LOCAL" && klist -s'
+check "Kerberos ticket acquisition (machine keytab)" bash -c 'kinit -k -t /etc/krb5.keytab "$(hostname -s | tr a-z A-Z)\$@LAB.INTERNAL" && klist -s'
 check "SMB share listing (anonymous)" smbclient -L localhost -U "%" -N
 check "systemd: samba-ad-dc active" systemctl is-active --quiet samba-ad-dc
 check "systemd: chrony active" systemctl is-active --quiet chrony

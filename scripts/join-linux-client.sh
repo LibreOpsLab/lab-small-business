@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Thin top-level convenience wrapper around samba/scripts/join-linux-client.sh — run this
-# directly on a freshly installed Ubuntu client to join it to LAB.LOCAL. See
+# directly on a freshly installed Ubuntu client to join it to LAB.INTERNAL. See
 # docs/DeploymentGuide.md#7-endpoints and docs/SambaAdmin.md#linux-client-integration-sssd.
 #
 # Usage: sudo ./scripts/join-linux-client.sh [--user administrator]

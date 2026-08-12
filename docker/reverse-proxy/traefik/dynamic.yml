@@ -7,12 +7,18 @@ tls:
       minVersion: VersionTLS12
       sniStrict: true
   certificates:
-    - certFile: /etc/traefik/certs/cloud.lab.local/fullchain.pem
-      keyFile: /etc/traefik/certs/cloud.lab.local/key.pem
-    - certFile: /etc/traefik/certs/docs.lab.local/fullchain.pem
-      keyFile: /etc/traefik/certs/docs.lab.local/key.pem
-    - certFile: /etc/traefik/certs/auth.lab.local/fullchain.pem
-      keyFile: /etc/traefik/certs/auth.lab.local/key.pem
+    - certFile: /etc/traefik/certs/cloud.lab.internal/fullchain.pem
+      keyFile: /etc/traefik/certs/cloud.lab.internal/key.pem
+    - certFile: /etc/traefik/certs/docs.lab.internal/fullchain.pem
+      keyFile: /etc/traefik/certs/docs.lab.internal/key.pem
+    - certFile: /etc/traefik/certs/auth.lab.internal/fullchain.pem
+      keyFile: /etc/traefik/certs/auth.lab.internal/key.pem
+    - certFile: /etc/traefik/certs/www.lab.internal/fullchain.pem
+      keyFile: /etc/traefik/certs/www.lab.internal/key.pem
+    - certFile: /etc/traefik/certs/pdf.lab.internal/fullchain.pem
+      keyFile: /etc/traefik/certs/pdf.lab.internal/key.pem
+    - certFile: /etc/traefik/certs/autoconfig.lab.internal/fullchain.pem
+      keyFile: /etc/traefik/certs/autoconfig.lab.internal/key.pem
 
 http:
   middlewares:
@@ -25,11 +31,29 @@ http:
         customFrameOptionsValue: SAMEORIGIN
         referrerPolicy: "same-origin"
 
+    # Gates any app with no native OIDC/SSO support behind Authentik's embedded outpost, via
+    # Traefik's forward-auth pattern. Used by Stirling PDF (docker/stirling-pdf) — see
+    # docs/DesktopApps.md#stirling-pdf-forward-auth-not-native-oidc and
+    # authentik/blueprints/proxy-stirling-pdf.yaml.
+    authentik-forwardauth:
+      forwardAuth:
+        # Plain HTTP container-to-container over the internal lab-proxy network (matches the
+        # authentik router's own backend port 9000 above) — TLS is terminated at Traefik's
+        # public edge, not needed again for this hop.
+        address: "http://authentik-server:9000/outpost.goauthentik.io/auth/traefik"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - X-authentik-username
+          - X-authentik-groups
+          - X-authentik-email
+          - X-authentik-name
+          - X-authentik-uid
+
   routers:
     # Serves the Issuing CA cert + CRL for clients that fetch them via
     # authorityInfoAccess / crlDistributionPoints (see pki/openssl/intermediate-ca.cnf).
     pki-distribution:
-      rule: "Host(`auth.lab.local`) && (PathPrefix(`/pki`) || PathPrefix(`/crl`))"
+      rule: "Host(`auth.lab.internal`) && (PathPrefix(`/pki`) || PathPrefix(`/crl`))"
       service: pki-distribution-svc
       tls: true
       middlewares:

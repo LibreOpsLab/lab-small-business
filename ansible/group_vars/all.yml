@@ -2,12 +2,12 @@
 # Variables common to every host in inventory. Secrets are NOT here — see
 # ansible/inventory/host_vars/<host>/vault.yml.example and docs/Security.md#secrets-management.
 
-lab_domain: lab.local
-lab_realm: LAB.LOCAL
+lab_domain: lab.internal
+lab_realm: LAB.INTERNAL
 lab_netbios: LAB
 
 samba_dc_ip: 10.10.0.10
-samba_dc_fqdn: samba-dc01.lab.local
+samba_dc_fqdn: samba-dc01.lab.internal
 dns_forwarder: 10.10.0.1
 
 repo_root_on_controller: "{{ playbook_dir }}/.."

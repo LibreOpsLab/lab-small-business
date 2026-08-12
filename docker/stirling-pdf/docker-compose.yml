@@ -1,0 +1,36 @@
+services:
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:latest
+    container_name: stirling-pdf
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      # Stirling PDF's own built-in login is disabled — access control is delegated entirely
+      # to Authentik via Traefik's forward-auth middleware (see traefik/dynamic.yml's
+      # authentik-forwardauth and authentik/blueprints/proxy-stirling-pdf.yaml). Running two
+      # separate login systems in front of the same app would be confusing and redundant.
+      DOCKER_ENABLE_SECURITY: "false"
+      SYSTEM_DEFAULTLOCALE: en-GB
+      UI_APPNAME: "LAB PDF Tools"
+    volumes:
+      - stirling_pdf_data:/usr/share/tessdata
+      - stirling_pdf_config:/configs
+    networks:
+      - lab-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=lab-proxy
+      - traefik.http.routers.stirling-pdf.rule=Host(`pdf.lab.internal`)
+      - traefik.http.routers.stirling-pdf.tls=true
+      - traefik.http.routers.stirling-pdf.middlewares=authentik-forwardauth@file,security-headers@file
+      - traefik.http.services.stirling-pdf.loadbalancer.server.port=8080
+
+networks:
+  lab-proxy:
+    name: lab-proxy
+    external: true
+
+volumes:
+  stirling_pdf_data:
+  stirling_pdf_config:

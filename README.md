@@ -13,13 +13,17 @@ Built for repeatable deployment and hands-on sysadmin/DevOps teaching.
 | Directory / Kerberos / LDAP / DNS / NTP   | Samba Active Directory                                 |
 | Identity federation / SSO                 | Authentik (LDAP source + OIDC)                         |
 | Application host                          | Docker Engine + Traefik reverse proxy                  |
-| Applications                              | NextCloud, OnlyOffice, Dovecot (IMAP)                  |
+| Applications                              | NextCloud (+Talk/Calendar/Contacts/Mail), OnlyOffice, Dovecot+Postfix mail, WordPress, Stirling PDF |
 | Internal PKI                              | Two-tier OpenSSL CA (offline Root + online Issuing CA) |
-| Endpoints                                 | Ubuntu Desktop (SSSD) + Windows 11 (native AD)         |
+| Endpoints                                 | Ubuntu Desktop (SSSD) + Windows 11 (native AD), with NextCloud Sync/OnlyOffice/Thunderbird desktop apps |
+| Multi-business                            | `scripts/provision-business.sh` + IPSec/WireGuard federation tooling |
 | Automation                                | Bash, Ansible, Docker Compose, PowerShell              |
 
-Domain: `lab.local` / realm `LAB.LOCAL` / NetBIOS `LAB`, on `10.10.0.0/24`. Full addressing
-and component inventory: [docs/Architecture.md](docs/Architecture.md).
+Domain: `lab.internal` / realm `LAB.INTERNAL` / NetBIOS `LAB`, on `10.10.0.0/24` — all
+re-parameterisable per business via [`scripts/provision-business.sh`](scripts/provision-business.sh)
+(see [docs/Architecture.md#domain-and-subnet-naming](docs/Architecture.md#domain-and-subnet-naming)
+and [docs/MultiBusiness.md](docs/MultiBusiness.md)). Full addressing and component inventory:
+[docs/Architecture.md](docs/Architecture.md).
 
 ## Start here
 
@@ -35,15 +39,17 @@ and component inventory: [docs/Architecture.md](docs/Architecture.md).
 ```text
 repo-root/
 ├── docs/           Architecture, deployment, admin, and student documentation
-├── diagrams/        Mermaid source for network/auth/PKI/OIDC/DNS diagrams
+├── diagrams/        Mermaid source for network/auth/PKI/OIDC/DNS/federation diagrams
 ├── workstation/     VMware Workstation VM inventory, network config, provisioning notes
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
-├── docker/          Docker Compose stacks: reverse proxy, Authentik, NextCloud, OnlyOffice, mail
-├── authentik/       Authentik blueprints (LDAP source, OIDC providers, groups, MFA) + bootstrap
+├── docker/          Compose stacks: proxy, Authentik, NextCloud, OnlyOffice, mail, WordPress, Stirling PDF
+├── authentik/       Authentik blueprints (LDAP source, OIDC/proxy providers, groups, MFA) + bootstrap
 ├── ansible/         Playbooks and roles that tie every component together
-├── scripts/         Top-level orchestration entry points (deploy-all.sh, issue-cert.sh, ...)
+├── scripts/         Top-level orchestration entry points (deploy-all.sh, provision-business.sh, ...)
+├── federation/      Multi-business IPSec/VPN bridging + the deferred LAB Internet skeleton
+├── desktop-apps/    Client-side app install/preconfig scripts (NextCloud Sync, OnlyOffice, Thunderbird, ...)
 └── templates/       Shared Jinja2 templates (motd, hosts)
 ```
 
@@ -60,6 +66,9 @@ repo-root/
 | [Backup.md](docs/Backup.md)                     | Backup/restore for AD, Authentik, Docker volumes, PKI, config         |
 | [Troubleshooting.md](docs/Troubleshooting.md)   | DNS, Kerberos, LDAP, certs, OIDC, Docker/proxy issues                 |
 | [StudentLabManual.md](docs/StudentLabManual.md) | Day-1 checklist and hands-on exercises                                |
+| [DesktopApps.md](docs/DesktopApps.md)           | Client-side app experience: NextCloud Sync, OnlyOffice, Thunderbird/Evolution, Stirling PDF, NextCloud groupware |
+| [MultiBusiness.md](docs/MultiBusiness.md)       | Bridging independent business deployments via IPSec + WireGuard/OpenVPN |
+| [LabInternet.md](docs/LabInternet.md)           | Design doc (not yet built) for a shared root CA + DNS across every business |
 
 ## Diagrams
 
@@ -67,7 +76,8 @@ repo-root/
 [Authentication Flow](diagrams/auth-flow.md) ·
 [Certificate Trust Chain](diagrams/cert-trust-chain.md) ·
 [OIDC Authentication Flow](diagrams/oidc-flow.md) ·
-[DNS Architecture](diagrams/dns-architecture.md)
+[DNS Architecture](diagrams/dns-architecture.md) ·
+[Federation Topology](diagrams/federation-topology.md)
 
 ## Quick start
 

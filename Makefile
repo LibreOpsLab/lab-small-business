@@ -6,7 +6,7 @@ help:
 	@echo "lab-small-business — common entry points"
 	@echo ""
 	@echo "  make pki-init        Bootstrap the Root + Issuing CA (first run only)"
-	@echo "  make pki-issue-all   Issue leaf certs for cloud/docs/mail/auth/samba-dc01"
+	@echo "  make pki-issue-all   Issue leaf certs for cloud/docs/mail/auth/www/pdf/autoconfig/samba-dc01"
 	@echo "  make deploy          Run scripts/deploy-all.sh (PKI + full Ansible playbook)"
 	@echo "  make backup-samba    Run samba/scripts/backup-ad.sh on samba-dc01 (via ssh)"
 	@echo "  make health-samba    Run samba/scripts/health-check.sh on samba-dc01 (via ssh)"
@@ -19,20 +19,23 @@ pki-init:
 
 pki-issue-all:
 	cd pki/scripts && \
-	./02-issue-server-cert.sh --cn samba-dc01.lab.local --san "DNS:samba-dc01.lab.local,DNS:lab.local" && \
-	./02-issue-server-cert.sh --cn cloud.lab.local --san DNS:cloud.lab.local && \
-	./02-issue-server-cert.sh --cn docs.lab.local  --san DNS:docs.lab.local && \
-	./02-issue-server-cert.sh --cn mail.lab.local  --san DNS:mail.lab.local && \
-	./02-issue-server-cert.sh --cn auth.lab.local  --san DNS:auth.lab.local
+	./02-issue-server-cert.sh --cn samba-dc01.lab.internal --san "DNS:samba-dc01.lab.internal,DNS:lab.internal" && \
+	./02-issue-server-cert.sh --cn cloud.lab.internal      --san DNS:cloud.lab.internal && \
+	./02-issue-server-cert.sh --cn docs.lab.internal       --san DNS:docs.lab.internal && \
+	./02-issue-server-cert.sh --cn mail.lab.internal       --san DNS:mail.lab.internal && \
+	./02-issue-server-cert.sh --cn auth.lab.internal       --san DNS:auth.lab.internal && \
+	./02-issue-server-cert.sh --cn www.lab.internal        --san DNS:www.lab.internal && \
+	./02-issue-server-cert.sh --cn pdf.lab.internal        --san DNS:pdf.lab.internal && \
+	./02-issue-server-cert.sh --cn autoconfig.lab.internal --san DNS:autoconfig.lab.internal
 
 deploy:
 	./scripts/deploy-all.sh --ask-vault-pass
 
 backup-samba:
-	ssh samba-dc01.lab.local 'sudo /opt/lab-small-business/samba/scripts/backup-ad.sh'
+	ssh samba-dc01.lab.internal 'sudo /opt/lab-small-business/samba/scripts/backup-ad.sh'
 
 health-samba:
-	ssh samba-dc01.lab.local 'sudo /opt/lab-small-business/samba/scripts/health-check.sh'
+	ssh samba-dc01.lab.internal 'sudo /opt/lab-small-business/samba/scripts/health-check.sh'
 
 lint:
 	ansible-lint ansible/playbooks ansible/roles

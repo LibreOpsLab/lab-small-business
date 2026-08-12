@@ -63,15 +63,20 @@ workstation host in the interim):
 cd pki/scripts
 ./00-init-root-ca.sh
 ./01-init-intermediate-ca.sh
-./02-issue-server-cert.sh --cn samba-dc01.lab.local --san "DNS:samba-dc01.lab.local,DNS:lab.local"
-./02-issue-server-cert.sh --cn cloud.lab.local --san DNS:cloud.lab.local
-./02-issue-server-cert.sh --cn docs.lab.local  --san DNS:docs.lab.local
-./02-issue-server-cert.sh --cn mail.lab.local  --san DNS:mail.lab.local
-./02-issue-server-cert.sh --cn auth.lab.local  --san DNS:auth.lab.local
+./02-issue-server-cert.sh --cn samba-dc01.lab.internal --san "DNS:samba-dc01.lab.internal,DNS:lab.internal"
+./02-issue-server-cert.sh --cn cloud.lab.internal      --san DNS:cloud.lab.internal
+./02-issue-server-cert.sh --cn docs.lab.internal       --san DNS:docs.lab.internal
+./02-issue-server-cert.sh --cn mail.lab.internal       --san DNS:mail.lab.internal
+./02-issue-server-cert.sh --cn auth.lab.internal       --san DNS:auth.lab.internal
+./02-issue-server-cert.sh --cn www.lab.internal        --san DNS:www.lab.internal
+./02-issue-server-cert.sh --cn pdf.lab.internal        --san DNS:pdf.lab.internal
+./02-issue-server-cert.sh --cn autoconfig.lab.internal --san DNS:autoconfig.lab.internal
 ```
 
+(`make pki-init && make pki-issue-all` does the same thing.)
+
 Move `pki/root-ca/private/ca.key.pem` to offline storage now (see [PKI.md](PKI.md)). Copy the
-issued `samba-dc01.lab.local` cert/key into `/etc/samba/tls/` on the DC and enable `tls enabled
+issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and enable `tls enabled
 = yes` in `smb.conf` for LDAPS (already templated in
 [`samba/templates/smb.conf.j2`](../samba/templates/smb.conf.j2)).
 
@@ -94,18 +99,33 @@ issued `samba-dc01.lab.local` cert/key into `/etc/samba/tls/` on the DC and enab
    `03-authentik.yml` (brings up Authentik and applies blueprints via
    [`bootstrap-authentik.sh`](../authentik/scripts/bootstrap-authentik.sh)).
 
-3. Verify: `https://auth.lab.local` loads with a trusted cert and you can sign in as
+3. Verify: `https://auth.lab.internal` loads with a trusted cert and you can sign in as
    `akadmin` (bootstrap credentials in `ansible/inventory/host_vars/authentik01/vault.yml`).
 
 ## 6. Applications
 
 Still via `ansible-playbook playbooks/02-docker-server.yml --tags apps` (already included in
-`site.yml`, listed separately here for iterative re-runs): brings up NextCloud, OnlyOffice, and
-Dovecot Compose stacks under `docker/`, wired to Traefik and to the OIDC clients created in step 5. Confirm:
+`site.yml`, listed separately here for iterative re-runs): brings up NextCloud, OnlyOffice,
+Dovecot+Postfix, WordPress, and Stirling PDF Compose stacks under `docker/`, wired to Traefik
+and to the OIDC/proxy providers created in step 5. Confirm:
 
-- `https://cloud.lab.local` → NextCloud, "Log in with Authentik" button present and working.
-- `https://docs.lab.local` → OnlyOffice Document Server status page.
-- `mail.lab.local:993` (IMAPS) → authenticates `student01`/`lecturer01` against LDAP.
+- `https://cloud.lab.internal` → NextCloud, "Log in with Authentik" button present and working.
+- `https://docs.lab.internal` → OnlyOffice Document Server status page.
+- `mail.lab.internal:993` (IMAPS) / `:587` (submission) → see
+  [docker/mail/README.md](../docker/mail/README.md) for a full send/receive test.
+- `https://www.lab.internal` → WordPress, installed and ready (SSO is opt-in — see step 6a).
+- `https://pdf.lab.internal` → Stirling PDF, prompts an Authentik login before showing the app
+  (forward-auth, not native OIDC — see [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md)).
+
+### 6a. Groupware apps and optional WordPress SSO
+
+```bash
+docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh   # Calendar, Contacts, Talk, Mail, ONLYOFFICE connector
+docker/wordpress/scripts/configure-oidc-plugin.sh       # optional: wires WordPress into Authentik SSO
+```
+
+Both are idempotent and safe to re-run. `scripts/deploy-all.sh` runs the first automatically;
+the WordPress one is left manual since SSO-for-a-website is an opt-in decision, not a default.
 
 ## 7. Endpoints
 
@@ -116,16 +136,27 @@ Dovecot Compose stacks under `docker/`, wired to Traefik and to the OIDC clients
 2. `win-client01`: install Windows 11, confirm DNS is `10.10.0.10` (DHCP-served), then run
    [`samba/scripts/join-windows-client.ps1`](../samba/scripts/join-windows-client.ps1) elevated.
    GPOs (including CA trust) apply automatically on next `gpupdate`/reboot.
+3. On each client, run the desktop app provisioning scripts — see
+   [docs/DesktopApps.md](DesktopApps.md) and [`desktop-apps/`](../desktop-apps/) — to install
+   NextCloud Desktop Sync, OnlyOffice Desktop Editors, Thunderbird (autoconfigured), and a
+   Stirling PDF app shortcut.
 
 ## 8. Validation
 
 Run through [StudentLabManual.md](StudentLabManual.md)'s "Day 1 checklist" as an end-to-end
 smoke test: domain logon from both clients, SSO into NextCloud, cert trust with no browser
-warnings, mail client IMAP login.
+warnings, mail send+receive round trip via Thunderbird.
 
 ## One-shot re-runs
 
-[`scripts/deploy-all.sh`](../scripts/deploy-all.sh) chains steps 4-8 (PKI issuance +
-`ansible-playbook site.yml` + a post-flight `health-check.sh` sweep) for redeploying
-application/identity layers onto already-created VMs — useful when iterating without tearing
-down the whole lab.
+[`scripts/deploy-all.sh`](../scripts/deploy-all.sh) chains steps 4-6a (PKI issuance +
+`ansible-playbook site.yml` + NextCloud groupware bootstrap + a post-flight `health-check.sh`
+sweep) for redeploying application/identity layers onto already-created VMs — useful when
+iterating without tearing down the whole lab.
+
+## Beyond one business
+
+Once this single deployment works end-to-end, [docs/MultiBusiness.md](MultiBusiness.md) covers
+stamping out additional independent businesses (`scripts/provision-business.sh`) and bridging
+them via IPSec/VPN. [docs/LabInternet.md](LabInternet.md) is the design doc for a further,
+not-yet-built capstone extension (shared root CA + DNS across every business in a classroom).

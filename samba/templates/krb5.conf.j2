@@ -5,7 +5,7 @@
 # non-DC domain members that need a krb5.conf without running Samba's provisioning.
 
 [libdefaults]
-    default_realm = {{ lab_realm | default('LAB.LOCAL') }}
+    default_realm = {{ lab_realm | default('LAB.INTERNAL') }}
     dns_lookup_realm = false
     dns_lookup_kdc = true
     ticket_lifetime = 24h
@@ -14,12 +14,12 @@
     rdns = false
 
 [realms]
-    {{ lab_realm | default('LAB.LOCAL') }} = {
-        kdc = {{ samba_dc_fqdn | default('samba-dc01.lab.local') }}
-        admin_server = {{ samba_dc_fqdn | default('samba-dc01.lab.local') }}
-        default_domain = {{ lab_domain | default('lab.local') }}
+    {{ lab_realm | default('LAB.INTERNAL') }} = {
+        kdc = {{ samba_dc_fqdn | default('samba-dc01.lab.internal') }}
+        admin_server = {{ samba_dc_fqdn | default('samba-dc01.lab.internal') }}
+        default_domain = {{ lab_domain | default('lab.internal') }}
     }
 
 [domain_realm]
-    .{{ lab_domain | default('lab.local') }} = {{ lab_realm | default('LAB.LOCAL') }}
-    {{ lab_domain | default('lab.local') }} = {{ lab_realm | default('LAB.LOCAL') }}
+    .{{ lab_domain | default('lab.internal') }} = {{ lab_realm | default('LAB.INTERNAL') }}
+    {{ lab_domain | default('lab.internal') }} = {{ lab_realm | default('LAB.INTERNAL') }}

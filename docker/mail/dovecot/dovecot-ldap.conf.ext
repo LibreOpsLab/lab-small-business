@@ -6,17 +6,17 @@
 # bind-mounts the rendered version over this path. This checked-in copy is the reference
 # example for anyone configuring it by hand.
 
-hosts = samba-dc01.lab.local:636
+hosts = samba-dc01.lab.internal:636
 tls = yes
 tls_ca_cert_file = /etc/dovecot/tls/ca-chain.pem
 
-dn = CN=svc-dovecot,OU=Service-Accounts,OU=LAB,DC=lab,DC=local
+dn = CN=svc-dovecot,OU=Service-Accounts,OU=LAB,DC=lab,DC=internal
 dnpass = changeme-set-via-ansible-vault
 
 auth_bind = yes
-auth_bind_userdn = %u@lab.local
+auth_bind_userdn = %u@lab.internal
 
-base = OU=LAB,DC=lab,DC=local
+base = OU=LAB,DC=lab,DC=internal
 scope = subtree
 
 user_filter = (&(objectClass=person)(sAMAccountName=%n))

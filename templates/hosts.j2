@@ -3,7 +3,7 @@
 127.0.0.1 localhost
 127.0.1.1 {{ inventory_hostname }}.{{ lab_domain }} {{ inventory_hostname }}
 
-# LAB.LOCAL core hosts (static entries as a DNS-outage fallback; normal resolution is via
+# LAB.INTERNAL core hosts (static entries as a DNS-outage fallback; normal resolution is via
 # samba-dc01's internal DNS, see diagrams/dns-architecture.md)
 10.10.0.1  pfsense01.{{ lab_domain }} pfsense01
 10.10.0.10 samba-dc01.{{ lab_domain }} samba-dc01

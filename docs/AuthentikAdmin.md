@@ -24,19 +24,21 @@ itself declaratively rather than via manual admin-UI clicks:
 
 | Blueprint                                                              | Purpose                                                                                                                                         |
 | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`ldap-source.yaml`](../authentik/blueprints/ldap-source.yaml)         | Federates Samba AD as an LDAP Source: bind DN `svc-authentik@lab.local`, base DN `DC=lab,DC=local`, group sync every 5 minutes.                 |
+| [`ldap-source.yaml`](../authentik/blueprints/ldap-source.yaml)         | Federates Samba AD as an LDAP Source: bind DN `svc-authentik@lab.internal`, base DN `DC=lab,DC=internal`, group sync every 5 minutes.                 |
 | [`groups-roles.yaml`](../authentik/blueprints/groups-roles.yaml)       | Maps synced AD groups (`IT-Admins`, `Docker-Admins`, `Lecturers`, `Students`) to Authentik groups used in policy bindings.                      |
 | [`oidc-nextcloud.yaml`](../authentik/blueprints/oidc-nextcloud.yaml)   | OIDC provider + application for NextCloud, `groups` scope mapping included.                                                                     |
 | [`oidc-onlyoffice.yaml`](../authentik/blueprints/oidc-onlyoffice.yaml) | OIDC provider + application for OnlyOffice (used via NextCloud's ONLYOFFICE connector).                                                         |
+| [`oidc-wordpress.yaml`](../authentik/blueprints/oidc-wordpress.yaml)   | OIDC provider + application for WordPress. Opt-in on the app side — see [docker/wordpress/README.md](../docker/wordpress/README.md).           |
+| [`proxy-stirling-pdf.yaml`](../authentik/blueprints/proxy-stirling-pdf.yaml) | Proxy provider (forward-auth) for Stirling PDF, which has no native OIDC support — see [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md). |
 | [`mfa-policy.yaml`](../authentik/blueprints/mfa-policy.yaml)           | TOTP-based MFA stage + policy binding, enforced for `IT-Admins` and `Docker-Admins`, optional (prompted, skippable) for `Students`/`Lecturers`. |
 
 ## LDAP source configuration
 
-- **Server URI:** `ldaps://samba-dc01.lab.local:636` (LDAPS only — the plain `ldap://389`
+- **Server URI:** `ldaps://samba-dc01.lab.internal:636` (LDAPS only — the plain `ldap://389`
   listener is firewalled off from `authentik01` at the pfSense LAN rule level; see
   [Security.md](Security.md)).
-- **Bind CN:** `CN=svc-authentik,OU=Service-Accounts,OU=LAB,DC=lab,DC=local`
-- **Base DN:** `DC=lab,DC=local`
+- **Bind CN:** `CN=svc-authentik,OU=Service-Accounts,OU=LAB,DC=lab,DC=internal`
+- **Base DN:** `DC=lab,DC=internal`
 - **User object filter:** `(&(objectClass=person)(objectCategory=person))`
 - **Group object filter:** `(objectClass=group)`
 - **Sync interval:** 5 minutes (Authentik's built-in LDAP sync task)
@@ -49,8 +51,8 @@ Each application gets its own OIDC provider/client (never share client secrets a
 
 | Application                   | Client type  | Redirect URI                                                             | Scopes                        |
 | ----------------------------- | ------------ | ------------------------------------------------------------------------ | ----------------------------- |
-| NextCloud (`cloud.lab.local`) | Confidential | `https://cloud.lab.local/apps/user_oidc/code`                            | `openid profile email groups` |
-| OnlyOffice (`docs.lab.local`) | Confidential | delegated via NextCloud's ONLYOFFICE app (no direct browser-facing OIDC) | n/a                           |
+| NextCloud (`cloud.lab.internal`) | Confidential | `https://cloud.lab.internal/apps/user_oidc/code`                            | `openid profile email groups` |
+| OnlyOffice (`docs.lab.internal`) | Confidential | delegated via NextCloud's ONLYOFFICE app (no direct browser-facing OIDC) | n/a                           |
 
 Client secrets are generated at blueprint-apply time and written to
 `authentik/scripts/.generated-secrets/` (gitignored) for the bootstrap script to hand to the

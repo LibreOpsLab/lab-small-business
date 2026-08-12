@@ -14,8 +14,8 @@ OPENSSL_CFG_DIR="${PKI_ROOT}/openssl"
 ROOT_CA_CNF="${OPENSSL_CFG_DIR}/root-ca.cnf"
 INTERMEDIATE_CA_CNF="${OPENSSL_CFG_DIR}/intermediate-ca.cnf"
 
-LAB_DOMAIN="lab.local"
-LAB_REALM="LAB.LOCAL"
+LAB_DOMAIN="lab.internal"
+LAB_REALM="LAB.INTERNAL"
 
 log()   { printf '\033[1;34m[pki]\033[0m %s\n' "$*"; }
 warn()  { printf '\033[1;33m[pki][warn]\033[0m %s\n' "$*" >&2; }

@@ -2,7 +2,7 @@
 # Revoke an issued certificate and regenerate the Issuing CA's CRL.
 #
 # Usage:
-#   ./04-revoke-cert.sh --cn cloud.lab.local
+#   ./04-revoke-cert.sh --cn cloud.lab.internal
 #   ./04-revoke-cert.sh --serial 100A
 
 set -euo pipefail

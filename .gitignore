@@ -51,3 +51,14 @@ Thumbs.db
 *.retry
 ansible/collections/
 ansible/roles/external/
+
+# --- Federation (multi-business) ---
+# Manifests contain WAN endpoints/topology; WireGuard client configs contain private keys.
+# Both are meant to be exchanged out-of-band with partner businesses, never committed.
+federation/registry/*.yaml
+!federation/registry/.gitkeep
+federation/wireguard-clients/*.conf
+!federation/wireguard-clients/.gitkeep
+
+# --- Provisioned business instances (output of scripts/provision-business.sh) ---
+/*-lab/

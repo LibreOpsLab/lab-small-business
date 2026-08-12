@@ -4,10 +4,14 @@ docker_compose_stacks:
   - nextcloud
   - onlyoffice
   - mail
+  - wordpress
+  - stirling-pdf
 
 docker_proxy_network: lab-proxy
 
-# Dovecot's LDAP bind account — password lives in
+# LDAP bind accounts for the mail stack — passwords live in
 # ansible/inventory/host_vars/docker01/vault.yml (Ansible Vault). See
-# docker/mail/dovecot/dovecot-ldap.conf.ext for how this is templated in.
-dovecot_ldap_bind_dn: "CN=svc-dovecot,OU=Service-Accounts,OU=LAB,DC=lab,DC=local"
+# docker/mail/dovecot/dovecot-ldap.conf.ext and docker/mail/postfix/ldap-virtual-mailbox.cf
+# for how these are templated in.
+dovecot_ldap_bind_dn: "CN=svc-dovecot,OU=Service-Accounts,OU=LAB,DC=lab,DC=internal"
+postfix_ldap_bind_dn: "CN=svc-postfix,OU=Service-Accounts,OU=LAB,DC=lab,DC=internal"

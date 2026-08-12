@@ -5,7 +5,7 @@
 
 sssd_enumerate: true
 sssd_use_fully_qualified_names: false
-sssd_computer_ou: "OU=Linux,OU=Workstations,OU=LAB,DC=lab,DC=local"
+sssd_computer_ou: "OU=Linux,OU=Workstations,OU=LAB,DC=lab,DC=internal"
 
 # join_domain_user/join_domain_password are defined per-host in
 # ansible/inventory/host_vars/<host>/vault.yml (Ansible Vault encrypted).

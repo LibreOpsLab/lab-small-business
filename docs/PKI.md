@@ -61,11 +61,11 @@ cd pki/scripts
 # move pki/root-ca/private/ca.key.pem to offline storage now — the rest of the
 # lab never needs it again, only pki/root-ca/certs/ca.cert.pem (public)
 
-./02-issue-server-cert.sh --cn cloud.lab.local  --san DNS:cloud.lab.local
-./02-issue-server-cert.sh --cn docs.lab.local   --san DNS:docs.lab.local
-./02-issue-server-cert.sh --cn mail.lab.local   --san DNS:mail.lab.local
-./02-issue-server-cert.sh --cn auth.lab.local   --san DNS:auth.lab.local
-./02-issue-server-cert.sh --cn samba-dc01.lab.local --san "DNS:samba-dc01.lab.local,DNS:lab.local"
+./02-issue-server-cert.sh --cn cloud.lab.internal  --san DNS:cloud.lab.internal
+./02-issue-server-cert.sh --cn docs.lab.internal   --san DNS:docs.lab.internal
+./02-issue-server-cert.sh --cn mail.lab.internal   --san DNS:mail.lab.internal
+./02-issue-server-cert.sh --cn auth.lab.internal   --san DNS:auth.lab.internal
+./02-issue-server-cert.sh --cn samba-dc01.lab.internal --san "DNS:samba-dc01.lab.internal,DNS:lab.internal"
 ```
 
 `ansible/playbooks/05-pki-trust.yml` (role: `pki_trust`) then distributes
@@ -101,9 +101,9 @@ disabled by default — enable once the lab is stable) that runs a dry-run expir
 
 ## Revocation
 
-`04-revoke-cert.sh --cn cloud.lab.local` (or `--serial <hex>`) marks the certificate revoked in
+`04-revoke-cert.sh --cn cloud.lab.internal` (or `--serial <hex>`) marks the certificate revoked in
 the Issuing CA's OpenSSL database and regenerates `intermediate.crl.pem`. The CRL is served by
-Traefik at `http://auth.lab.local/crl/intermediate.crl.pem` (see
+Traefik at `http://auth.lab.internal/crl/intermediate.crl.pem` (see
 [`docker/reverse-proxy/traefik/dynamic.yml`](../docker/reverse-proxy/traefik/dynamic.yml)) and
 should also be re-pushed to Linux/Windows trust stores if you rely on CRL checking rather than
 OCSP (this lab does not stand up an OCSP responder — CRL only, refreshed on each revoke).

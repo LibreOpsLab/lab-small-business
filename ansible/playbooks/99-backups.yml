@@ -64,7 +64,7 @@
           #!/usr/bin/env bash
           set -euo pipefail
           DATE="$(date +%F)"
-          for volume in nextcloud_data nextcloud_db onlyoffice_data mail_data; do
+          for volume in nextcloud_data nextcloud_db onlyoffice_data mail_data wordpress_data wordpress_db stirling_pdf_data stirling_pdf_config; do
             docker run --rm -v "${volume}:/data" -v /opt/lab-backups:/backup alpine \
               tar czf "/backup/${volume}-${DATE}.tar.gz" -C /data .
           done

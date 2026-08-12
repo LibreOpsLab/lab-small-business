@@ -75,10 +75,10 @@ crlDistributionPoints   = @crl_info
 subjectAltName          = $ENV::SAN
 
 [ issuer_info ]
-caIssuers;URI.0 = http://auth.lab.local/pki/intermediate.cert.pem
+caIssuers;URI.0 = http://auth.lab.internal/pki/intermediate.cert.pem
 
 [ crl_info ]
-URI.0 = http://auth.lab.local/crl/intermediate.crl.pem
+URI.0 = http://auth.lab.internal/crl/intermediate.crl.pem
 
 [ crl_ext ]
 authorityKeyIdentifier = keyid:always

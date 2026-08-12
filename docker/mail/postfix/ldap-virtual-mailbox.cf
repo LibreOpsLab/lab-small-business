@@ -1,0 +1,23 @@
+# LDAP recipient-validity map: only accept mail for addresses that resolve to an enabled
+# Samba AD account's mail attribute. A disabled/deleted account stops receiving mail
+# immediately - no separate mailbox provisioning step needed. See docs/SambaAdmin.md.
+
+server_host = ldaps://samba-dc01.lab.internal
+server_port = 636
+start_tls = no
+version = 3
+
+bind = yes
+bind_dn = CN=svc-postfix,OU=Service-Accounts,OU=LAB,DC=lab,DC=internal
+bind_pw = REPLACED_BY_ANSIBLE
+
+search_base = OU=LAB,DC=lab,DC=internal
+scope = sub
+
+# %s is the full recipient address (user@lab.internal); match on the mail attribute so
+# renaming a user's UPN doesn't silently break their mail routing.
+query_filter = (&(objectClass=person)(mail=%s))
+result_attribute = sAMAccountName
+
+# Reject (not bounce-later) anything that doesn't match — see smtpd_recipient_restrictions
+# in main.cf, which is what actually enforces this at SMTP time.

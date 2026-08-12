@@ -1,0 +1,49 @@
+version: 1
+metadata:
+  name: "LAB - Stirling PDF Forward-Auth"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+entries:
+  # Stirling PDF has no native OIDC/SSO support, so it's gated with Authentik's forward-auth
+  # pattern instead of an OIDC provider: Traefik asks Authentik's embedded outpost "is this
+  # request authenticated?" before ever proxying to the app. See
+  # docker/reverse-proxy/traefik/dynamic.yml's authentik-forwardauth middleware and
+  # docs/DesktopApps.md#stirling-pdf-forward-auth-not-native-oidc.
+  - model: authentik_flows.flow
+    identifiers:
+      slug: default-provider-authorization-implicit-consent
+    id: default-authz-flow
+
+  - model: authentik_providers_proxy.proxyprovider
+    identifiers:
+      name: "Stirling PDF"
+    attrs:
+      authorization_flow: !KeyOf default-authz-flow
+      mode: forward_single
+      external_host: "https://pdf.lab.internal"
+      internal_host: "http://stirling-pdf:8080"
+      internal_host_ssl_validation: false
+    id: stirling-pdf-provider
+
+  - model: authentik_core.application
+    identifiers:
+      slug: stirling-pdf
+    attrs:
+      name: "Stirling PDF"
+      provider: !KeyOf stirling-pdf-provider
+      meta_launch_url: "https://pdf.lab.internal"
+      meta_description: "Lab PDF toolkit (Adobe Acrobat replacement) - gated by Authentik forward-auth, not native OIDC."
+      policy_engine_mode: any
+
+  # Assigns this provider to Authentik's embedded outpost so no separate outpost container
+  # is needed. NOTE: appending to an existing outpost's provider list via blueprint can be
+  # order-sensitive depending on your Authentik version — if this doesn't take effect
+  # automatically, add "Stirling PDF" to the embedded outpost's providers manually under
+  # Applications > Outposts > authentik Embedded Outpost in the admin UI (one-time, one-click).
+  - model: authentik_outposts.outpost
+    identifiers:
+      name: "authentik Embedded Outpost"
+    attrs:
+      providers:
+        - !KeyOf stirling-pdf-provider
+    state: present

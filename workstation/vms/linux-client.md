@@ -19,7 +19,7 @@ sudo samba/scripts/join-linux-client.sh
 
 Then run [`ansible/playbooks/05-pki-trust.yml`](../../ansible/playbooks/05-pki-trust.yml)
 against this host (or follow the manual `update-ca-certificates` steps in
-[docs/PKI.md](../../docs/PKI.md#trust-deployment)) so HTTPS to `*.lab.local` is trusted
+[docs/PKI.md](../../docs/PKI.md#trust-deployment)) so HTTPS to `*.lab.internal` is trusted
 without a browser warning.
 
 See [docs/StudentLabManual.md](../../docs/StudentLabManual.md) for the exercises students run
