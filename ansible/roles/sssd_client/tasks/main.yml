@@ -1,0 +1,52 @@
+---
+# Joins Ansible-managed Linux hosts to LAB.LOCAL via SSSD. Mirrors
+# samba/scripts/join-linux-client.sh but driven declaratively for hosts already under
+# Ansible control (docker01, authentik01). See docs/SambaAdmin.md#linux-client-integration-sssd.
+
+- name: Install SSSD + realmd + Kerberos client packages
+  ansible.builtin.apt:
+    name:
+      - sssd
+      - sssd-tools
+      - realmd
+      - adcli
+      - krb5-user
+      - packagekit
+      - libnss-sss
+      - libpam-sss
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Check whether already domain-joined
+  ansible.builtin.command: realm list
+  register: realm_list
+  changed_when: false
+
+- name: Join the domain
+  ansible.builtin.expect:
+    command: >
+      realm join --client-software=sssd --os-name=Ubuntu
+      --computer-ou="{{ sssd_computer_ou }}"
+      -U {{ join_domain_user }} {{ lab_domain }}
+    responses:
+      Password.*: "{{ join_domain_password }}"
+  when: lab_domain not in realm_list.stdout
+  no_log: true
+
+- name: Render sssd.conf
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../../samba/templates/sssd.conf.j2"
+    dest: /etc/sssd/sssd.conf
+    mode: "0600"
+  notify: restart sssd
+
+- name: Enable home directory auto-creation
+  ansible.builtin.command: pam-auth-update --enable mkhomedir
+  changed_when: true
+
+- name: Ensure sssd is running
+  ansible.builtin.systemd:
+    name: sssd
+    state: started
+    enabled: true

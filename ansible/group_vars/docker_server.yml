@@ -1,0 +1,13 @@
+---
+docker_compose_stacks:
+  - reverse-proxy
+  - nextcloud
+  - onlyoffice
+  - mail
+
+docker_proxy_network: lab-proxy
+
+# Dovecot's LDAP bind account — password lives in
+# ansible/inventory/host_vars/docker01/vault.yml (Ansible Vault). See
+# docker/mail/dovecot/dovecot-ldap.conf.ext for how this is templated in.
+dovecot_ldap_bind_dn: "CN=svc-dovecot,OU=Service-Accounts,OU=LAB,DC=lab,DC=local"

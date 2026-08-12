@@ -1,0 +1,10 @@
+---
+# Distributes the LAB Root CA + Issuing CA certificates to every Linux host's system trust
+# store. Windows trust is handled separately via GPO — see pki/gpo/deploy-root-ca.ps1 and
+# docs/PKI.md#trust-deployment.
+
+- name: Distribute internal CA trust to Linux hosts
+  hosts: linux
+  become: true
+  roles:
+    - pki_trust

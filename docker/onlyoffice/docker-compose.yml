@@ -1,0 +1,40 @@
+services:
+  documentserver:
+    image: onlyoffice/documentserver:8.2
+    container_name: onlyoffice-documentserver
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      JWT_ENABLED: "true"
+      JWT_SECRET: ${ONLYOFFICE_JWT_SECRET}
+      JWT_HEADER: AuthorizationJwt
+    volumes:
+      - onlyoffice_data:/var/www/onlyoffice/Data
+      - onlyoffice_log:/var/log/onlyoffice
+      - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/usr/local/share/ca-certificates/lab-ca-chain.crt:ro
+    # Not on lab-proxy's public router by default beyond docs.lab.local for the editor UI;
+    # the primary integration path is NextCloud's app_editor connecting over the internal
+    # nextcloud-internal network (see docker/nextcloud/.env.example ONLYOFFICE_INTERNAL_URL).
+    networks:
+      - nextcloud-internal
+      - lab-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=lab-proxy
+      - traefik.http.routers.onlyoffice.rule=Host(`docs.lab.local`)
+      - traefik.http.routers.onlyoffice.tls=true
+      - traefik.http.routers.onlyoffice.middlewares=security-headers@file
+      - traefik.http.services.onlyoffice.loadbalancer.server.port=80
+
+networks:
+  nextcloud-internal:
+    name: nextcloud-internal
+    external: true
+  lab-proxy:
+    name: lab-proxy
+    external: true
+
+volumes:
+  onlyoffice_data:
+  onlyoffice_log:

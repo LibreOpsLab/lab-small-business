@@ -1,0 +1,23 @@
+\
+# {{ ansible_managed }}
+# See docker/mail/dovecot/dovecot-ldap.conf.ext for the checked-in reference copy and
+# rationale (Dovecot cannot expand container env vars, so this is templated by Ansible
+# instead).
+
+hosts = {{ samba_dc_fqdn }}:636
+tls = yes
+tls_ca_cert_file = /etc/dovecot/tls/ca-chain.pem
+
+dn = {{ dovecot_ldap_bind_dn }}
+dnpass = {{ dovecot_ldap_bind_pass }}
+
+auth_bind = yes
+auth_bind_userdn = %u@{{ lab_domain }}
+
+base = OU=LAB,DC=lab,DC=local
+scope = subtree
+
+user_filter = (&(objectClass=person)(sAMAccountName=%n))
+pass_filter = (&(objectClass=person)(sAMAccountName=%n))
+
+user_attrs = homeDirectory=home,uidNumber=uid,gidNumber=gid

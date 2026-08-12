@@ -1,0 +1,85 @@
+---
+# Installs Docker Engine + Compose plugin, creates the shared lab-proxy network, copies the
+# repo, and (unless docker_engine_compose_stacks is overridden, e.g. by the Authentik
+# playbook which only needs the engine) brings up each Compose stack listed in
+# group_vars/docker_server.yml's docker_compose_stacks.
+
+- name: Install prerequisite packages
+  ansible.builtin.apt:
+    name: [ca-certificates, curl, gnupg]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Add Docker's official GPG key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+
+- name: Add Docker apt repository
+  ansible.builtin.apt_repository:
+    repo: >
+      deb [arch={{ ansible_architecture | replace('x86_64','amd64') }}
+      signed-by=/etc/apt/keyrings/docker.asc]
+      https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+    filename: docker
+
+- name: Install Docker Engine + Compose plugin
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: Ensure docker service is running
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Allow ufw traffic for HTTP/HTTPS and IMAPS
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: ["80", "443", "993"]
+
+- name: Create the shared lab-proxy Docker network
+  community.docker.docker_network:
+    name: "{{ docker_proxy_network | default('lab-proxy') }}"
+    state: present
+
+- name: Copy repository to the Docker host
+  ansible.posix.synchronize:
+    src: "{{ repo_root_on_controller }}/"
+    dest: /opt/lab-small-business/
+    rsync_opts:
+      - "--exclude=.git"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Render each stack's .env from vault-sourced secrets
+  ansible.builtin.template:
+    src: "{{ item }}.env.j2"
+    dest: "/opt/lab-small-business/docker/{{ item }}/.env"
+    mode: "0600"
+  loop: "{{ docker_compose_stacks | default([]) }}"
+  when: item in ['nextcloud', 'onlyoffice']  # authentik/.env is rendered by the authentik playbook; mail/reverse-proxy need no secrets
+
+- name: Render Dovecot's LDAP auth config with the real bind password
+  ansible.builtin.template:
+    src: dovecot-ldap.conf.ext.j2
+    dest: /opt/lab-small-business/docker/mail/dovecot/dovecot-ldap.conf.ext
+    mode: "0640"
+  when: "'mail' in docker_compose_stacks | default([])"
+
+- name: Bring up each Compose stack
+  community.docker.docker_compose_v2:
+    project_src: "/opt/lab-small-business/docker/{{ item }}"
+    state: present
+  loop: "{{ docker_engine_compose_stacks | default(docker_compose_stacks) | default([]) }}"

@@ -1,0 +1,42 @@
+# Traefik dynamic configuration: TLS certificate bindings (lab PKI), TLS options, security
+# headers middleware, and the CRL/CA-chain static file routes referenced from docs/PKI.md.
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      sniStrict: true
+  certificates:
+    - certFile: /etc/traefik/certs/cloud.lab.local/fullchain.pem
+      keyFile: /etc/traefik/certs/cloud.lab.local/key.pem
+    - certFile: /etc/traefik/certs/docs.lab.local/fullchain.pem
+      keyFile: /etc/traefik/certs/docs.lab.local/key.pem
+    - certFile: /etc/traefik/certs/auth.lab.local/fullchain.pem
+      keyFile: /etc/traefik/certs/auth.lab.local/key.pem
+
+http:
+  middlewares:
+    security-headers:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        contentTypeNosniff: true
+        frameDeny: false
+        customFrameOptionsValue: SAMEORIGIN
+        referrerPolicy: "same-origin"
+
+  routers:
+    # Serves the Issuing CA cert + CRL for clients that fetch them via
+    # authorityInfoAccess / crlDistributionPoints (see pki/openssl/intermediate-ca.cnf).
+    pki-distribution:
+      rule: "Host(`auth.lab.local`) && (PathPrefix(`/pki`) || PathPrefix(`/crl`))"
+      service: pki-distribution-svc
+      tls: true
+      middlewares:
+        - security-headers
+
+  services:
+    pki-distribution-svc:
+      loadBalancer:
+        servers:
+          - url: "http://pki-static-server:80"

@@ -1,0 +1,35 @@
+version: 1
+metadata:
+  name: "LAB - Samba AD LDAP Source"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+entries:
+  - model: authentik_sources_ldap.ldapsource
+    identifiers:
+      slug: lab-samba-ad
+    attrs:
+      name: "Samba AD (lab.local)"
+      enabled: true
+      server_uri: "ldaps://samba-dc01.lab.local:636"
+      # Validates against the lab's own Issuing CA chain, bind-mounted into the server/worker
+      # containers - see docker/authentik/docker-compose.yml. TLS validation is never disabled.
+      peer_certificate: null
+      bind_cn: "CN=svc-authentik,OU=Service-Accounts,OU=LAB,DC=lab,DC=local"
+      bind_password: "!Env{AUTHENTIK_LDAP_BIND_PASSWORD}"
+      base_dn: "DC=lab,DC=local"
+      additional_user_dn: "OU=LAB"
+      additional_group_dn: "OU=LAB"
+      user_object_filter: "(&(objectClass=person)(objectCategory=person))"
+      group_object_filter: "(objectClass=group)"
+      group_membership_field: "member"
+      object_uniqueness_field: "objectSid"
+      sync_users: true
+      sync_users_password: false
+      sync_groups: true
+      # 5 minute sync interval - see docs/AuthentikAdmin.md#ldap-source-configuration
+      property_mappings:
+        - !Find [authentik_sources_ldap.ldappropertymapping, [managed, "goauthentik.io/sources/ldap/default-name"]]
+        - !Find [authentik_sources_ldap.ldappropertymapping, [managed, "goauthentik.io/sources/ldap/default-mail"]]
+        - !Find [authentik_sources_ldap.ldappropertymapping, [managed, "goauthentik.io/sources/ldap/ms-active-directory-default-upn"]]
+      property_mappings_group:
+        - !Find [authentik_sources_ldap.ldappropertymapping, [managed, "goauthentik.io/sources/ldap/default-name"]]

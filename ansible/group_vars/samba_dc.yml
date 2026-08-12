@@ -1,0 +1,8 @@
+---
+samba_netbios_name: SAMBA-DC01
+samba_dc_role: dc
+samba_dns_backend: SAMBA_INTERNAL
+samba_function_level: "2016"
+
+# samba_admin_password is defined in ansible/inventory/host_vars/samba-dc01/vault.yml
+# (Ansible Vault encrypted) — never in plaintext group_vars. See vault.yml.example.

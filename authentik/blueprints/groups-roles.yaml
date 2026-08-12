@@ -1,0 +1,37 @@
+version: 1
+metadata:
+  name: "LAB - Group Mappings"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+entries:
+  # Authentik groups mirroring the AD groups synced in by ldap-source.yaml. These are the
+  # groups referenced by mfa-policy.yaml's bindings and the OIDC "groups" scope claim
+  # consumed by NextCloud/OnlyOffice - see docs/AuthentikAdmin.md#role--group-mappings.
+  - model: authentik_core.group
+    identifiers:
+      name: IT-Admins
+    attrs:
+      is_superuser: false
+      attributes:
+        description: "Delegated admins of OU=LAB in Samba AD; superuser-equivalent for lab apps via role mapping, not Authentik itself."
+
+  - model: authentik_core.group
+    identifiers:
+      name: Docker-Admins
+    attrs:
+      attributes:
+        description: "Access to Traefik dashboard and container management tooling."
+
+  - model: authentik_core.group
+    identifiers:
+      name: Lecturers
+    attrs:
+      attributes:
+        description: "Teaching staff - elevated NextCloud group-folder rights."
+
+  - model: authentik_core.group
+    identifiers:
+      name: Students
+    attrs:
+      attributes:
+        description: "Standard NextCloud/mail access."

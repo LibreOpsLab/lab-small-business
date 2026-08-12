@@ -1,0 +1,11 @@
+---
+# Applied to docker_server + authentik_host (see inventory/hosts.ini [linux_clients:children]).
+# These hosts are domain-joined Linux machines like linux-client01, but managed via Ansible
+# rather than the interactive samba/scripts/join-linux-client.sh flow.
+
+sssd_enumerate: true
+sssd_use_fully_qualified_names: false
+sssd_computer_ou: "OU=Linux,OU=Workstations,OU=LAB,DC=lab,DC=local"
+
+# join_domain_user/join_domain_password are defined per-host in
+# ansible/inventory/host_vars/<host>/vault.yml (Ansible Vault encrypted).

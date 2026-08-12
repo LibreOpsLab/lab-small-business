@@ -1,0 +1,37 @@
+services:
+  dovecot:
+    image: dovecot/dovecot:2.3-latest
+    container_name: dovecot
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # IMAPS only - no plaintext IMAP/POP3 exposed, matching the LDAPS-only posture used
+      # elsewhere in the lab (see docs/Security.md).
+      - "993:993"
+    volumes:
+      - ./dovecot/dovecot.conf:/etc/dovecot/dovecot.conf:ro
+      - ./dovecot/dovecot-ldap.conf.ext:/etc/dovecot/dovecot-ldap.conf.ext:ro
+      - mail_data:/var/mail
+      - ../../pki/issued/mail.lab.local/fullchain.pem:/etc/dovecot/tls/fullchain.pem:ro
+      - ../../pki/issued/mail.lab.local/key.pem:/etc/dovecot/tls/key.pem:ro
+      - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/etc/dovecot/tls/ca-chain.pem:ro
+    # dovecot-ldap.conf.ext above is overwritten with real bind credentials by
+    # ansible/roles/docker_engine before this stack starts — see the comment at the top
+    # of dovecot/dovecot-ldap.conf.ext. No secrets are templated via environment here
+    # because Dovecot's config parser cannot expand them.
+    networks:
+      - lab-proxy
+    labels:
+      # Not a Traefik-routed HTTP service - IMAPS is TLS-terminated by Dovecot itself and
+      # published directly above. Label present only so it's visible in `docker network
+      # inspect lab-proxy` alongside the HTTP apps for teaching clarity.
+      - traefik.enable=false
+
+networks:
+  lab-proxy:
+    name: lab-proxy
+    external: true
+
+volumes:
+  mail_data:

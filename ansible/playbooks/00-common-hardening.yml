@@ -1,0 +1,15 @@
+---
+# Baseline host hardening applied to every Linux host: SSH, ufw, unattended-upgrades,
+# sysctl, NTP against samba-dc01. See docs/Security.md#host-hardening-ansible-common-role.
+
+- name: Apply common hardening baseline
+  hosts: linux
+  become: true
+  roles:
+    - common
+
+- name: Install Fail2Ban on application-plane hosts (not the DC - see docs/Security.md#fail2ban)
+  hosts: linux_clients
+  become: true
+  roles:
+    - fail2ban

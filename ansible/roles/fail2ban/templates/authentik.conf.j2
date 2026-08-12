@@ -1,0 +1,8 @@
+\
+# {{ ansible_managed }}
+# Matches Authentik's structured JSON access logs for repeated failed-login events.
+# See docs/Security.md#fail2ban.
+
+[Definition]
+failregex = ^.*"client_ip":\s*"<HOST>".*"event":\s*"login_failed".*$
+ignoreregex =

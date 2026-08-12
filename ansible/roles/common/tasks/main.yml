@@ -1,0 +1,76 @@
+---
+# See docs/Security.md#host-hardening-ansible-common-role
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name:
+      - chrony
+      - ufw
+      - unattended-upgrades
+      - fail2ban
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Point chrony at samba-dc01 for NTP (Kerberos requires tight clock sync)
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+    mode: "0644"
+  notify: restart chrony
+
+- name: Harden sshd_config - disable root login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: "PermitRootLogin {{ ssh_permit_root_login }}"
+  notify: restart sshd
+
+- name: Harden sshd_config - key-based auth only
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: "PasswordAuthentication {{ ssh_password_authentication }}"
+  notify: restart sshd
+
+- name: Enable unattended-upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    mode: "0644"
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+  when: unattended_upgrades_enabled | bool
+
+- name: Apply lab sysctl hardening
+  ansible.builtin.template:
+    src: 99-lab-hardening.conf.j2
+    dest: /etc/sysctl.d/99-lab-hardening.conf
+    mode: "0644"
+  notify: reload sysctl
+
+- name: Render shared /etc/motd
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../../templates/motd.j2"
+    dest: /etc/motd
+    mode: "0644"
+
+- name: Render shared static /etc/hosts fallback entries
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../../templates/hosts.j2"
+    dest: /etc/hosts
+    mode: "0644"
+
+- name: Default-deny inbound via ufw, allow SSH
+  community.general.ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+
+- name: Allow SSH through ufw
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp

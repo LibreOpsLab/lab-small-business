@@ -1,0 +1,48 @@
+version: 1
+metadata:
+  name: "LAB - MFA Policy"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+entries:
+  - model: authentik_stages_authenticator_totp.authenticatortotpstage
+    identifiers:
+      name: lab-totp-stage
+    attrs:
+      digits: 6
+      friendly_name: "LAB Authenticator App"
+    id: totp-stage
+
+  # Required for IT-Admins / Docker-Admins: policy evaluates true only for members of those
+  # groups, and the stage is bound as "not configured -> forced enrollment" in the default
+  # authentication flow's stage binding (order 30, after password, before session creation).
+  - model: authentik_policies_expression.expressionpolicy
+    identifiers:
+      name: lab-mfa-required-admins
+    attrs:
+      expression: |
+        return ak_is_group_member(request.user, name="IT-Admins") or \
+               ak_is_group_member(request.user, name="Docker-Admins")
+    id: mfa-required-policy
+
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+      stage: !KeyOf totp-stage
+      order: 30
+    attrs:
+      evaluate_on_plan: true
+      re_evaluate_policies: true
+      policy_engine_mode: any
+    id: mfa-binding
+
+  - model: authentik_policies.policybinding
+    identifiers:
+      target: !KeyOf mfa-binding
+      policy: !KeyOf mfa-required-policy
+      order: 0
+    attrs:
+      enabled: true
+      # Non-matching users (Students/Lecturers) still see the TOTP stage but it is marked
+      # optional/skippable at the flow-executor level per docs/AuthentikAdmin.md#mfa-policy -
+      # this policy only controls enforcement, not visibility.
+      negate: false

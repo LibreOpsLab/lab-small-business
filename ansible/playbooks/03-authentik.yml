@@ -1,0 +1,40 @@
+---
+# Brings up Authentik and applies its blueprints by delegating to
+# authentik/scripts/bootstrap-authentik.sh from the control node (Authentik's own bootstrap
+# logic is intentionally script-driven rather than reimplemented in Ansible modules — see
+# authentik/README.md).
+
+- name: Deploy Authentik IAM stack
+  hosts: authentik_host
+  become: true
+  vars_files:
+    - "{{ inventory_dir }}/host_vars/authentik01/vault.yml"
+  tasks:
+    - name: Ensure Docker Engine is installed
+      import_role:
+        name: docker_engine
+      vars:
+        docker_engine_compose_stacks: []  # this role instance only installs the engine/CLI
+
+    - name: Copy repository to the Authentik host
+      ansible.posix.synchronize:
+        src: "{{ repo_root_on_controller }}/"
+        dest: /opt/lab-small-business/
+        rsync_opts:
+          - "--exclude=.git"
+      delegate_to: "{{ inventory_hostname }}"
+
+    - name: Render docker/authentik/.env from vault-sourced secrets
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../roles/docker_engine/templates/authentik.env.j2"
+        dest: /opt/lab-small-business/docker/authentik/.env
+        mode: "0600"
+
+    - name: Run bootstrap-authentik.sh --sync-secrets
+      ansible.builtin.command: ./bootstrap-authentik.sh --sync-secrets
+      args:
+        chdir: /opt/lab-small-business/authentik/scripts
+      environment:
+        AUTHENTIK_LDAP_BIND_PASSWORD: "{{ authentik_ldap_bind_password }}"
+      register: bootstrap_result
+      changed_when: "'Bootstrap complete' in bootstrap_result.stdout"

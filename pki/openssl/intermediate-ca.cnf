@@ -1,0 +1,84 @@
+# OpenSSL configuration for the LAB Issuing CA (online, day-to-day issuance).
+# Consumed by pki/scripts/01-init-intermediate-ca.sh and 02-issue-server-cert.sh.
+# Paths are relative to pki/intermediate-ca/ at runtime.
+#
+# To switch the lab from RSA to ECDSA for teaching purposes, change default_md to sha256 and
+# generate keys with `openssl ecparam -genkey -name prime256v1` instead of `genrsa` in the
+# issuance scripts — default_bits below is then ignored for EC keys.
+
+[ ca ]
+default_ca = ca_default
+
+[ ca_default ]
+dir               = .
+certs             = $dir/certs
+crl_dir           = $dir/crl
+new_certs_dir     = $dir/db
+database          = $dir/db/index.txt
+serial            = $dir/db/serial
+RANDFILE          = $dir/private/.rand
+
+private_key       = $dir/private/intermediate.key.pem
+certificate       = $dir/certs/intermediate.cert.pem
+
+crlnumber         = $dir/db/crlnumber
+crl               = $dir/crl/intermediate.crl.pem
+crl_extensions    = crl_ext
+default_crl_days  = 30
+
+default_md        = sha384
+default_days      = 397
+preserve           = no
+policy            = policy_loose
+copy_extensions   = copy
+
+[ policy_loose ]
+countryName             = optional
+stateOrProvinceName     = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ req ]
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+string_mask        = utf8only
+default_md         = sha384
+x509_extensions    = v3_intermediate_ca
+
+[ req_distinguished_name ]
+countryName                     = Country Name (2 letter code)
+stateOrProvinceName              = State or Province Name
+localityName                     = Locality Name
+0.organizationName               = Organization Name
+organizationalUnitName           = Organizational Unit Name
+commonName                       = Common Name
+commonName_max                   = 64
+
+[ v3_intermediate_ca ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints        = critical, CA:true, pathlen:0
+keyUsage                = critical, digitalSignature, cRLSign, keyCertSign
+
+[ server_cert ]
+basicConstraints        = CA:FALSE
+nsCertType              = server
+nsComment               = "LAB Issuing CA — Server Certificate"
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid,issuer:always
+keyUsage                = critical, digitalSignature, keyEncipherment
+extendedKeyUsage        = serverAuth
+authorityInfoAccess     = @issuer_info
+crlDistributionPoints   = @crl_info
+subjectAltName          = $ENV::SAN
+
+[ issuer_info ]
+caIssuers;URI.0 = http://auth.lab.local/pki/intermediate.cert.pem
+
+[ crl_info ]
+URI.0 = http://auth.lab.local/crl/intermediate.crl.pem
+
+[ crl_ext ]
+authorityKeyIdentifier = keyid:always

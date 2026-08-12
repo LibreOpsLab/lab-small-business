@@ -1,0 +1,35 @@
+# Traefik static configuration.
+# TLS certs are the lab's own PKI-issued certs (pki/scripts/02-issue-server-cert.sh), not
+# ACME/Let's Encrypt — this is an isolated internal lab with no public DNS. See docs/PKI.md.
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        options: default
+
+api:
+  dashboard: true
+  insecure: false
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: lab-proxy
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
+log:
+  level: INFO
+
+accessLog: {}

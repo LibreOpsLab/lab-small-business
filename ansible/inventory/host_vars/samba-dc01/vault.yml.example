@@ -1,0 +1,6 @@
+---
+# Copy to vault.yml and encrypt with: ansible-vault encrypt vault.yml
+# Never commit an unencrypted vault.yml — see docs/Security.md#secrets-management.
+
+samba_admin_password: "changeme-strong-password"
+samba_seed_password: "changeme-initial-password-for-seeded-users"

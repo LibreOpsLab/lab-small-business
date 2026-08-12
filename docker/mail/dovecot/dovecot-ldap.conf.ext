@@ -1,0 +1,25 @@
+# LDAP auth backend for Dovecot, against Samba AD. Referenced from dovecot.conf's passdb/userdb.
+# Dovecot's config parser does not expand container environment variables, so the bind DN
+# and password below are placeholders — ansible/roles/docker_engine renders this file from
+# ansible/roles/docker_engine/templates/dovecot-ldap.conf.ext.j2 (same content, with
+# {{ dovecot_ldap_bind_dn }} / {{ dovecot_ldap_bind_pass }} sourced from Ansible Vault) and
+# bind-mounts the rendered version over this path. This checked-in copy is the reference
+# example for anyone configuring it by hand.
+
+hosts = samba-dc01.lab.local:636
+tls = yes
+tls_ca_cert_file = /etc/dovecot/tls/ca-chain.pem
+
+dn = CN=svc-dovecot,OU=Service-Accounts,OU=LAB,DC=lab,DC=local
+dnpass = changeme-set-via-ansible-vault
+
+auth_bind = yes
+auth_bind_userdn = %u@lab.local
+
+base = OU=LAB,DC=lab,DC=local
+scope = subtree
+
+user_filter = (&(objectClass=person)(sAMAccountName=%n))
+pass_filter = (&(objectClass=person)(sAMAccountName=%n))
+
+user_attrs = homeDirectory=home,uidNumber=uid,gidNumber=gid

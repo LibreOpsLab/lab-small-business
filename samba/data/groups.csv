@@ -1,0 +1,5 @@
+# group_name,description
+Students,"Student accounts - standard NextCloud/mail access"
+Lecturers,"Teaching staff accounts - elevated NextCloud group-folder access"
+IT-Admins,"Delegated administration of OU=LAB (not Domain Admins)"
+Docker-Admins,"Access to Traefik dashboard and container management tooling"

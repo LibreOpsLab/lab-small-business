@@ -1,0 +1,5 @@
+# username,given_name,surname,ou,groups(|-separated),description
+lecturer01,Lena,Carter,"OU=Lecturers,OU=Staff,OU=LAB",Lecturers,"Sample teaching-staff account"
+student01,Sam,Ahmed,"OU=Students,OU=LAB",Students,"Sample student account"
+student02,Priya,Nair,"OU=Students,OU=LAB",Students,"Sample student account"
+svc-authentik,svc,authentik,"OU=Service-Accounts,OU=LAB",,"LDAP bind account for Authentik LDAP Source - no privileged group membership"

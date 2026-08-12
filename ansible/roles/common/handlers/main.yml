@@ -1,0 +1,14 @@
+---
+- name: restart chrony
+  ansible.builtin.systemd:
+    name: chrony
+    state: restarted
+
+- name: restart sshd
+  ansible.builtin.systemd:
+    name: ssh
+    state: restarted
+
+- name: reload sysctl
+  ansible.builtin.command: sysctl --system
+  changed_when: true

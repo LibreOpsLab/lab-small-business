@@ -1,0 +1,12 @@
+---
+# Domain-joins Ansible-managed Linux hosts (docker01, authentik01) via SSSD. linux-client01
+# is joined interactively instead — see samba/scripts/join-linux-client.sh and
+# docs/DeploymentGuide.md#7-endpoints.
+
+- name: Join Linux hosts to LAB.LOCAL via SSSD
+  hosts: linux_clients
+  become: true
+  vars_files:
+    - "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/vault.yml"
+  roles:
+    - sssd_client

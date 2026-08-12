@@ -1,0 +1,53 @@
+# --- Secrets & generated credentials ---
+**/*.env
+!**/*.env.example
+**/secrets/
+**/*.key
+**/*.pem
+!pki/openssl/*.cnf
+**/vault_pass.txt
+**/*.vault.yml
+ansible/inventory/host_vars/*/vault.yml
+!ansible/inventory/host_vars/*/vault.yml.example
+
+# --- PKI generated material (never commit real key material) ---
+pki/root-ca/private/
+pki/root-ca/certs/*.pem
+pki/root-ca/db/
+pki/intermediate-ca/private/
+pki/intermediate-ca/certs/*.pem
+pki/intermediate-ca/db/
+pki/issued/
+
+# --- Terraform / state ---
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.backup
+**/*.tfvars
+!**/*.tfvars.example
+
+# --- Docker ---
+**/volumes/
+**/data/postgres/
+**/data/redis/
+**/data/nextcloud/
+**/data/mail/
+
+# --- VMware Workstation artifacts ---
+workstation/vms/**/*.vmdk
+workstation/vms/**/*.nvram
+workstation/vms/**/*.vmsd
+workstation/vms/**/*.vmx.lck/
+workstation/vms/**/*.log
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# --- Ansible ---
+*.retry
+ansible/collections/
+ansible/roles/external/

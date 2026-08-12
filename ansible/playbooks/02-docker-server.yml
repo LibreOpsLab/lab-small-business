@@ -1,0 +1,12 @@
+---
+# Installs Docker Engine and brings up the reverse proxy + application Compose stacks.
+# Run with --tags apps to iterate on just the application layer without re-running the
+# Docker Engine install tasks. See docs/DeploymentGuide.md#6-applications.
+
+- name: Configure Docker application server
+  hosts: docker_server
+  become: true
+  vars_files:
+    - "{{ inventory_dir }}/host_vars/docker01/vault.yml"
+  roles:
+    - docker_engine

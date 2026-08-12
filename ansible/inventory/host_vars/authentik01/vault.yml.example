@@ -1,0 +1,12 @@
+---
+# Copy to vault.yml and encrypt with: ansible-vault encrypt vault.yml
+
+join_domain_user: "administrator"
+join_domain_password: "changeme-strong-password"
+authentik_ldap_bind_password: "changeme-svc-authentik-password"
+
+# Generate each of these with: openssl rand -base64 36
+authentik_pg_pass: "changeme-generate-with-openssl-rand"
+authentik_secret_key: "changeme-generate-with-openssl-rand"
+authentik_bootstrap_password: "changeme-strong-password"
+authentik_bootstrap_token: "changeme-generate-with-openssl-rand"

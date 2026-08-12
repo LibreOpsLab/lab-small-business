@@ -1,0 +1,20 @@
+\
+# {{ ansible_managed }}
+# All lab hosts sync against samba-dc01 rather than public NTP, per docs/Security.md —
+# Samba AD requires tight clock sync for Kerberos, and keeping the domain self-contained
+# avoids depending on WAN reachability for time sync.
+{% if inventory_hostname in groups['samba_dc'] %}
+# This host IS samba-dc01 — it is the authoritative time source for the domain, so it syncs
+# against the public pool (via pfSense's NAT) instead of itself.
+pool 2.pool.ntp.org iburst
+allow 10.10.0.0/24
+local stratum 10
+{% else %}
+server {{ samba_dc_fqdn | default('samba-dc01.lab.local') }} iburst
+{% endif %}
+
+driftfile /var/lib/chrony/chrony.drift
+makestep 1.0 3
+rtcsync
+
+logdir /var/log/chrony

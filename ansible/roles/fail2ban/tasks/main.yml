@@ -1,0 +1,44 @@
+---
+# Installs Fail2Ban on docker01 and authentik01 only — not on the Samba AD DC, where AD's own
+# account-lockout policy is the correct control instead. See
+# docs/Security.md#fail2ban for the rationale.
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+
+- name: Install SSH jail (all hosts this role targets)
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/sshd.local
+    mode: "0644"
+    content: |
+      [sshd]
+      enabled = true
+      maxretry = 5
+      bantime = 1h
+      findtime = 10m
+  notify: restart fail2ban
+
+- name: Install Authentik custom filter
+  ansible.builtin.template:
+    src: authentik.conf.j2
+    dest: /etc/fail2ban/filter.d/authentik.conf
+    mode: "0644"
+  when: "'authentik_host' in group_names"
+  notify: restart fail2ban
+
+- name: Install Authentik jail
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/authentik.local
+    mode: "0644"
+    content: |
+      [authentik]
+      enabled = true
+      filter = authentik
+      logpath = /opt/lab-small-business/docker/authentik/logs/*.log
+      maxretry = 5
+      bantime = 1h
+      findtime = 10m
+  when: "'authentik_host' in group_names"
+  notify: restart fail2ban

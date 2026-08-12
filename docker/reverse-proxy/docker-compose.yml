@@ -1,0 +1,54 @@
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - --configFile=/etc/traefik/traefik.yml
+    ports:
+      - "80:80"
+      - "443:443"
+      # Dashboard is exposed only via the lab-proxy network + Traefik router (see dynamic.yml),
+      # not published directly here — access is gated by the Docker-Admins OIDC group.
+    networks:
+      - lab-proxy
+    volumes:
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - traefik_acme:/etc/traefik/acme
+      - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/etc/ssl/certs/lab-ca-chain.pem:ro
+      - ../../pki/issued:/etc/traefik/certs:ro
+      - ../../pki/intermediate-ca/crl:/etc/traefik/crl:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik-dashboard.rule=Host(`docker01.lab.local`) && PathPrefix(`/dashboard`)
+      - traefik.http.routers.traefik-dashboard.service=api@internal
+      - traefik.http.routers.traefik-dashboard.tls=true
+      - traefik.http.routers.traefik-dashboard.middlewares=security-headers@file
+
+  # Minimal static file server exposing the Issuing CA cert + CRL at /pki and /crl, routed
+  # to by traefik/dynamic.yml's pki-distribution router (auth.lab.local/pki, /crl).
+  pki-static-server:
+    image: nginx:1.27-alpine
+    container_name: pki-static-server
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - lab-proxy
+    volumes:
+      - ../../pki/intermediate-ca/certs:/usr/share/nginx/html/pki:ro
+      - ../../pki/intermediate-ca/crl:/usr/share/nginx/html/crl:ro
+    labels:
+      - traefik.enable=true
+
+networks:
+  lab-proxy:
+    name: lab-proxy
+    external: true
+
+volumes:
+  traefik_acme:

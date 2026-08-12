@@ -1,0 +1,147 @@
+services:
+  postgresql:
+    image: postgres:16-alpine
+    container_name: authentik-postgresql
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - authentik_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${AUTHENTIK_PG_PASS}
+      POSTGRES_USER: ${AUTHENTIK_PG_USER:-authentik}
+      POSTGRES_DB: ${AUTHENTIK_PG_DB:-authentik}
+    networks:
+      - authentik-internal
+
+  redis:
+    image: redis:7-alpine
+    container_name: authentik-redis
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command: --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - authentik_redis:/data
+    networks:
+      - authentik-internal
+
+  server:
+    image: ghcr.io/goauthentik/server:2024.10
+    container_name: authentik-server
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_PG_USER:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_PG_DB:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTHENTIK_BOOTSTRAP_TOKEN: ${AUTHENTIK_BOOTSTRAP_TOKEN}
+      AUTHENTIK_COOKIE_DOMAIN: lab.local
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+      AUTHENTIK_DISABLE_UPDATE_CHECK: "true"
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+      - ../../authentik/blueprints:/blueprints:ro
+      - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/etc/ssl/certs/lab-ca-chain.pem:ro
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - authentik-internal
+      - lab-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=lab-proxy
+      - traefik.http.routers.authentik.rule=Host(`auth.lab.local`)
+      - traefik.http.routers.authentik.tls=true
+      - traefik.http.routers.authentik.middlewares=security-headers@file
+      - traefik.http.services.authentik.loadbalancer.server.port=9000
+
+  worker:
+    image: ghcr.io/goauthentik/server:2024.10
+    container_name: authentik-worker
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_PG_USER:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_PG_DB:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+    user: root  # required by upstream image to manage the Docker-mounted certs volume
+    volumes:
+      - authentik_media:/media
+      - authentik_templates:/templates
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../../authentik/blueprints:/blueprints:ro
+      - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/etc/ssl/certs/lab-ca-chain.pem:ro
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - authentik-internal
+
+  pg-backup:
+    image: postgres:16-alpine
+    container_name: authentik-pg-backup
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    entrypoint: >
+      sh -c "while true; do
+        PGPASSWORD=$${POSTGRES_PASSWORD} pg_dump -h postgresql -U $${POSTGRES_USER} $${POSTGRES_DB}
+          > /backups/authentik-$$(date +%F).sql;
+        find /backups -name 'authentik-*.sql' -mtime +14 -delete;
+        sleep 86400;
+      done"
+    environment:
+      POSTGRES_USER: ${AUTHENTIK_PG_USER:-authentik}
+      POSTGRES_DB: ${AUTHENTIK_PG_DB:-authentik}
+      POSTGRES_PASSWORD: ${AUTHENTIK_PG_PASS}
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - authentik-internal
+
+networks:
+  authentik-internal:
+    name: authentik-internal
+  lab-proxy:
+    name: lab-proxy
+    external: true
+
+volumes:
+  authentik_db:
+  authentik_redis:
+  authentik_media:
+  authentik_templates:

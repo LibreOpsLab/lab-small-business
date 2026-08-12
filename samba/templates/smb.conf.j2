@@ -1,0 +1,30 @@
+\
+# {{ ansible_managed | default("Managed by ansible/roles/samba_ad — do not edit by hand.") }}
+# Rendered for {{ inventory_hostname | default('samba-dc01.lab.local') }}
+
+[global]
+    netbios name = {{ samba_netbios_name | default('SAMBA-DC01') }}
+    realm = {{ lab_realm | default('LAB.LOCAL') }}
+    workgroup = {{ lab_netbios | default('LAB') }}
+    dns forwarder = {{ dns_forwarder | default('10.10.0.1') }}
+    server role = active directory domain controller
+    server services = s3fs, rpc, nbt, wrepl, ldap, cldap, kdc, drepl, winbind, ntp_signd, kcc, dnsupdate, dns
+
+    idmap_ldb:use rfc2307 = yes
+
+    # LDAPS for Authentik / Dovecot / any client that should not use plaintext LDAP.
+    tls enabled  = yes
+    tls keyfile  = /etc/samba/tls/samba-dc01.lab.local.key.pem
+    tls certfile = /etc/samba/tls/samba-dc01.lab.local.cert.pem
+    tls cafile   = /etc/samba/tls/ca-chain.cert.pem
+
+    # Kerberos ticket policy tuning (see docs/SambaAdmin.md)
+    kdc default domain supported enctypes = aes256-cts-hmac-sha1-96 aes128-cts-hmac-sha1-96
+
+[sysvol]
+    path = /var/lib/samba/sysvol
+    read only = No
+
+[netlogon]
+    path = /var/lib/samba/sysvol/{{ lab_domain | default('lab.local') }}/scripts
+    read only = No

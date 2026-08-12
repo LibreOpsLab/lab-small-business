@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<!--
+  LAB pfSense baseline configuration template.
+  Import via Diagnostics > Backup & Restore > Restore config, AFTER replacing the
+  __WAN_IF__ / __LAN_IF__ / __HOSTNAME__ placeholders with the interface names pfSense
+  assigned during install (shown at the "Assign Interfaces" console step).
+  See pfsense/README.md for the full checklist.
+-->
+<pfsense>
+  <version>22.1</version>
+  <system>
+    <hostname>__HOSTNAME__</hostname>
+    <domain>lab.local</domain>
+    <timezone>Etc/UTC</timezone>
+    <timeservers>10.10.0.10</timeservers>
+    <webgui>
+      <protocol>https</protocol>
+    </webgui>
+    <dnsserver>10.10.0.10</dnsserver>
+    <dnsallowoverride>false</dnsallowoverride>
+  </system>
+
+  <interfaces>
+    <wan>
+      <if>__WAN_IF__</if>
+      <ipaddr>dhcp</ipaddr>
+      <blockpriv>false</blockpriv>
+      <blockbogons>true</blockbogons>
+    </wan>
+    <lan>
+      <if>__LAN_IF__</if>
+      <ipaddr>10.10.0.1</ipaddr>
+      <subnet>24</subnet>
+    </lan>
+  </interfaces>
+
+  <dhcpd>
+    <lan>
+      <enable>1</enable>
+      <range>
+        <from>10.10.0.100</from>
+        <to>10.10.0.199</to>
+      </range>
+      <gateway>10.10.0.1</gateway>
+      <domain>lab.local</domain>
+      <dnsserver>10.10.0.10</dnsserver>
+      <defaultleasetime>7200</defaultleasetime>
+      <maxleasetime>86400</maxleasetime>
+    </lan>
+  </dhcpd>
+
+  <unbound>
+    <!-- DNS Resolver: forwarding mode, LAN-only, forwards *.lab.local queries and PTR
+         for 10.10.0.0/24 to Samba AD; everything else follows normal recursive/forwarding
+         resolution out the WAN. -->
+    <enable>1</enable>
+    <dnssec>1</dnssec>
+    <forwarding>1</forwarding>
+    <active_interface>lan</active_interface>
+    <outgoing_interface>wan</outgoing_interface>
+    <custom_options><![CDATA[
+server:
+  private-domain: "lab.local"
+forward-zone:
+  name: "lab.local."
+  forward-addr: 10.10.0.10
+forward-zone:
+  name: "0.10.10.in-addr.arpa."
+  forward-addr: 10.10.0.10
+]]></custom_options>
+  </unbound>
+
+  <filter>
+    <!-- Anti-lockout rule for the GUI is implicit/managed by pfSense; rules below are
+         the LAN ruleset described in docs/Security.md#firewall-recommendations-pfsense -->
+    <rule>
+      <descr>LAN to Samba AD DC - directory services</descr>
+      <interface>lan</interface>
+      <protocol>tcp/udp</protocol>
+      <source><network>lan</network></source>
+      <destination>
+        <address>10.10.0.10</address>
+        <port>53,88,123,135,137:139,389,445,464,636,3268:3269</port>
+      </destination>
+      <type>pass</type>
+    </rule>
+    <rule>
+      <descr>LAN to Docker app server - HTTP/HTTPS</descr>
+      <interface>lan</interface>
+      <protocol>tcp</protocol>
+      <source><network>lan</network></source>
+      <destination>
+        <address>10.10.0.20</address>
+        <port>80,443</port>
+      </destination>
+      <type>pass</type>
+    </rule>
+    <rule>
+      <descr>LAN to Authentik - HTTPS</descr>
+      <interface>lan</interface>
+      <protocol>tcp</protocol>
+      <source><network>lan</network></source>
+      <destination>
+        <address>10.10.0.30</address>
+        <port>443</port>
+      </destination>
+      <type>pass</type>
+    </rule>
+    <rule>
+      <descr>Block Authentik from using plaintext LDAP (force LDAPS)</descr>
+      <interface>lan</interface>
+      <protocol>tcp</protocol>
+      <source><address>10.10.0.30</address></source>
+      <destination>
+        <address>10.10.0.10</address>
+        <port>389</port>
+      </destination>
+      <type>block</type>
+      <log>1</log>
+    </rule>
+    <rule>
+      <descr>LAN to WAN - outbound web/DNS only</descr>
+      <interface>lan</interface>
+      <protocol>tcp/udp</protocol>
+      <source><network>lan</network></source>
+      <destination>
+        <any>1</any>
+        <port>80,443,53</port>
+      </destination>
+      <type>pass</type>
+    </rule>
+    <rule>
+      <descr>Default deny (implicit in pfSense, shown here for documentation)</descr>
+      <interface>lan</interface>
+      <source><any>1</any></source>
+      <destination><any>1</any></destination>
+      <type>block</type>
+      <log>1</log>
+    </rule>
+  </filter>
+
+  <syslog>
+    <enable>1</enable>
+    <filterdescriptions>1</filterdescriptions>
+  </syslog>
+</pfsense>

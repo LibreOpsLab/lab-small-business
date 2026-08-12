@@ -1,0 +1,54 @@
+---
+# Distributes the LAB Root + Issuing CA certs to a Linux host's system trust store. See
+# docs/PKI.md#trust-deployment.
+
+- name: Copy Root CA certificate
+  ansible.builtin.copy:
+    src: "{{ pki_root_ca_cert }}"
+    dest: /usr/local/share/ca-certificates/lab-root-ca.crt
+    mode: "0644"
+  register: root_ca_copied
+
+- name: Copy Issuing CA certificate
+  ansible.builtin.copy:
+    src: "{{ pki_intermediate_ca_cert }}"
+    dest: /usr/local/share/ca-certificates/lab-issuing-ca.crt
+    mode: "0644"
+  register: intermediate_ca_copied
+
+- name: Update the system CA trust store
+  ansible.builtin.command: update-ca-certificates
+  when: root_ca_copied.changed or intermediate_ca_copied.changed
+  changed_when: true
+
+- name: Install a weekly certificate-expiry check timer (disabled by default)
+  ansible.builtin.copy:
+    dest: "/etc/systemd/system/lab-cert-expiry-check.{{ item.ext }}"
+    mode: "0644"
+    content: "{{ item.content }}"
+  loop:
+    - ext: service
+      content: |
+        [Unit]
+        Description=LAB certificate expiry check (dry-run report only, see docs/PKI.md#renewal)
+
+        [Service]
+        Type=oneshot
+        ExecStart=/opt/lab-small-business/pki/scripts/03-renew-cert.sh --check
+    - ext: timer
+      content: |
+        [Unit]
+        Description=Weekly LAB certificate expiry check
+
+        [Timer]
+        OnCalendar=weekly
+        Persistent=true
+
+        [Install]
+        WantedBy=timers.target
+  when: "'docker_server' in group_names"
+
+- name: Reload systemd units
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: "'docker_server' in group_names"

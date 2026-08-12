@@ -1,0 +1,106 @@
+---
+# Installs the scheduled backup jobs described in docs/Backup.md: Samba AD's daily systemd
+# timer, and Docker volume/PKI backups on docker01.
+
+- name: Install Samba AD backup timer
+  hosts: samba_dc
+  become: true
+  tasks:
+    - name: Copy backup-ad.sh to /usr/local/sbin
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../samba/scripts/backup-ad.sh"
+        dest: /usr/local/sbin/lab-samba-backup.sh
+        mode: "0700"
+
+    - name: Install systemd service unit
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/lab-samba-backup.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=LAB Samba AD backup (see docs/Backup.md#samba-ad)
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/sbin/lab-samba-backup.sh
+
+    - name: Install systemd timer unit (daily, 02:00)
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/lab-samba-backup.timer
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Daily LAB Samba AD backup
+
+          [Timer]
+          OnCalendar=*-*-* 02:00:00
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+
+    - name: Enable and start the backup timer
+      ansible.builtin.systemd:
+        name: lab-samba-backup.timer
+        enabled: true
+        state: started
+        daemon_reload: true
+
+- name: Install Docker volume and PKI backup job
+  hosts: docker_server
+  become: true
+  tasks:
+    - name: Ensure backup destination directory exists
+      ansible.builtin.file:
+        path: /opt/lab-backups
+        state: directory
+        mode: "0700"
+
+    - name: Install docker volume + PKI backup script
+      ansible.builtin.copy:
+        dest: /usr/local/sbin/lab-docker-backup.sh
+        mode: "0700"
+        content: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+          DATE="$(date +%F)"
+          for volume in nextcloud_data nextcloud_db onlyoffice_data mail_data; do
+            docker run --rm -v "${volume}:/data" -v /opt/lab-backups:/backup alpine \
+              tar czf "/backup/${volume}-${DATE}.tar.gz" -C /data .
+          done
+          tar czf "/opt/lab-backups/pki-${DATE}.tar.gz" -C /opt/lab-small-business \
+            pki/intermediate-ca pki/issued
+          find /opt/lab-backups -name '*.tar.gz' -mtime +14 -delete
+
+    - name: Install systemd service + daily timer for docker backups
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/lab-docker-backup.{{ item.ext }}"
+        mode: "0644"
+        content: "{{ item.content }}"
+      loop:
+        - ext: service
+          content: |
+            [Unit]
+            Description=LAB Docker volume + PKI backup (see docs/Backup.md)
+
+            [Service]
+            Type=oneshot
+            ExecStart=/usr/local/sbin/lab-docker-backup.sh
+        - ext: timer
+          content: |
+            [Unit]
+            Description=Daily LAB Docker volume + PKI backup
+
+            [Timer]
+            OnCalendar=*-*-* 03:00:00
+            Persistent=true
+
+            [Install]
+            WantedBy=timers.target
+
+    - name: Enable and start the backup timer
+      ansible.builtin.systemd:
+        name: lab-docker-backup.timer
+        enabled: true
+        state: started
+        daemon_reload: true

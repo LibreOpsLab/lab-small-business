@@ -1,0 +1,28 @@
+\
+# {{ ansible_managed | default("Managed by ansible/roles/sssd_client — do not edit by hand.") }}
+# See docs/SambaAdmin.md#linux-client-integration-sssd
+
+[sssd]
+services = nss, pam
+domains = {{ lab_domain | default('lab.local') }}
+
+[domain/{{ lab_domain | default('lab.local') }}]
+id_provider = ad
+access_provider = ad
+auth_provider = ad
+chpass_provider = ad
+
+ad_domain = {{ lab_domain | default('lab.local') }}
+krb5_realm = {{ lab_realm | default('LAB.LOCAL') }}
+realmd_tags = manages-system joined-with-adcli
+
+cache_credentials = True
+default_shell = /bin/bash
+fallback_homedir = /home/%u
+use_fully_qualified_names = False
+ldap_id_mapping = True
+
+# Teaching-lab convenience: lets `getent passwd`/group enumerate AD accounts locally so
+# students can explore group membership without an AD-side tool. Disable for production
+# (set to False) — enumeration is expensive at real-world directory scale.
+enumerate = True
