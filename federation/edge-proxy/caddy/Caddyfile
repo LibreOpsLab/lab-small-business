@@ -1,0 +1,36 @@
+# Edge reverse proxy for cross-business ("class internet") traffic. Terminates TLS with the
+# class-CA-signed cert from federation/scripts/request-class-cert.sh, then forwards to the
+# INTERNAL Traefik stack with the Host header rewritten to the internal hostname it already
+# knows how to route — zero changes needed to docker/reverse-proxy/traefik/dynamic.yml.
+# See docs/ClassRegistry.md#edge-proxy-setup.
+#
+# Replace "acme" below with your business's registered name throughout.
+
+{
+	admin off
+}
+
+cloud.acme.lab.internet {
+	tls /certs/acme.fullchain.pem /certs/acme.key.pem
+	reverse_proxy https://traefik:443 {
+		header_up Host cloud.acme.internal
+		transport http {
+			tls_trust_pool file /internal-ca/ca-chain.cert.pem
+		}
+	}
+}
+
+www.acme.lab.internet {
+	tls /certs/acme.fullchain.pem /certs/acme.key.pem
+	reverse_proxy https://traefik:443 {
+		header_up Host www.acme.internal
+		transport http {
+			tls_trust_pool file /internal-ca/ca-chain.cert.pem
+		}
+	}
+}
+
+# Add one block per internal service you want reachable from other businesses. Only expose
+# what the exercise actually needs — this is a DMZ, not a mirror of your whole internal site
+# list. See docs/Security.md#firewall-recommendations-pfsense for the same least-privilege
+# reasoning applied here.

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Thunderbird (and any Mozilla-autoconfig-aware client) account setup discovery file.
-  Served at https://autoconfig.lab.internal/mail/config-v1.1.xml by the tiny nginx
-  container in docker/mail/docker-compose.yml (service: autoconfig). When a user types
-  their email address into Thunderbird's account wizard, Thunderbird automatically fetches
+  Betterbird (and any Mozilla-autoconfig-aware client, including upstream Thunderbird)
+  account setup discovery file. Served at https://autoconfig.lab.internal/mail/config-v1.1.xml
+  by the tiny nginx container in docker/mail/docker-compose.yml (service: autoconfig). When a
+  user types their email address into Betterbird's account wizard, it automatically fetches
   this file and fills in IMAP/SMTP host, port, and encryption — no manual server entry.
-  See docs/DesktopApps.md#thunderbird-zero-click-via-autoconfig.
+  See docs/DesktopApps.md#betterbird-zero-click-via-autoconfig.
 -->
 <clientConfig version="1.1">
   <emailProvider id="lab.internal">

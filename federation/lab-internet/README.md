@@ -1,9 +1,12 @@
 # LAB Internet — Skeleton
 
-**Not implemented yet.** See [docs/LabInternet.md](../../docs/LabInternet.md) for the full
-design, the workflow these scripts are meant to drive, and exactly what's blocking a working
-implementation (short version: three-label domain support, a CSR cross-signing workflow, and a
-non-AD-integrated delegating root DNS server).
+**Superseded for most uses by [`federation/class-registry/`](../class-registry/) — see
+[docs/ClassRegistry.md](../../docs/ClassRegistry.md), which is implemented and working.** This
+directory remains a stub for the deeper variant (cross-signing every business's own Issuing
+CA, not just their edge-proxy cert) — see [docs/LabInternet.md](../../docs/LabInternet.md) for
+what that would still need (short version: three-label domain support, a CSR cross-signing
+workflow for the Issuing CA specifically, and a non-AD-integrated delegating root DNS server —
+the last of which `class-registry/` already builds, reusable if you extend this further).
 
 The four scripts in [`scripts/`](scripts/) are stubs: each prints what it will do, what it
 needs as input, and which prerequisite from [docs/LabInternet.md#implementation-status](../../docs/LabInternet.md#implementation-status)

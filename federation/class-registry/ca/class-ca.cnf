@@ -1,0 +1,61 @@
+# OpenSSL configuration for the "class CA" — a single-tier CA (deliberately simpler than the
+# base repo's two-tier per-business PKI in pki/openssl/) used only by the class registry to
+# sign wildcard leaf certificates for each business's edge reverse proxy
+# (<name>.lab.internet / *.<name>.lab.internet). See docs/ClassRegistry.md#pki-design.
+#
+# Trade-off, stated plainly: this CA's private key must stay online (mounted into the
+# registry container) so it can sign CSRs on demand as students register throughout a course
+# — unlike every business's own Root CA (pki/scripts), which goes offline after bootstrap.
+# The blast radius is scoped to the federation layer's edge-proxy certs only, never to any
+# business's own internal PKI, AD, or Issuing CA.
+
+[ ca ]
+default_ca = ca_default
+
+[ ca_default ]
+dir              = .
+certs            = $dir/certs
+database         = $dir/db/index.txt
+serial           = $dir/db/serial
+new_certs_dir    = $dir/db
+RANDFILE         = $dir/private/.rand
+
+private_key      = $dir/private/class-ca.key.pem
+certificate      = $dir/certs/class-ca.cert.pem
+
+default_md       = sha384
+default_days     = 397
+preserve         = no
+policy           = policy_loose
+copy_extensions  = none
+
+[ policy_loose ]
+countryName            = optional
+stateOrProvinceName    = optional
+organizationName       = optional
+commonName             = supplied
+
+[ req ]
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+string_mask        = utf8only
+default_md         = sha384
+x509_extensions    = v3_ca
+
+[ req_distinguished_name ]
+commonName          = Common Name
+commonName_max      = 64
+
+[ v3_ca ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints        = critical, CA:true
+keyUsage                = critical, digitalSignature, cRLSign, keyCertSign
+
+[ server_cert ]
+basicConstraints       = CA:FALSE
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage                = critical, digitalSignature, keyEncipherment
+extendedKeyUsage        = serverAuth
+subjectAltName          = $ENV::SAN

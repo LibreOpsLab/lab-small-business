@@ -62,3 +62,10 @@ federation/wireguard-clients/*.conf
 
 # --- Provisioned business instances (output of scripts/provision-business.sh) ---
 /*-lab/
+
+# --- Class registry (optional federation layer) ---
+federation/class-registry/ca/db/
+federation/class-registry/bind/keys/
+federation/class-registry/bind/zones/db.lab.internet
+!federation/class-registry/bind/zones/db.lab.internet.seed
+federation/class-registry-cert/

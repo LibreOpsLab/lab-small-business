@@ -37,7 +37,7 @@ flowchart TB
 | CNAME       | `auth.lab.internal`           | `authentik01.lab.internal`    | Authentik                      |
 | CNAME       | `www.lab.internal`            | `docker01.lab.internal`       | WordPress                      |
 | CNAME       | `pdf.lab.internal`            | `docker01.lab.internal`       | Stirling PDF (forward-auth via Authentik) |
-| CNAME       | `autoconfig.lab.internal`     | `docker01.lab.internal`       | Thunderbird account autoconfig |
+| CNAME       | `autoconfig.lab.internal`     | `docker01.lab.internal`       | Betterbird account autoconfig |
 | SRV         | `_kerberos._udp.lab.internal` | `samba-dc01.lab.internal:88`  | KDC discovery                  |
 | SRV         | `_ldap._tcp.lab.internal`     | `samba-dc01.lab.internal:389` | LDAP discovery                 |
 

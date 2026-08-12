@@ -1,0 +1,18 @@
+# Authoritative-only answer for this business's delegated lab.internet subzone. Not a
+# recursive resolver, not a DHCP server (both disabled below) - this container has exactly
+# one job: answer "where is *.<name>.lab.internet" with this business's edge proxy IP.
+#
+# Rendered from BUSINESS_NAME / EDGE_IP env vars by entrypoint.sh at container start - see
+# docker-compose.yml and docs/ClassRegistry.md#dns-design.
+
+no-resolv
+no-hosts
+port=53
+
+# Answers ANY name under <name>.lab.internet (including the bare apex and
+# ns.<name>.lab.internet itself) with the edge proxy's IP - this is what makes the NS
+# delegation from the class root zone (registry app's regenerate_zone_file()) actually
+# resolve end to end.
+address=/__BUSINESS_NAME__.lab.internet/__EDGE_IP__
+
+log-queries

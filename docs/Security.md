@@ -51,7 +51,9 @@ Postfix ([`docker/mail/postfix`](../docker/mail/postfix)) accepts submission onl
 authenticated senders (`mynetworks = 127.0.0.0/8`, everything else must SASL-authenticate via
 Dovecot) and only ever relays to `lab.internal` addresses that resolve to an enabled AD
 account's `mail` attribute over LDAP — there is no internet mail relay in either direction. See
-[docker/mail/README.md](../docker/mail/README.md).
+[docker/mail/README.md](../docker/mail/README.md). Optional SPF/DKIM/DMARC sender
+authentication (off by default) is available for exercises involving federated/cross-business
+mail — see [docs/SPFDKIMDMARC.md](SPFDKIMDMARC.md).
 
 ## Secure cookie settings
 

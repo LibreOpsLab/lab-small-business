@@ -8,65 +8,60 @@ walks through.
 
 ## At a glance
 
-| Replaces                            | App                                              | Automated?                                                                                                                                                                                                                                                                                                  |
-| ----------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| OneDrive                            | NextCloud Desktop Sync                           | Install + server URL pre-filled automatically. Login is one click (SSO via Authentik).                                                                                                                                                                                                                      |
-| Microsoft Office (viewing/editing)  | OnlyOffice Desktop Editors                       | Install automated. Connects to the NextCloud portal for storage; login is the same SSO click.                                                                                                                                                                                                               |
-| Adobe Acrobat                       | Stirling PDF                                     | No install — it's a web app at `pdf.lab.internal`. Installer scripts create a pinned "app" shortcut so it feels like a desktop app. Gated by Authentik forward-auth (see [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md)).                                                                |
-| Outlook (mail+calendar+contacts)    | **Thunderbird** (recommended)                    | Fully zero-click account setup via autoconfig — see below.                                                                                                                                                                                                                                                  |
-| Outlook (alternative, GNOME-native) | Evolution                                        | Best-effort scripted account provisioning; less reliable than Thunderbird's autoconfig — see [Evolution](#evolution-alternative-best-effort).                                                                                                                                                               |
-| Teams + Outlook Web                 | NextCloud Talk + Calendar + Contacts + Mail apps | Installed/enabled automatically by [`docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh`](../docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh). Calendar/Contacts/Talk need zero extra client setup (browser-based, same NextCloud SSO session). Mail app needs one manual step per user — see below. |
+| Replaces | App | Automated? |
+|---|---|---|
+| OneDrive | NextCloud Desktop Sync | Install + server URL pre-filled automatically. Login is one click (SSO via Authentik). |
+| Microsoft Office (viewing/editing) | OnlyOffice Desktop Editors | Install automated. Connects to the NextCloud portal for storage; login is the same SSO click. |
+| Adobe Acrobat | Stirling PDF | No install — it's a web app at `pdf.lab.internal`. Installer scripts create a pinned "app" shortcut so it feels like a desktop app. Gated by Authentik forward-auth (see [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md)). |
+| Outlook (mail+calendar+contacts) | **Betterbird** | Fully zero-click account setup via autoconfig — see below. |
+| Teams + Outlook Web | NextCloud Talk + Calendar + Contacts + Mail apps | Installed/enabled automatically by [`docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh`](../docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh). Calendar/Contacts/Talk need zero extra client setup (browser-based, same NextCloud SSO session). Mail app needs one manual step per user — see below. |
 
-## Why Thunderbird over Evolution as the primary recommendation
+## Why Betterbird
 
-You asked for Evolution specifically ("unless there's something better?") — there is, for this
-lab's purposes specifically:
+[Betterbird](https://betterbird.eu/) is a maintained fork of Thunderbird that keeps full
+compatibility with Thunderbird's ecosystem (profiles, extensions, the Mozilla autoconfig
+protocol) while shipping more frequent fixes and a few teaching-relevant UI defaults out of the
+box. For this lab specifically:
 
-- **Thunderbird supports the Mozilla autoconfig protocol natively**: type an email address,
-  Thunderbird queries `https://autoconfig.<domain>/mail/config-v1.1.xml` automatically and
-  fills in IMAP/SMTP host, port, and encryption with zero manual entry. This repo now serves
-  that file (`docker/mail/autoconfig/config-v1.1.xml`, via the `autoconfig` service in
+- **Betterbird supports the Mozilla autoconfig protocol natively** (inherited from
+  Thunderbird): type an email address, it queries
+  `https://autoconfig.<domain>/mail/config-v1.1.xml` automatically and fills in IMAP/SMTP host,
+  port, and encryption with zero manual entry. This repo serves that file
+  (`docker/mail/autoconfig/config-v1.1.xml`, via the `autoconfig` service in
   [`docker/mail/docker-compose.yml`](../docker/mail/docker-compose.yml)) precisely so this
   works out of the box.
-- **Thunderbird's CalDAV/CardDAV autodiscovery** pairs directly with NextCloud's Calendar/
-  Contacts apps (NextCloud serves the standard `/.well-known/caldav` and `/.well-known/carddav`
-  redirects already) — add the NextCloud account once and calendar+contacts show up without
-  separate configuration.
-- **Evolution is GNOME-native and closer to Outlook's integrated single-app feel**, and remains
-  a fully reasonable choice if that matters more to your course than zero-click setup — it's
-  documented below as a supported alternative, just not the default.
-- Both are free/open-source and available on Ubuntu; neither is a downgrade in capability, this
-  is purely about automation reliability for a teaching lab.
+- **CalDAV/CardDAV autodiscovery** pairs directly with NextCloud's Calendar/Contacts apps
+  (NextCloud serves the standard `/.well-known/caldav` and `/.well-known/carddav` redirects
+  already) — add the NextCloud account once and calendar+contacts show up without separate
+  configuration.
+- No apt/winget package exists for it (see [Installation](#installation) below for how the
+  scripts handle that), which is the one piece of friction versus upstream Thunderbird — worth
+  it for the reasons above, but flagged here since it's the one part of setup that can drift if
+  Betterbird changes its release URLs.
 
-If your course specifically wants to teach the GNOME desktop stack end-to-end, switch the
-default in [`desktop-apps/linux/install-desktop-apps.sh`](../desktop-apps/linux/install-desktop-apps.sh)
-by flipping which app the script marks primary — both install scripts are already there.
+## Installation
 
-## Thunderbird: zero-click via autoconfig
+Betterbird ships no apt (Linux) or winget (Windows) package, so both installer scripts fetch it
+directly from betterbird.eu — a tarball on Linux (extracted to `/opt/betterbird`, same pattern
+Mozilla uses for Firefox/Thunderbird), an NSIS installer on Windows (`/S` silent install, same
+installer technology as upstream Thunderbird). **Betterbird's download URLs shift between
+releases** — if either script reports a failed download, check
+[betterbird.eu/downloads](https://betterbird.eu/downloads/) for the current linux64/win64 URL
+and re-run with `--betterbird-url <url>` (Linux) / `-BetterbirdUrl <url>` (Windows).
+
+## Betterbird: zero-click via autoconfig
 
 1. Install: `desktop-apps/linux/install-desktop-apps.sh` (Linux) or
-   `desktop-apps/windows/install-desktop-apps.ps1` (Windows) installs Thunderbird via
-   `apt`/`winget`.
-2. Open Thunderbird, "Set Up an Existing Email Account", enter name + `student01@lab.internal`
-   - AD password.
-3. Thunderbird fetches `https://autoconfig.lab.internal/mail/config-v1.1.xml` automatically and
+   `desktop-apps/windows/install-desktop-apps.ps1` (Windows).
+2. Open Betterbird, "Set Up an Existing Email Account", enter name + `student01@lab.internal` +
+   AD password.
+3. Betterbird fetches `https://autoconfig.lab.internal/mail/config-v1.1.xml` automatically and
    proposes IMAP (993/SSL) + SMTP (587/STARTTLS) — accept and done. No hostnames typed.
-4. Add the NextCloud CalDAV/CardDAV account (Thunderbird's built-in "Address Book" → "New
+4. Add the NextCloud CalDAV/CardDAV account (Betterbird's built-in "Address Book" → "New
    Address Book" → "On the network" / Calendar → "New Calendar" → "On the network", URL
    `https://cloud.lab.internal/remote.php/dav/`) for calendar/contacts sync — this one step
    isn't autoconfig-covered by the Mozilla protocol (it's NextCloud-specific), so it's a
    one-time manual URL entry, not zero-click.
-
-## Evolution (alternative, best-effort)
-
-[`desktop-apps/linux/configure-evolution.sh`](../desktop-apps/linux/configure-evolution.sh)
-attempts to pre-seed an IMAP/SMTP account via `gsettings`/`dconf` against Evolution's mail
-account schema. This is marked best-effort in the script itself: Evolution's account storage
-schema has shifted across GNOME releases, so treat this as "saves most students the typing,"
-not "guaranteed zero-click" — verify it actually applied after running it on your specific
-Ubuntu Desktop image, and fall back to Evolution's own "Add Mail Account" wizard (a few clicks:
-email + password, same IMAP/SMTP values as the [mail client configuration table](../docker/mail/README.md#client-configuration))
-if it didn't.
 
 ## NextCloud Mail app: one manual step
 
@@ -111,7 +106,6 @@ maintaining a separate desktop build. Access is gated by Authentik forward-auth 
 # Linux client (run on linux-client01, after joining the domain)
 sudo desktop-apps/linux/install-desktop-apps.sh
 desktop-apps/linux/configure-nextcloud-client.sh
-desktop-apps/linux/configure-evolution.sh   # optional, best-effort — see caveat above
 ```
 
 ```powershell

@@ -41,11 +41,18 @@ services:
       # system never accepts unauthenticated internet mail. See postfix/main.cf.
       - "587:587"
       - "465:465"
+    environment:
+      # Off by default - see docs/SPFDKIMDMARC.md and docker/mail/scripts/enable-spam-protection.sh.
+      # Flipping this on with no other changes is safe; the entrypoint no-ops when false.
+      SPAM_PROTECTION_ENABLED: ${SPAM_PROTECTION_ENABLED:-false}
+      MAIL_DOMAIN: ${MAIL_DOMAIN:-lab.internal}
+      DKIM_SELECTOR: ${DKIM_SELECTOR:-mail}
     volumes:
       - ./postfix/ldap-virtual-mailbox.cf:/etc/postfix/ldap-virtual-mailbox.cf:ro
       - ../../pki/issued/mail.lab.internal/fullchain.pem:/etc/postfix/tls/fullchain.pem:ro
       - ../../pki/issued/mail.lab.internal/key.pem:/etc/postfix/tls/key.pem:ro
       - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/etc/postfix/tls/ca-chain.pem:ro
+      - opendkim_keys:/etc/opendkim/keys
     # ldap-virtual-mailbox.cf's bind_pw is overwritten by ansible/roles/docker_engine before
     # this stack starts, same pattern as Dovecot's LDAP config — see that file's header.
     depends_on:
@@ -55,9 +62,9 @@ services:
     labels:
       - traefik.enable=false
 
-  # Serves Thunderbird's autoconfig discovery file so account setup is zero-click (type
+  # Serves Betterbird's autoconfig discovery file so account setup is zero-click (type
   # email + password, done) instead of manual server/port entry. See
-  # docs/DesktopApps.md#thunderbird-zero-click-via-autoconfig.
+  # docs/DesktopApps.md#betterbird-zero-click-via-autoconfig.
   autoconfig:
     image: nginx:1.27-alpine
     container_name: mail-autoconfig
@@ -84,3 +91,4 @@ networks:
 
 volumes:
   mail_data:
+  opendkim_keys:

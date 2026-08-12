@@ -1,0 +1,23 @@
+services:
+  dnsmasq:
+    build: .
+    container_name: lab-edge-dnsmasq
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_add:
+      - NET_BIND_SERVICE
+    environment:
+      # Must match what you gave scripts/register-with-class.sh --name / --edge-ip.
+      BUSINESS_NAME: ${BUSINESS_NAME:?set in .env}
+      EDGE_IP: ${EDGE_IP:?set in .env}
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    networks:
+      - lab-proxy
+
+networks:
+  lab-proxy:
+    name: lab-proxy
+    external: true

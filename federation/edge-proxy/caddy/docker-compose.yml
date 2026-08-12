@@ -1,0 +1,33 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: lab-edge-caddy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../class-registry-cert:/certs:ro
+      - ../../../pki/intermediate-ca/certs/ca-chain.cert.pem:/internal-ca/ca-chain.cert.pem:ro
+      - caddy_data:/data
+    ports:
+      # Published on a non-standard host port; pfSense port-forwards its WAN:443 to this
+      # host's 8443 (documented, not automated - see docs/ClassRegistry.md#edge-proxy-setup).
+      # Deliberately NOT :443 directly, to avoid colliding with the internal Traefik stack
+      # which already owns host port 443 for LAN-internal HTTPS.
+      - "8443:443"
+    networks:
+      - lab-proxy
+    labels:
+      # Not Traefik-managed - this IS the thing sitting in front of Traefik for federated
+      # (cross-business) traffic. See the Caddyfile for the Host-header-rewrite pattern that
+      # lets it reuse Traefik's existing internal routing with zero changes there.
+      - traefik.enable=false
+
+networks:
+  lab-proxy:
+    name: lab-proxy
+    external: true
+
+volumes:
+  caddy_data:

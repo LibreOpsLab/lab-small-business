@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>LAB Class Registry</title>
+  <style>
+    body { font-family: sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+    h1 { margin-bottom: 0; }
+    .sub { color: #555; margin-top: 0.25rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.9rem; }
+    th { background: #f0f0f0; }
+    .badge { padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; }
+    .badge-yes { background: #d5f5e3; color: #1e8449; }
+    .badge-no { background: #fdebd0; color: #b9770e; }
+    form { border: 1px solid #ccc; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
+    label { display: block; margin-top: 0.5rem; font-size: 0.9rem; }
+    input { width: 100%; padding: 0.35rem; margin-top: 0.15rem; box-sizing: border-box; }
+    button { margin-top: 0.75rem; padding: 0.5rem 1rem; }
+    .diagram { text-align: center; margin: 1.5rem 0; }
+    code { background: #f0f0f0; padding: 0.1rem 0.3rem; border-radius: 3px; }
+    .ca-download { background: #d6eaf8; border: 1px solid #2874a6; padding: 1rem; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>LAB Class Registry</h1>
+  <p class="sub">Root domain: <code>{{ root_domain }}</code> — see
+    <code>docs/ClassRegistry.md</code> in the lab repo for the full workflow.
+    This layer is optional and advanced; the base lab runs fine without it.</p>
+
+  <div class="ca-download">
+    <strong>Step 1: trust the class CA.</strong>
+    Download and install <a href="/ca/root.crt">the class root CA certificate</a> into your
+    trust store (same mechanism as <code>docs/PKI.md#trust-deployment</code>, pointed at this
+    second CA) so every registered business's edge-proxy HTTPS is trusted with no browser
+    warnings.
+  </div>
+
+  <div class="diagram">{{ diagram | safe }}</div>
+
+  <h2>Registered businesses ({{ businesses|length }})</h2>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Domain</th><th>Subnet</th><th>Edge IP</th><th>Registered</th><th>Cert</th></tr>
+    </thead>
+    <tbody>
+      {% for b in businesses %}
+      <tr>
+        <td>{{ b['name'] }}</td>
+        <td>{{ b['name'] }}.{{ root_domain }}</td>
+        <td>{{ b['subnet'] }}</td>
+        <td>{{ b['edge_ip'] }}</td>
+        <td>{{ b['registered_at'][:19] }}Z</td>
+        <td>
+          {% if b['cert_issued'] %}
+            <span class="badge badge-yes">issued</span>
+          {% else %}
+            <span class="badge badge-no">not yet</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No businesses registered yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Register your business</h2>
+  <p>Use <code>federation/class-registry/scripts/register-with-class.sh</code> from your own
+    lab repo instead of this form for a scriptable, repeatable registration — this form is a
+    convenience for quick manual use. Either way you'll need the registration token from your
+    instructor.</p>
+  <form method="post" action="/api/register" onsubmit="return submitForm(event)">
+    <label>Business name (2-20 lowercase letters/digits/hyphens)
+      <input name="name" pattern="[a-z][a-z0-9-]{1,19}" required>
+    </label>
+    <label>Subnet (private /24, e.g. 10.20.0.0/24)
+      <input name="subnet" required>
+    </label>
+    <label>Edge IP (your Caddy/HAProxy reverse proxy's reachable address)
+      <input name="edge_ip" required>
+    </label>
+    <label>Contact (optional - your name, for the instructor's reference)
+      <input name="contact">
+    </label>
+    <label>Registration token (from your instructor)
+      <input name="token" type="password" required>
+    </label>
+    <button type="submit">Register</button>
+  </form>
+  <pre id="result" style="white-space: pre-wrap;"></pre>
+
+  <script>
+    // No framework, no CDN - this lab runs fully offline. Plain fetch + form-encoding.
+    async function submitForm(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = new URLSearchParams(new FormData(form));
+      const res = await fetch("/api/register", { method: "POST", body });
+      const text = await res.text();
+      document.getElementById("result").textContent = res.status + " " + text;
+      if (res.ok) { window.location.reload(); }
+      return false;
+    }
+  </script>
+</body>
+</html>

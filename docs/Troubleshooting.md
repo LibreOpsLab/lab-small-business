@@ -99,14 +99,14 @@ inspect lab-proxy`) — a container not attached to that network is invisible to
 
 ## Mail (Postfix/Dovecot)
 
-**Symptom:** Thunderbird/Evolution can log in (IMAP) but sending fails.
+**Symptom:** Betterbird can log in (IMAP) but sending fails.
 
 - Postfix only accepts submission from SASL-authenticated senders — confirm the client is
   actually using port `587`/STARTTLS or `465`/SSL, not `25`. Check:
   `docker compose -f docker/mail/docker-compose.yml logs postfix | grep -i sasl`.
 - "Recipient address rejected" means the recipient's AD account has no `mail` attribute set, or
   it doesn't match — see [docker/mail/README.md](../docker/mail/README.md#adding-real-users-mailboxes).
-- If Thunderbird didn't autoconfigure: confirm `https://autoconfig.lab.internal/mail/config-v1.1.xml`
+- If Betterbird didn't autoconfigure: confirm `https://autoconfig.lab.internal/mail/config-v1.1.xml`
   loads in a browser and the cert is trusted — same PKI trust prerequisites as every other
   `*.lab.internal` host.
 

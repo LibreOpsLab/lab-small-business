@@ -15,7 +15,7 @@ Built for repeatable deployment and hands-on sysadmin/DevOps teaching.
 | Application host                          | Docker Engine + Traefik reverse proxy                  |
 | Applications                              | NextCloud (+Talk/Calendar/Contacts/Mail), OnlyOffice, Dovecot+Postfix mail, WordPress, Stirling PDF |
 | Internal PKI                              | Two-tier OpenSSL CA (offline Root + online Issuing CA) |
-| Endpoints                                 | Ubuntu Desktop (SSSD) + Windows 11 (native AD), with NextCloud Sync/OnlyOffice/Thunderbird desktop apps |
+| Endpoints                                 | Ubuntu Desktop (SSSD) + Windows 11 (native AD), with NextCloud Sync/OnlyOffice/Betterbird desktop apps |
 | Multi-business                            | `scripts/provision-business.sh` + IPSec/WireGuard federation tooling |
 | Automation                                | Bash, Ansible, Docker Compose, PowerShell              |
 
@@ -48,8 +48,8 @@ repo-root/
 ├── authentik/       Authentik blueprints (LDAP source, OIDC/proxy providers, groups, MFA) + bootstrap
 ├── ansible/         Playbooks and roles that tie every component together
 ├── scripts/         Top-level orchestration entry points (deploy-all.sh, provision-business.sh, ...)
-├── federation/      Multi-business IPSec/VPN bridging + the deferred LAB Internet skeleton
-├── desktop-apps/    Client-side app install/preconfig scripts (NextCloud Sync, OnlyOffice, Thunderbird, ...)
+├── federation/      Optional: IPSec/VPN bridging, class registry (shared CA + DNS), edge proxies
+├── desktop-apps/    Client-side app install/preconfig scripts (NextCloud Sync, OnlyOffice, Betterbird, ...)
 └── templates/       Shared Jinja2 templates (motd, hosts)
 ```
 
@@ -66,9 +66,11 @@ repo-root/
 | [Backup.md](docs/Backup.md)                     | Backup/restore for AD, Authentik, Docker volumes, PKI, config         |
 | [Troubleshooting.md](docs/Troubleshooting.md)   | DNS, Kerberos, LDAP, certs, OIDC, Docker/proxy issues                 |
 | [StudentLabManual.md](docs/StudentLabManual.md) | Day-1 checklist and hands-on exercises                                |
-| [DesktopApps.md](docs/DesktopApps.md)           | Client-side app experience: NextCloud Sync, OnlyOffice, Thunderbird/Evolution, Stirling PDF, NextCloud groupware |
-| [MultiBusiness.md](docs/MultiBusiness.md)       | Bridging independent business deployments via IPSec + WireGuard/OpenVPN |
-| [LabInternet.md](docs/LabInternet.md)           | Design doc (not yet built) for a shared root CA + DNS across every business |
+| [DesktopApps.md](docs/DesktopApps.md)           | Client-side app experience: NextCloud Sync, OnlyOffice, Betterbird, Stirling PDF, NextCloud groupware |
+| [SPFDKIMDMARC.md](docs/SPFDKIMDMARC.md)         | Optional sender-authentication enforcement for the mail stack |
+| [MultiBusiness.md](docs/MultiBusiness.md)       | Optional: bridging two independent businesses via IPSec + WireGuard/OpenVPN |
+| [ClassRegistry.md](docs/ClassRegistry.md)       | Optional: classroom-wide shared CA + DNS delegation + edge proxies, via a small self-hosted registry |
+| [LabInternet.md](docs/LabInternet.md)           | Original, larger design doc — mostly superseded by ClassRegistry.md |
 
 ## Diagrams
 
@@ -97,6 +99,21 @@ make deploy   # wraps scripts/deploy-all.sh: runs ansible/playbooks/site.yml end
 
 See [docs/DeploymentGuide.md](docs/DeploymentGuide.md) for the complete step-by-step, including
 the manual steps that have no scriptable equivalent (pfSense install, Windows install).
+
+## Optional: multi-business & federation
+
+Everything above stands up **one** business and needs nothing else. If a course wants multiple
+independent businesses that can optionally interconnect, that's a separate, opt-in layer under
+[`federation/`](federation/) — nothing in it is required, referenced by the base deploy
+playbooks, or installed by default:
+
+- [`scripts/provision-business.sh`](scripts/provision-business.sh) — stamp out another
+  business with its own domain/subnet/PKI.
+- [docs/MultiBusiness.md](docs/MultiBusiness.md) — bridge two businesses directly (IPSec/VPN).
+- [docs/ClassRegistry.md](docs/ClassRegistry.md) — a classroom-wide shared CA + DNS registry so
+  every business can be reached with trusted HTTPS, no per-pair setup.
+- [docs/SPFDKIMDMARC.md](docs/SPFDKIMDMARC.md) — sender authentication for mail crossing those
+  boundaries.
 
 ## Security posture
 

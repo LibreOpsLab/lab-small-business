@@ -16,8 +16,8 @@ place in the zone, and [docs/SambaAdmin.md](../../docs/SambaAdmin.md) for the `s
 ## Why not just IMAP (the original scope)?
 
 The base build shipped Dovecot (receive/store) only. That's enough to prove LDAP-backed IMAP
-auth works, but a real "replace Outlook" experience needs to *send* mail too — Thunderbird,
-Evolution, and NextCloud Mail all expect a working SMTP submission endpoint. Postfix here is
+auth works, but a real "replace Outlook" experience needs to *send* mail too — Betterbird and
+NextCloud Mail both expect a working SMTP submission endpoint. Postfix here is
 deliberately minimal and hand-configured (not a black-box mail-in-a-box image) so
 `docker/mail/postfix/main.cf`/`master.cf` stay readable as a teaching artifact: no internet
 relay, submission-only, SASL-gated, LDAP-validated recipients, LMTP handoff to Dovecot rather
@@ -26,7 +26,7 @@ than Postfix owning mailboxes itself.
 ## Flow
 
 ```text
-Client (Thunderbird/Evolution/NextCloud Mail)
+Client (Betterbird/NextCloud Mail)
   -> Postfix :587 (STARTTLS) or :465 (SMTPS), SASL auth via Dovecot
   -> Postfix checks recipient against Samba AD (LDAP `mail` attribute) — main.cf
   -> Postfix hands off via LMTP :24 (internal Docker network only) to Dovecot
@@ -42,8 +42,15 @@ Client (Thunderbird/Evolution/NextCloud Mail)
 | Username | `student01@lab.internal` (or any domain account's UPN) |
 | Password | the account's AD password |
 
-See [docs/DesktopApps.md](../../docs/DesktopApps.md) for how Thunderbird gets these values
-automatically (autoconfig) versus Evolution's manual entry.
+See [docs/DesktopApps.md](../../docs/DesktopApps.md) for how Betterbird gets these values
+automatically via autoconfig.
+
+## SPF / DKIM / DMARC (optional)
+
+Off by default. See [docs/SPFDKIMDMARC.md](../../docs/SPFDKIMDMARC.md) and
+`docker/mail/scripts/enable-spam-protection.sh` to turn on sender authentication — relevant
+once mail might cross a trust boundary (e.g. a federated business, see
+[docs/MultiBusiness.md](../../docs/MultiBusiness.md)), not needed for a single closed instance.
 
 ## Adding real users' mailboxes
 

@@ -1,0 +1,16 @@
+; Seed zone file for lab.internet - copied to the shared bind_zones volume by
+; scripts/init-registry.sh on first run, then owned/rewritten by the registry app from
+; then on (app/app.py's regenerate_zone_file()). ZONE_NS_IP is substituted at init time.
+; See docs/ClassRegistry.md#dns-design.
+$TTL 3600
+@   IN  SOA ns1.lab.internet. hostmaster.lab.internet. (
+        1           ; serial (replaced with a Unix timestamp on every regeneration)
+        3600        ; refresh
+        900         ; retry
+        604800      ; expire
+        3600 )      ; minimum
+
+    IN  NS  ns1.lab.internet.
+ns1 IN  A   __ZONE_NS_IP__
+
+; --- registered businesses appended below this line by the registry app ---

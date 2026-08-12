@@ -1,0 +1,51 @@
+services:
+  bind9:
+    # ISC's official BIND9 image. Verify the tag is still current at
+    # https://hub.docker.com/r/internetsystemsconsortium/bind9 if this pull fails -
+    # ISC's published tags shift with BIND releases.
+    image: internetsystemsconsortium/bind9:9.18
+    container_name: class-registry-bind9
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./bind/named.conf:/etc/bind/named.conf:ro
+      - ./bind/zones:/etc/bind/zones
+      - ./bind/keys:/etc/bind/keys:ro
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    networks:
+      - class-registry
+
+  registry:
+    build: ./app
+    container_name: class-registry-app
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      CLASS_ROOT_DOMAIN: ${CLASS_ROOT_DOMAIN:-lab.internet}
+      CLASS_REGISTRY_TOKEN: ${CLASS_REGISTRY_TOKEN}
+      ZONE_NS_IP: ${ZONE_NS_IP}
+      RNDC_SERVER: bind9
+      ZONE_FILE: /bind-zones/db.lab.internet
+      RNDC_KEY_FILE: /keys/rndc.key
+    volumes:
+      - registry_db:/data
+      - ./ca:/ca
+      - ./bind/zones:/bind-zones
+      - ./bind/keys:/keys:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - bind9
+    networks:
+      - class-registry
+
+networks:
+  class-registry:
+    name: class-registry
+
+volumes:
+  registry_db:

@@ -30,8 +30,8 @@ Work through these in order; each exercises a different layer of the stack.
    in with your domain credentials. You should land in NextCloud without entering your password
    a second time.
 5. **Mail.** Run `desktop-apps/linux/install-desktop-apps.sh` if you haven't already, then set
-   up Thunderbird with `student01@lab.internal` — it should autoconfigure IMAP/SMTP with no
-   hostnames typed (see [DesktopApps.md](DesktopApps.md#thunderbird-zero-click-via-autoconfig)).
+   up Betterbird with `student01@lab.internal` — it should autoconfigure IMAP/SMTP with no
+   hostnames typed (see [DesktopApps.md](DesktopApps.md#betterbird-zero-click-via-autoconfig)).
    Send yourself a test email and confirm it arrives — this exercises both Dovecot (receive)
    and Postfix (send).
 6. **A different access pattern.** Visit `https://pdf.lab.internal` (Stirling PDF). You'll hit

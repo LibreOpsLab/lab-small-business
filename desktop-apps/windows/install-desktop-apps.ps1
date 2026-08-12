@@ -1,23 +1,26 @@
 <#
 .SYNOPSIS
-    Installs the lab's standard desktop app set on Windows 11 via winget: NextCloud Desktop
-    Sync, OnlyOffice Desktop Editors, Thunderbird, and a pinned web-app shortcut for
-    Stirling PDF. See docs/DesktopApps.md.
+    Installs the lab's standard desktop app set on Windows 11: NextCloud Desktop Sync and
+    OnlyOffice Desktop Editors via winget, Betterbird via direct download (no winget package
+    exists for it), and a pinned web-app shortcut for Stirling PDF. See docs/DesktopApps.md.
 
 .DESCRIPTION
-    Evolution is GNOME/Linux-only and has no Windows build, so it's intentionally omitted
-    here — Thunderbird is the cross-platform recommendation anyway (see
-    docs/DesktopApps.md#why-thunderbird-over-evolution-as-the-primary-recommendation).
-
     Run elevated, after the machine has joined the domain and after the PKI Root/Issuing CA
     GPO (pki/gpo/deploy-root-ca.ps1) has applied — several of these apps talk HTTPS to
     *.lab.internal and need that trust in place first.
+
+.PARAMETER BetterbirdUrl
+    Direct download URL for the Betterbird Windows installer. Betterbird has no winget
+    package, so this is a direct download; the URL below can drift between releases — check
+    https://betterbird.eu/downloads/ and pass a corrected URL here if the default 404s.
 
 .EXAMPLE
     .\install-desktop-apps.ps1
 #>
 [CmdletBinding()]
-param()
+param(
+    [string]$BetterbirdUrl = "https://ftp.betterbird.eu/Betterbird/releases/latest/win64/en-US/Betterbird-latest.installer.exe"
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -34,12 +37,26 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 $apps = @(
     @{ Id = "Nextcloud.NextcloudDesktop"; Name = "NextCloud Desktop Sync" }
     @{ Id = "ONLYOFFICE.DesktopEditors";  Name = "OnlyOffice Desktop Editors" }
-    @{ Id = "Mozilla.Thunderbird";        Name = "Thunderbird" }
 )
 
 foreach ($app in $apps) {
     Write-Host "[install-desktop-apps] Installing $($app.Name)..." -ForegroundColor Cyan
     winget install --id $app.Id --exact --silent --accept-package-agreements --accept-source-agreements
+}
+
+Write-Host "[install-desktop-apps] Installing Betterbird from $BetterbirdUrl ..." -ForegroundColor Cyan
+$installerPath = Join-Path $Env:TEMP "betterbird-installer.exe"
+try {
+    Invoke-WebRequest -Uri $BetterbirdUrl -OutFile $installerPath -UseBasicParsing
+    # Betterbird's installer is NSIS-based (same as upstream Thunderbird) - /S is silent install.
+    Start-Process -FilePath $installerPath -ArgumentList "/S" -Wait
+    Write-Host "[install-desktop-apps] Betterbird installed." -ForegroundColor Green
+} catch {
+    Write-Warning "Betterbird download/install failed ($($_.Exception.Message)). Betterbird's"
+    Write-Warning "download URLs shift between releases - check https://betterbird.eu/downloads/"
+    Write-Warning "and re-run with -BetterbirdUrl <correct-url>."
+} finally {
+    Remove-Item -Path $installerPath -ErrorAction SilentlyContinue
 }
 
 Write-Host "[install-desktop-apps] Creating a pinned web-app shortcut for Stirling PDF (no native desktop client exists)..." -ForegroundColor Cyan
@@ -62,6 +79,6 @@ if (Test-Path $edgePath) {
 Write-Host ""
 Write-Host "=====================================================================" -ForegroundColor Green
 Write-Host " Done. Next: configure-nextcloud-client.ps1 to pre-fill the server URL."
-Write-Host " See docs/DesktopApps.md for the full walkthrough (Thunderbird autoconfig,"
+Write-Host " See docs/DesktopApps.md for the full walkthrough (Betterbird autoconfig,"
 Write-Host " NextCloud groupware apps, OnlyOffice cloud connection)."
 Write-Host "====================================================================="

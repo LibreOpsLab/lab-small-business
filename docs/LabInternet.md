@@ -1,14 +1,19 @@
-# LAB Internet (Design Doc — Skeleton, Not Yet Fully Implemented)
+# LAB Internet (Design Doc — Superseded by ClassRegistry.md for Most Uses)
 
-> **Status: design + script stubs only.** This is the capstone extension beyond
-> [MultiBusiness.md](MultiBusiness.md): instead of each business trusting nothing about the
-> others by default, a lecturer-run root of trust lets students browse _across_ businesses
-> (`cloud.acme.lab.internet` from a `bizb.lab.internet` machine) with no per-host cert warnings
-> and working cross-business DNS, while each business still runs its own AD/Authentik and
-> nobody's identity domain merges with anyone else's. The scripts under
-> `federation/lab-internet/scripts/` are stubs that print exactly what they will do and what
-> currently blocks a full implementation — see [Implementation status](#implementation-status).
-> Treat this document as the spec for that follow-up work, not as something to run today.
+> **Status: mostly superseded.** [docs/ClassRegistry.md](ClassRegistry.md) now implements the
+> practical core of what this document originally proposed as a stub — a lecturer-run
+> registry, a real DNS-delegated `lab.internet` zone, and a shared CA students trust once —
+> using a deliberately simpler design (one CA signs each business's *edge-proxy* cert, rather
+> than cross-signing every business's own Issuing CA). **Read
+> [docs/ClassRegistry.md](ClassRegistry.md) first** — it's the one you actually run.
+>
+> What's left here and NOT built: full cross-signing of each business's own Issuing CA (so
+> *every* internal cert, not just the edge-proxy one, chains to one root), which needs the
+> three-label-domain support in `provision-business.sh` described below. The scripts under
+> `federation/lab-internet/scripts/` remain stubs for that deeper variant, kept for whoever
+> wants to extend the Class Registry to that depth. If you don't specifically need every
+> internal cert federated (most courses won't), ClassRegistry.md's approach is sufficient and
+> is the one that's actually implemented and working.
 
 ## Why this is separate from MultiBusiness.md
 

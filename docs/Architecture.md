@@ -36,9 +36,11 @@ tree can be re-based onto a different domain/realm/NetBIOS/subnet with
 
 See [network-topology.md](../diagrams/network-topology.md) for the full network diagram and
 [docs/DesktopApps.md](DesktopApps.md) for the client-side app/experience layer on top of these
-servers. For scaling this out to more than one independent business, see
-[docs/MultiBusiness.md](MultiBusiness.md) (built now) and [docs/LabInternet.md](LabInternet.md)
-(design doc for a deferred capstone extension).
+servers. Everything above is the base, single-business lab — it's complete and self-contained
+on its own. For scaling out to multiple, optionally-interconnected businesses (an advanced,
+opt-in layer under `federation/` that nothing in the base deploy depends on), see
+[docs/MultiBusiness.md](MultiBusiness.md) (peer-to-peer IPSec/VPN) and
+[docs/ClassRegistry.md](ClassRegistry.md) (classroom-wide shared CA + DNS registry).
 
 ## Design principles
 
@@ -126,8 +128,9 @@ repo-root/
 ├── authentik/       Authentik blueprints (LDAP source, OIDC/proxy providers, groups, MFA) + bootstrap
 ├── ansible/         Playbooks and roles that tie every component together
 ├── scripts/         Top-level orchestration entry points (deploy-all.sh, provision-business.sh, ...)
-├── federation/      Multi-business bridging: IPSec/VPN tooling (docs/MultiBusiness.md) and the
-│                    deferred LAB Internet skeleton (docs/LabInternet.md)
+├── federation/      Optional multi-business layer: IPSec/VPN tooling (docs/MultiBusiness.md),
+│                    the class registry + edge proxies (docs/ClassRegistry.md), and the
+│                    superseded LAB Internet skeleton (docs/LabInternet.md)
 ├── desktop-apps/    Client-side app install/preconfig scripts (docs/DesktopApps.md)
 └── templates/       Shared Jinja2 templates (motd, hosts, resolv.conf)
 ```

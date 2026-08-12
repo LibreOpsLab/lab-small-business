@@ -138,14 +138,14 @@ the WordPress one is left manual since SSO-for-a-website is an opt-in decision, 
    GPOs (including CA trust) apply automatically on next `gpupdate`/reboot.
 3. On each client, run the desktop app provisioning scripts — see
    [docs/DesktopApps.md](DesktopApps.md) and [`desktop-apps/`](../desktop-apps/) — to install
-   NextCloud Desktop Sync, OnlyOffice Desktop Editors, Thunderbird (autoconfigured), and a
+   NextCloud Desktop Sync, OnlyOffice Desktop Editors, Betterbird (autoconfigured), and a
    Stirling PDF app shortcut.
 
 ## 8. Validation
 
 Run through [StudentLabManual.md](StudentLabManual.md)'s "Day 1 checklist" as an end-to-end
 smoke test: domain logon from both clients, SSO into NextCloud, cert trust with no browser
-warnings, mail send+receive round trip via Thunderbird.
+warnings, mail send+receive round trip via Betterbird.
 
 ## One-shot re-runs
 
@@ -154,9 +154,12 @@ warnings, mail send+receive round trip via Thunderbird.
 sweep) for redeploying application/identity layers onto already-created VMs — useful when
 iterating without tearing down the whole lab.
 
-## Beyond one business
+## Beyond one business (optional)
 
-Once this single deployment works end-to-end, [docs/MultiBusiness.md](MultiBusiness.md) covers
-stamping out additional independent businesses (`scripts/provision-business.sh`) and bridging
-them via IPSec/VPN. [docs/LabInternet.md](LabInternet.md) is the design doc for a further,
-not-yet-built capstone extension (shared root CA + DNS across every business in a classroom).
+Everything above is a complete, self-contained deployment on its own. If your course wants
+multiple businesses, that's a separate opt-in layer under `federation/` — see
+[docs/MultiBusiness.md](MultiBusiness.md) for stamping out additional independent businesses
+(`scripts/provision-business.sh`) and bridging pairs of them via IPSec/VPN, or
+[docs/ClassRegistry.md](ClassRegistry.md) for a classroom-wide shared CA + DNS registry so
+every business is reachable with trusted HTTPS. Neither is required, and nothing above depends
+on either.

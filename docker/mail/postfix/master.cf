@@ -1,6 +1,6 @@
 # Postfix master.cf — only submission (587, STARTTLS) and smtps (465, implicit TLS) are
 # enabled. No plain inet:25 listener — this system never accepts or relays internet mail,
-# only authenticated submission from lab clients (Evolution/Thunderbird/webmail) followed by
+# only authenticated submission from lab clients (Betterbird/webmail) followed by
 # local delivery. See main.cf and docs/SambaAdmin.md.
 
 submission inet n       -       n       -       -       smtpd
@@ -40,3 +40,8 @@ discard   unix  -       -       n       -       -       discard
 lmtp      unix  -       -       n       -       -       lmtp
 anvil     unix  -       -       n       -       1       anvil
 scache    unix  -       -       n       -       1       scache
+
+# SPF policy service - inert unless smtpd_recipient_restrictions references it, which only
+# happens when SPAM_PROTECTION_ENABLED=true (see entrypoint.sh). See docs/SPFDKIMDMARC.md.
+policyd-spf  unix  -       n       n       -       0       spawn
+    user=policyd-spf argv=/usr/bin/policyd-spf
