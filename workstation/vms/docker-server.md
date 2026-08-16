@@ -12,9 +12,10 @@
 | DNS     | `10.10.0.10`                             |
 
 Hosts the Traefik reverse proxy plus NextCloud, OnlyOffice, and Dovecot Compose stacks (see
-[`docker/`](../../docker/)). Autoinstall seed is the same pattern as
-[`samba-dc.md`](samba-dc.md) with `addresses: [10.10.0.20/24]` and
-`nameservers.addresses: [10.10.0.10]`.
+[`docker/`](../../docker/)). Installs unattended from
+[`seeds/docker01/user-data.example`](seeds/docker01/user-data.example) — see
+[`samba-dc.md`](samba-dc.md#autoinstall) for how the seed-ISO mechanism works and the
+`cp`/`mkpasswd` steps you need before running `create-vms.ps1`.
 
 ## Post-install
 
