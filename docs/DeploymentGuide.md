@@ -15,6 +15,10 @@ all Linux VMs unless stated otherwise.
   [docs/WSLSetup.md](WSLSetup.md) for installing WSL2, the networking fix it needs to reach
   `VMnet-LAB` (this trips up almost everyone on first try), and cloning this repository inside
   it — do that clone (not a separate Windows-side one) before continuing.
+- `mkpasswd` (from the `whois` package — WSL2 has it, or any Debian/Ubuntu machine) to generate
+  password hashes for the Ubuntu Server autoinstall seeds used in steps 3 and 5. No extra tool
+  is needed to build the seed ISOs themselves — `workstation/scripts/build-seed-iso.ps1` uses
+  IMAPI2, which ships with Windows.
 
 ## 1. Networking (VMware Workstation)
 
@@ -47,10 +51,13 @@ This creates `VMnet8` (NAT, WAN) as-is (Workstation ships it by default) and a n
 
 ## 3. Samba AD Domain Controller
 
-1. Create `samba-dc01` per [`workstation/vms/samba-dc.md`](../workstation/vms/samba-dc.md)
-   (2 vCPU, 4 GB RAM, 40 GB disk, static `10.10.0.10`, gateway `10.10.0.1`).
-2. Install Ubuntu Server 24.04 (unattended install seed available at
-   `workstation/vms/samba-dc.md#autoinstall`).
+1. Fill in `samba-dc01`'s install seed (see
+   [`workstation/vms/samba-dc.md#autoinstall`](../workstation/vms/samba-dc.md#autoinstall) —
+   copy the `.example` files, generate a password hash with `mkpasswd`).
+2. `workstation/scripts/create-vms.ps1` creates `samba-dc01`'s VM shell (2 vCPU, 4 GB RAM,
+   40 GB disk, static `10.10.0.10`, gateway `10.10.0.1`) and builds/attaches its seed ISO
+   automatically. Boot it — Ubuntu Server installs with no prompts and reboots into a running
+   system with SSH up.
 3. `sudo samba/scripts/bootstrap-ad.sh` — provisions the domain (see
    [SambaAdmin.md](SambaAdmin.md)).
 4. `sudo samba/scripts/create-ous.sh && sudo samba/scripts/create-groups.sh && sudo samba/scripts/create-users.sh`
@@ -84,9 +91,11 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
 
 ## 5. Docker application server + Authentik
 
-1. Create `docker01` (`10.10.0.20`) and `authentik01` (`10.10.0.30`) per
+1. Fill in `docker01`'s and `authentik01`'s install seeds (same `.example`-copy-and-fill
+   pattern as `samba-dc01` — see
    [`workstation/vms/docker-server.md`](../workstation/vms/docker-server.md) and
-   [`workstation/vms/authentik.md`](../workstation/vms/authentik.md).
+   [`workstation/vms/authentik.md`](../workstation/vms/authentik.md)), then boot them — both
+   install unattended the same way `samba-dc01` did in step 3.
 2. From your control host, populate `ansible/inventory/hosts.ini` (already templated with these
    IPs) and run:
 
