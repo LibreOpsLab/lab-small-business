@@ -13,37 +13,22 @@
 
 ## Autoinstall
 
-Ubuntu Server's `autoinstall` (Subiquity) supports an unattended install via a `user-data`
-cloud-init file on a second CD/USB. Minimal example — save as `user-data` on an ISO/USB
-alongside an empty `meta-data` file, attach as a second CD-ROM at boot:
+Ubuntu Server's `autoinstall` (Subiquity) installs this host with zero prompts, driven by a
+seed file `create-vms.ps1` attaches automatically as a second CD-ROM — see
+[`workstation/scripts/build-seed-iso.ps1`](../scripts/build-seed-iso.ps1) for how that seed
+gets built, and [`seeds/samba-dc01/user-data.example`](seeds/samba-dc01/user-data.example) for
+what it contains (heavily commented — worth reading even if you don't need to change it).
 
-```yaml
-#cloud-config
-autoinstall:
-  version: 1
-  identity:
-    hostname: samba-dc01
-    username: labadmin
-    password: "$6$replace-with-a-mkpasswd-hash"
-  network:
-    network:
-      version: 2
-      ethernets:
-        ens160:
-          addresses: [10.10.0.10/24]
-          gateway4: 10.10.0.1
-          nameservers:
-            addresses: [127.0.0.1]
-  ssh:
-    install-server: true
-    allow-pw: true
-  packages:
-    - openssh-server
-  late-commands:
-    - curtin in-target --target=/target -- systemctl enable ssh
+Before running `create-vms.ps1`:
+
+```bash
+cp workstation/vms/seeds/samba-dc01/user-data.example workstation/vms/seeds/samba-dc01/user-data
+cp workstation/vms/seeds/samba-dc01/meta-data.example workstation/vms/seeds/samba-dc01/meta-data
+mkpasswd --method=sha-512   # paste the output into user-data's password field
 ```
 
-Generate the password hash with `mkpasswd --method=sha-512` (from the `whois` package).
+The real `user-data`/`meta-data` (no `.example` suffix) are gitignored — they'll contain your
+actual password hash, which is not something to commit.
 
 ## Post-install
 

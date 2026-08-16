@@ -1,0 +1,66 @@
+#cloud-config
+# NoCloud seed for samba-dc01 — consumed by Ubuntu Server's autoinstall (Subiquity) via a
+# second, read-only CD attached alongside the Ubuntu Server ISO. Subiquity looks for a NoCloud
+# datasource (this file + meta-data next to it, on a disc labeled "cidata") before falling
+# back to the normal interactive installer — that's the entire mechanism "unattended install"
+# rests on here.
+#
+# This .example file is committed to git; the real one (with your actual password hash in it)
+# is not — copy this file to user-data (same folder, no ".example") and fill in the
+# placeholder below before running workstation/scripts/create-vms.ps1. That script calls
+# workstation/scripts/build-seed-iso.ps1 automatically, which builds the seed ISO from your
+# filled-in copy and refuses to run if it still finds the placeholder untouched.
+#
+# Reference: https://ubuntu.com/server/docs/install/autoinstall-reference
+autoinstall:
+  version: 1
+
+  # `identity` sets the first (and, for this lab, only) local account created during install.
+  # `labadmin` matches ansible_user in ansible/inventory/hosts.ini — Ansible logs in as this
+  # account for every playbook run from step 5 onward, so don't rename it without updating the
+  # inventory too.
+  identity:
+    hostname: samba-dc01
+    username: labadmin
+    # Generate with: mkpasswd --method=sha-512   (the `mkpasswd` command ships in the `whois`
+    # package on Debian/Ubuntu — install it on whatever machine you run this from, it doesn't
+    # need to be a lab VM).
+    password: "$6$replace-with-a-mkpasswd-hash"
+
+  # Static IP, not DHCP: samba-dc01 becomes the DNS server for lab.internal once
+  # samba/scripts/bootstrap-ad.sh runs (docs/DeploymentGuide.md#3-samba-ad-domain-controller),
+  # so it can't depend on a DHCP server it will itself eventually be authoritative in front of.
+  # IP/gateway match docs/Architecture.md's component inventory — if you ever change one, change
+  # both, and update ansible/inventory/hosts.ini too.
+  network:
+    network:
+      version: 2
+      ethernets:
+        # ens160 is the interface name VMware's e1000e NIC emulation presents to Ubuntu Server
+        # guests in practice. If your install boots and this doesn't match (check with `ip a`
+        # from the installer's shell — Ctrl+Alt+F2 during install), edit this before retrying.
+        ens160:
+          addresses: [10.10.0.10/24]
+          gateway4: 10.10.0.1
+          nameservers:
+            # 127.0.0.1 during install only — this host becomes authoritative for itself once
+            # Samba AD is provisioned; nothing else exists yet to ask for lab.internal records.
+            addresses: [127.0.0.1]
+
+  ssh:
+    install-server: true
+    # Password auth stays on for this lab's bootstrap — there's no SSH-key distribution wired
+    # into this seed. Whatever SSH trust you use to reach this host as `labadmin` afterwards
+    # (interactive password login, or a key you add yourself post-install) is up to you; see
+    # docs/DeploymentGuide.md for what happens next.
+    allow-pw: true
+
+  packages:
+    - openssh-server
+
+  # Subiquity's package install doesn't start the SSH server itself — this explicitly enables
+  # it in the *installed* system. ("in-target" is curtin's term for "run this inside the new
+  # root filesystem, not the live installer environment" — a command without it would enable
+  # SSH in the temporary installer, which is thrown away at reboot and achieves nothing.)
+  late-commands:
+    - curtin in-target --target=/target -- systemctl enable ssh

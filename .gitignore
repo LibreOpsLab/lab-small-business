@@ -40,6 +40,13 @@ workstation/vms/**/*.vmsd
 workstation/vms/**/*.vmx.lck/
 workstation/vms/**/*.log
 
+# --- Unattended-install seed data (real secrets students fill in — .example files are
+# --- safe to commit, the filled copies are not) ---
+workstation/vms/seeds/**/user-data
+workstation/vms/seeds/**/meta-data
+workstation/vms/seeds/**/autounattend.xml
+workstation/vms/**/*-seed.iso
+
 # --- OS / editor cruft ---
 .DS_Store
 Thumbs.db
