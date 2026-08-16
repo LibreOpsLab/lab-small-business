@@ -766,7 +766,10 @@ $fsi = New-Object -ComObject IMAPI2FS.MsftFileSystemImage
 $fsi.FileSystemsToCreate = 3  # ISO9660 (1) bitwise-or Joliet (2): readable by both Linux and Windows tooling
 $fsi.VolumeName = $volumeLabel
 foreach ($file in $files) {
-    $fsi.Root.AddFile((Split-Path $file -Leaf), $file) | Out-Null
+    # AddTree takes either a file or a directory path; given a single file it just adds that
+    # file to the current directory item, which is all that's needed here — each seed folder
+    # only ever contains the exact files listed in $files, so there's nothing to recurse into.
+    $fsi.Root.AddTree($file, $false) | Out-Null
 }
 
 $result = $fsi.CreateResultImage()
