@@ -1,0 +1,6 @@
+# cloud-init's NoCloud datasource requires meta-data to exist alongside user-data, even though
+# nothing here is strictly load-bearing for this lab. instance-id is what cloud-init uses to
+# decide "have I already processed this seed" on reboot — change it if you ever need to force
+# cloud-init to reprocess an unchanged user-data file.
+instance-id: samba-dc01
+local-hostname: samba-dc01

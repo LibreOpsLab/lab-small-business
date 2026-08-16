@@ -14,8 +14,9 @@
 Kept on its own VM (rather than co-located on `docker01`) so the identity plane's failure
 domain is isolated from the application plane — see
 [docs/Architecture.md#trade-offs-and-scope](../../docs/Architecture.md#trade-offs-and-scope).
-Autoinstall seed follows the same pattern as [`samba-dc.md`](samba-dc.md) with
-`addresses: [10.10.0.30/24]`.
+Installs unattended from
+[`seeds/authentik01/user-data.example`](seeds/authentik01/user-data.example) — see
+[`samba-dc.md`](samba-dc.md#autoinstall) for how the seed-ISO mechanism works.
 
 ## Post-install
 

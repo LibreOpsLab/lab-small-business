@@ -9,8 +9,26 @@
 | ISO  | Windows 11 (23H2+)                          |
 | IP   | DHCP (`10.10.0.100-199`, served by pfSense) |
 
-Install interactively. VMware Tools (or open-vm-tools equivalent installer bundled with
-Workstation) should be installed post-OS-install for clipboard/display integration.
+Installs unattended from
+[`seeds/win-client01/autounattend.xml.example`](seeds/win-client01/autounattend.xml.example) —
+Windows Setup's equivalent of the cloud-init seeds used for the Ubuntu hosts (see
+[`samba-dc.md`](samba-dc.md#autoinstall) for that mechanism; the answer file itself explains
+the Windows-specific parts inline).
+
+Before running `create-vms.ps1`:
+
+```bash
+cp workstation/vms/seeds/win-client01/autounattend.xml.example \
+   workstation/vms/seeds/win-client01/autounattend.xml
+# then edit autounattend.xml and replace REPLACE_ME with a real password
+```
+
+`create-vms.ps1` also now configures this VM with UEFI firmware, Secure Boot, and a virtual
+TPM 2.0 — Windows 11 Setup hard-requires all three and refuses to install without them, so
+without this the VM would fail at the very first Setup screen regardless of the answer file.
+
+VMware Tools (or open-vm-tools equivalent installer bundled with Workstation) should be
+installed post-OS-install for clipboard/display integration.
 
 ## Post-install
 
