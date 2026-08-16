@@ -428,7 +428,8 @@ EOF
 
   Reference: https://learn.microsoft.com/windows-hardware/manufacture/desktop/update-windows-settings-and-scripts-create-your-own-answer-file-sxs
 -->
-<unattend xmlns="urn:schemas-microsoft-com:unattend">
+<unattend xmlns="urn:schemas-microsoft-com:unattend"
+          xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
 
   <!-- windowsPE pass: runs from the Windows PE environment the installer boots into, before
        Windows itself is copied to disk. Governs disk partitioning and which image gets
