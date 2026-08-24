@@ -1,11 +1,12 @@
 <#
 .SYNOPSIS
-    Creates the host-only "VMnet-LAB" virtual network (10.10.0.0/24) used as the lab LAN,
+    Creates a numbered host-only VMnet (10.10.0.0/24) used as the lab LAN,
     with VMware's built-in DHCP service disabled (pfSense is the DHCP server for this subnet).
 
 .DESCRIPTION
-    Wraps VMware Workstation's network configuration CLI (vnetlib.exe or vnetlib64.exe).
-    Must be run elevated. Idempotent — checks vnetlib's current mapping before making changes.
+    Wraps VMware Workstation's Windows vnetlib.exe. Must be run elevated.
+    VMware's CLI requires the '--' separator, uses spaced command names, and returns
+    exit code 1 for success and 0 for failure.
 
 .NOTES
     VMnet8 (NAT/WAN) is left untouched; Workstation ships it by default and this lab uses
@@ -13,7 +14,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$VmnetName = "VMnet-LAB",
+    [string]$VmnetName = "vmnet2",
     [string]$Subnet    = "10.10.0.0",
     [string]$Mask      = "255.255.255.0",
     [string]$VNetLibPath
@@ -24,7 +25,9 @@ $ErrorActionPreference = "Stop"
 if ([string]::IsNullOrWhiteSpace($VNetLibPath)) {
     $vnetlibCandidates = @(
         "$Env:ProgramFiles\VMware\VMware Workstation\vnetlib.exe",
-        "$Env:ProgramFiles\VMware\VMware Workstation\vnetlib64.exe"
+        "$Env:ProgramFiles (x86)\VMware\VMware Workstation\vnetlib.exe",
+        "$Env:ProgramFiles\VMware\VMware Workstation\vnetlib64.exe",
+        "$Env:ProgramFiles (x86)\VMware\VMware Workstation\vnetlib64.exe"
     )
     $VNetLibPath = $vnetlibCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 }
@@ -33,43 +36,31 @@ if (-not $VNetLibPath -or -not (Test-Path $VNetLibPath)) {
     throw "VMware's vnetlib.exe or vnetlib64.exe was not found. Adjust -VNetLibPath or verify your VMware Workstation install location."
 }
 
+if ($VmnetName -notmatch '^vmnet\d+$') {
+    throw "-VmnetName must be a VMware network name such as 'vmnet2'; vnetlib.exe cannot create arbitrary names like 'VMnet-LAB'."
+}
+
 function Invoke-VNetLib {
     param([string[]]$Arguments)
     $executableName = Split-Path -Leaf $VNetLibPath
-    Write-Verbose "$executableName $($Arguments -join ' ')"
-    & $VNetLibPath @Arguments
+    $command = @('--') + $Arguments
+    Write-Verbose "$executableName $($command -join ' ')"
+    & $VNetLibPath @command
     $exitCode = $LASTEXITCODE
 
-    if ($exitCode -ne 0) {
-        Write-Verbose "$executableName did not accept the direct command form; retrying with the legacy '--' separator."
-        & $VNetLibPath "--" @Arguments
-        $exitCode = $LASTEXITCODE
-    }
-
-    if ($exitCode -ne 0) {
+    if ($exitCode -ne 1) {
         throw "$executableName $($Arguments -join ' ') failed with exit code $exitCode"
     }
 }
 
-Write-Host "[configure-vmnet] Checking existing virtual network mappings..." -ForegroundColor Cyan
-$existing = Invoke-VNetLib -Arguments @("enumerateNetworks") 2>$null
-if ($existing -match [regex]::Escape($VmnetName)) {
-    Write-Host "[configure-vmnet] $VmnetName already exists — skipping creation." -ForegroundColor Yellow
-} else {
-    Write-Host "[configure-vmnet] Adding host-only network $VmnetName ($Subnet/$Mask)..." -ForegroundColor Cyan
-    Invoke-VNetLib -Arguments @("addAdapter", $VmnetName)
-    Invoke-VNetLib -Arguments @("setNetType", $VmnetName, "hostonly")
-    Invoke-VNetLib -Arguments @("setSubnetAddr", $VmnetName, $Subnet)
-    Invoke-VNetLib -Arguments @("setSubnetMask", $VmnetName, $Mask)
-
-    $created = Invoke-VNetLib -Arguments @("enumerateNetworks") 2>$null
-    if ($created -notmatch [regex]::Escape($VmnetName)) {
-        throw "$VmnetName was not reported by $([System.IO.Path]::GetFileName($VNetLibPath)) after creation. Check VMware Workstation's Virtual Network Editor or run this script with -Verbose."
-    }
-}
+Write-Host "[configure-vmnet] Adding host-only network $VmnetName ($Subnet/$Mask)..." -ForegroundColor Cyan
+Invoke-VNetLib -Arguments @("add", "adapter", $VmnetName)
+Invoke-VNetLib -Arguments @("set", "vnet", $VmnetName, "addr", $Subnet)
+Invoke-VNetLib -Arguments @("set", "vnet", $VmnetName, "mask", $Mask)
 
 Write-Host "[configure-vmnet] Disabling VMware's built-in DHCP service on $VmnetName (pfSense will serve DHCP)..." -ForegroundColor Cyan
-Invoke-VNetLib -Arguments @("setDhcp", $VmnetName, "disabled")
+Invoke-VNetLib -Arguments @("remove", "dhcp", $VmnetName)
+Invoke-VNetLib -Arguments @("update", "adapter", $VmnetName)
 
 Write-Host "[configure-vmnet] Restarting VMware networking services to apply changes..." -ForegroundColor Cyan
 Restart-Service -Name "VMware NAT Service" -ErrorAction SilentlyContinue

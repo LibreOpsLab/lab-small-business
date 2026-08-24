@@ -6,7 +6,7 @@
 | RAM    | 2048 MB                                     |
 | Disk   | 20 GB (thin)                                |
 | NIC 1  | `VMnet8` (WAN, NAT)                         |
-| NIC 2  | `VMnet-LAB` (LAN)                           |
+| NIC 2  | `VMnet2` (LAN)                              |
 | ISO    | pfSense CE (latest stable)                  |
 | LAN IP | `10.10.0.1/24` (static, set during install) |
 | WAN    | DHCP from VMware NAT                        |
@@ -14,7 +14,7 @@
 ## Install (manual — no unattended installer available for pfSense on Workstation)
 
 1. Boot from ISO, run the installer with default ZFS/UFS choice (UFS is fine for a lab).
-2. At "Assign Interfaces": WAN = the NIC on `VMnet8`, LAN = the NIC on `VMnet-LAB`.
+2. At "Assign Interfaces": WAN = the NIC on `VMnet8`, LAN = the NIC on `VMnet2`.
 3. Set LAN IPv4 address to `10.10.0.1/24`, do **not** enable LAN DHCP yet (config import in
    the next step sets the full DHCP scope).
 4. Reboot into the installed system.

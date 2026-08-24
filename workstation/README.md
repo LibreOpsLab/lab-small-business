@@ -9,8 +9,8 @@ so this layer is PowerShell scripts wrapping VMware's `vnetlib.exe` or `vnetlib6
 ## Contents
 
 - [`networks/README.md`](networks/README.md) — WAN/LAN virtual network design.
-- [`scripts/configure-vmnet.ps1`](scripts/configure-vmnet.ps1) — creates the `VMnet-LAB`
-  host-only network.
+- [`scripts/configure-vmnet.ps1`](scripts/configure-vmnet.ps1) — creates the numbered `VMnet2`
+  host-only network used as the lab LAN.
 - [`scripts/create-vms.ps1`](scripts/create-vms.ps1) — `vmrun`-driven helper to clone a base
   VM template into each named lab VM with the correct NIC/resource settings.
 - [`vms/`](vms/) — one spec sheet per VM (CPU/RAM/disk/NIC, OS, static IP where applicable).

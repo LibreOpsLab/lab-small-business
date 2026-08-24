@@ -5,7 +5,7 @@
 | vCPU | 2                                           |
 | RAM  | 4096 MB                                     |
 | Disk | 40 GB (thin)                                |
-| NIC  | `VMnet-LAB`                                 |
+| NIC  | `VMnet2`                                    |
 | ISO  | Ubuntu Desktop 24.04 LTS                    |
 | IP   | DHCP (`10.10.0.100-199`, served by pfSense) |
 

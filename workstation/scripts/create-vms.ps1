@@ -24,7 +24,7 @@ param(
     [string]$VmDir = (Resolve-Path (Join-Path $PSScriptRoot "..\vms")).Path,
     [string]$IsoDir = "C:\ISOs",
     [string]$VmwarePath = "$Env:ProgramFiles(x86)\VMware\VMware Workstation",
-    [string]$LanNetwork = "VMnet-LAB",
+    [string]$LanNetwork = "VMnet2",
     [string]$WanNetwork = "VMnet8"
 )
 

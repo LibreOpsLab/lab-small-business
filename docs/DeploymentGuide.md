@@ -13,7 +13,7 @@ all Linux VMs unless stated otherwise.
   everything from step 3 onward — this needs to be WSL2, not Git Bash or PowerShell alone;
   Ansible does not support Windows as a control node. See
   [docs/WSLSetup.md](WSLSetup.md) for installing WSL2, the networking fix it needs to reach
-  `VMnet-LAB` (this trips up almost everyone on first try), and cloning this repository inside
+   `VMnet2` (this trips up almost everyone on first try), and cloning this repository inside
   it — do that clone (not a separate Windows-side one) before continuing.
 - `mkpasswd` (from the `whois` package — WSL2 has it, or any Debian/Ubuntu machine) to generate
   password hashes for the Ubuntu Server autoinstall seeds used in steps 3 and 5. No extra tool
@@ -32,13 +32,13 @@ workstation\scripts\configure-vmnet.ps1
 ```
 
 This creates `VMnet8` (NAT, WAN) as-is (Workstation ships it by default) and a new host-only
-`VMnet-LAB` network with **DHCP disabled** (pfSense will be the DHCP server) bound to
+`VMnet2` network with **DHCP disabled** (pfSense will be the DHCP server) bound to
 `10.10.0.0/24`.
 
 ## 2. pfSense
 
 1. Create the VM per [`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md) (2 vCPU,
-   2 GB RAM, 20 GB disk, NIC1→VMnet8/WAN, NIC2→VMnet-LAB/LAN).
+   2 GB RAM, 20 GB disk, NIC1→VMnet8/WAN, NIC2→VMnet2/LAN).
 2. Install pfSense interactively (only manual-install step in the whole lab — pfSense has no
    unattended installer for Workstation). Assign WAN=NIC1, LAN=NIC2, LAN IP `10.10.0.1/24`.
 3. From the pfSense console/GUI, import

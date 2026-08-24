@@ -5,7 +5,7 @@
 | vCPU    | 4                                        |
 | RAM     | 8192 MB                                  |
 | Disk    | 80 GB (thin) — NextCloud/mail data grows |
-| NIC     | `VMnet-LAB`                              |
+| NIC     | `VMnet2`                                 |
 | ISO     | Ubuntu Server 24.04 LTS                  |
 | IP      | `10.10.0.20/24` (static)                 |
 | Gateway | `10.10.0.1`                              |

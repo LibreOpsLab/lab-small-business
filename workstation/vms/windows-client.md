@@ -5,7 +5,7 @@
 | vCPU | 2                                           |
 | RAM  | 4096 MB                                     |
 | Disk | 60 GB (thin)                                |
-| NIC  | `VMnet-LAB`                                 |
+| NIC  | `VMnet2`                                    |
 | ISO  | Windows 11 (23H2+)                          |
 | IP   | DHCP (`10.10.0.100-199`, served by pfSense) |
 
