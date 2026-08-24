@@ -11,7 +11,7 @@
   <system>
     <hostname>__HOSTNAME__</hostname>
     <domain>lab.internal</domain>
-    <timezone>Etc/UTC</timezone>
+    <timezone>Australia/Perth</timezone>
     <timeservers>10.10.0.10</timeservers>
     <webgui>
       <protocol>https</protocol>
