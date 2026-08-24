@@ -1,20 +1,28 @@
 <#
 .SYNOPSIS
     Creates the lab's VM shells (disk + .vmx) via vmrun/vmware-vdiskmanager, ready for OS
-    installation. For any VM with a workstation/vms/seeds/<name>/ folder (every host except
-    pfsense01 and linux-client01), also builds and attaches an unattended-install seed ISO via
-    build-seed-iso.ps1 — those VMs install with zero prompts once booted. pfSense has no
-    unattended installer to target; the Linux desktop client's install is intentionally manual
-    (see linux-client.md).
+    installation, for the four hosts with an unattended install seed
+    (samba-dc01, docker01, authentik01, win-client01) — each one's
+    workstation/vms/seeds/<name>/ folder gets built into a seed ISO via build-seed-iso.ps1 and
+    attached, so it installs with zero prompts once booted. pfsense01 and linux-client01 are
+    built entirely by hand in the Workstation GUI (see their respective vms/*.md) and are not
+    in this script's table.
 
 .DESCRIPTION
     Reads the VM table below (mirrors docs/Architecture.md's component inventory) and, for
     each VM, creates a new virtual disk and a minimal .vmx with the right CPU/RAM/NIC
-    settings, then registers it with vmrun so it shows up in the Workstation Library.
+    settings on the lab's LAN Segment, then registers it with vmrun so it shows up in the
+    Workstation Library.
 
 .PARAMETER VmDir
     Directory under which each VM's folder will be created (default: this repo's
     workstation/vms/<name>/).
+
+.PARAMETER LanNetwork
+    Name of the VMware LAN Segment every VM's NIC is attached to (default: "LAN-LAB", created
+    the first time it's referenced from pfSense's NIC2 — see workstation/vms/pfsense.md). Every
+    VM this script creates has exactly one NIC, on this network; pfSense is the only VM with a
+    WAN-facing NIC, and it's built by hand, not by this script.
 
 .EXAMPLE
     .\create-vms.ps1 -IsoDir C:\ISOs
@@ -24,8 +32,7 @@ param(
     [string]$VmDir = (Resolve-Path (Join-Path $PSScriptRoot "..\vms")).Path,
     [string]$IsoDir = "C:\ISOs",
     [string]$VmwarePath = "$Env:ProgramFiles(x86)\VMware\VMware Workstation",
-    [string]$LanNetwork = "VMnet2",
-    [string]$WanNetwork = "VMnet8"
+    [string]$LanNetwork = "LAN-LAB"
 )
 
 $ErrorActionPreference = "Stop"
@@ -38,15 +45,13 @@ foreach ($exe in @($vmrun, $vdiskman)) {
 
 # name, vcpu, ramMB, diskGB, nics (array of network names), iso, firmware/vtpm, guest OS type
 $VMs = @(
-    @{ Name = "pfsense01";      VCPU = 2; RamMB = 2048;  DiskGB = 20;  Nics = @($WanNetwork, $LanNetwork); Iso = "pfSense-CE.iso";           Firmware = "bios"; Vtpm = $false; GuestOS = "ubuntu-64" }
-    @{ Name = "samba-dc01";     VCPU = 2; RamMB = 4096;  DiskGB = 40;  Nics = @($LanNetwork);               Iso = "ubuntu-server-24.04.iso";  Firmware = "bios"; Vtpm = $false; GuestOS = "ubuntu-64" }
-    @{ Name = "docker01";       VCPU = 4; RamMB = 8192;  DiskGB = 80;  Nics = @($LanNetwork);               Iso = "ubuntu-server-24.04.iso";  Firmware = "bios"; Vtpm = $false; GuestOS = "ubuntu-64" }
-    @{ Name = "authentik01";    VCPU = 2; RamMB = 4096;  DiskGB = 40;  Nics = @($LanNetwork);               Iso = "ubuntu-server-24.04.iso";  Firmware = "bios"; Vtpm = $false; GuestOS = "ubuntu-64" }
-    @{ Name = "linux-client01"; VCPU = 2; RamMB = 4096;  DiskGB = 40;  Nics = @($LanNetwork);               Iso = "ubuntu-desktop-24.04.iso"; Firmware = "bios"; Vtpm = $false; GuestOS = "ubuntu-64" }
+    @{ Name = "samba-dc01";     VCPU = 2; RamMB = 4096;  DiskGB = 40;  Nics = @($LanNetwork); Iso = "ubuntu-server-24.04.iso";  Firmware = "bios"; Vtpm = $false; GuestOS = "ubuntu-64" }
+    @{ Name = "docker01";       VCPU = 4; RamMB = 8192;  DiskGB = 80;  Nics = @($LanNetwork); Iso = "ubuntu-server-24.04.iso";  Firmware = "bios"; Vtpm = $false; GuestOS = "ubuntu-64" }
+    @{ Name = "authentik01";    VCPU = 2; RamMB = 4096;  DiskGB = 40;  Nics = @($LanNetwork); Iso = "ubuntu-server-24.04.iso";  Firmware = "bios"; Vtpm = $false; GuestOS = "ubuntu-64" }
     # Windows 11 Setup hard-blocks installation without a detected TPM 2.0 and UEFI firmware —
     # this is the fix for that; every other VM above is untouched (still BIOS, no vTPM, exactly
     # as before this change).
-    @{ Name = "win-client01";   VCPU = 2; RamMB = 4096;  DiskGB = 60;  Nics = @($LanNetwork);               Iso = "Win11.iso";                Firmware = "efi";  Vtpm = $true;  GuestOS = "windows11-64" }
+    @{ Name = "win-client01";   VCPU = 2; RamMB = 4096;  DiskGB = 60;  Nics = @($LanNetwork); Iso = "Win11.iso";                Firmware = "efi";  Vtpm = $true;  GuestOS = "windows11-64" }
 )
 
 foreach ($vm in $VMs) {
@@ -70,10 +75,9 @@ foreach ($vm in $VMs) {
         $nicLines += "ethernet$i.present = `"TRUE`"`nethernet$i.connectionType = `"custom`"`nethernet$i.vnet = `"$($vm.Nics[$i])`"`nethernet$i.virtualDev = `"e1000e`"`n"
     }
 
-    # Unattended-install seed media: workstation/vms/seeds/<name>/ only exists for hosts that
-    # support an unattended install (Ubuntu Server autoinstall, Windows autounattend). pfSense
-    # and the Linux desktop client have no seed folder, so this is a no-op for them — they boot
-    # straight into the normal interactive installer, exactly as before this change.
+    # Unattended-install seed media: every VM left in this script's table has a
+    # workstation/vms/seeds/<name>/ folder (Ubuntu Server autoinstall or Windows autounattend) —
+    # pfsense01 and linux-client01 are built by hand and never reach this script at all.
     $seedFolder = Join-Path $VmDir "seeds\$($vm.Name)"
     $cdromLines = ""
     if (Test-Path $seedFolder) {
@@ -118,5 +122,5 @@ guestOS = "$($vm.GuestOS)"
 }
 
 Write-Host ""
-Write-Host "All VM shells created. See workstation/vms/*.md for per-VM install notes" -ForegroundColor Green
-Write-Host "(autoinstall seeds for Ubuntu hosts, manual steps for pfSense/Windows)."
+Write-Host "All VM shells created. See workstation/vms/*.md for per-VM install notes." -ForegroundColor Green
+Write-Host "pfsense01 and linux-client01 are built by hand in the Workstation GUI - not by this script."
