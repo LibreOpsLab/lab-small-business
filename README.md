@@ -7,17 +7,17 @@ Built for repeatable deployment and hands-on sysadmin/DevOps teaching.
 
 ## What's in the box
 
-| Layer                                     | Technology                                             |
-| ----------------------------------------- | ------------------------------------------------------ |
-| Perimeter firewall / DHCP / DNS forwarder | pfSense                                                |
-| Directory / Kerberos / LDAP / DNS / NTP   | Samba Active Directory                                 |
-| Identity federation / SSO                 | Authentik (LDAP source + OIDC)                         |
-| Application host                          | Docker Engine + Traefik reverse proxy                  |
-| Applications                              | NextCloud (+Talk/Calendar/Contacts/Mail), OnlyOffice, Dovecot+Postfix mail, WordPress, Stirling PDF |
-| Internal PKI                              | Two-tier OpenSSL CA (offline Root + online Issuing CA) |
+| Layer                                     | Technology                                                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Perimeter firewall / DHCP / DNS forwarder | pfSense                                                                                                |
+| Directory / Kerberos / LDAP / DNS / NTP   | Samba Active Directory                                                                                 |
+| Identity federation / SSO                 | Authentik (LDAP source + OIDC)                                                                         |
+| Application host                          | Docker Engine + Traefik reverse proxy                                                                  |
+| Applications                              | NextCloud (+Talk/Calendar/Contacts/Mail), OnlyOffice, Dovecot+Postfix mail, WordPress, Stirling PDF    |
+| Internal PKI                              | Two-tier OpenSSL CA (offline Root + online Issuing CA)                                                 |
 | Endpoints                                 | Ubuntu Desktop (SSSD) + Windows 11 (native AD), with NextCloud Sync/OnlyOffice/Betterbird desktop apps |
-| Multi-business                            | `scripts/provision-business.sh` + IPSec/WireGuard federation tooling |
-| Automation                                | Bash, Ansible, Docker Compose, PowerShell              |
+| Multi-business                            | `scripts/provision-business.sh` + IPSec/WireGuard federation tooling                                   |
+| Automation                                | Bash, Ansible, Docker Compose, PowerShell                                                              |
 
 Domain: `lab.internal` / realm `LAB.INTERNAL` / NetBIOS `LAB`, on `10.10.0.0/24` — all
 re-parameterisable per business via [`scripts/provision-business.sh`](scripts/provision-business.sh)
@@ -55,23 +55,23 @@ repo-root/
 
 ## Documentation index
 
-| Doc                                             | Covers                                                                |
-| ----------------------------------------------- | --------------------------------------------------------------------- |
-| [Architecture.md](docs/Architecture.md)         | Component inventory, design principles, trade-offs                    |
-| [DeploymentGuide.md](docs/DeploymentGuide.md)   | Ordered, repeatable bring-up procedure                                |
-| [WSLSetup.md](docs/WSLSetup.md)                 | Setting up WSL2 as the Ansible control host, and why it's needed      |
-| [PKI.md](docs/PKI.md)                           | Two-tier CA design, issuance, renewal, revocation, trust distribution |
-| [SambaAdmin.md](docs/SambaAdmin.md)             | AD provisioning, OUs, users/groups, DNS, backup, health checks        |
-| [AuthentikAdmin.md](docs/AuthentikAdmin.md)     | LDAP source, OIDC providers, MFA, recovery                            |
-| [Security.md](docs/Security.md)                 | RBAC, cert validation, firewall rules, hardening, Fail2Ban, secrets   |
-| [Backup.md](docs/Backup.md)                     | Backup/restore for AD, Authentik, Docker volumes, PKI, config         |
-| [Troubleshooting.md](docs/Troubleshooting.md)   | DNS, Kerberos, LDAP, certs, OIDC, Docker/proxy issues                 |
-| [StudentLabManual.md](docs/StudentLabManual.md) | Day-1 checklist and hands-on exercises                                |
+| Doc                                             | Covers                                                                                                |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [Architecture.md](docs/Architecture.md)         | Component inventory, design principles, trade-offs                                                    |
+| [DeploymentGuide.md](docs/DeploymentGuide.md)   | Ordered, repeatable bring-up procedure                                                                |
+| [WSLSetup.md](docs/WSLSetup.md)                 | Setting up WSL2 as the Ansible control host, and why it's needed                                      |
+| [PKI.md](docs/PKI.md)                           | Two-tier CA design, issuance, renewal, revocation, trust distribution                                 |
+| [SambaAdmin.md](docs/SambaAdmin.md)             | AD provisioning, OUs, users/groups, DNS, backup, health checks                                        |
+| [AuthentikAdmin.md](docs/AuthentikAdmin.md)     | LDAP source, OIDC providers, MFA, recovery                                                            |
+| [Security.md](docs/Security.md)                 | RBAC, cert validation, firewall rules, hardening, Fail2Ban, secrets                                   |
+| [Backup.md](docs/Backup.md)                     | Backup/restore for AD, Authentik, Docker volumes, PKI, config                                         |
+| [Troubleshooting.md](docs/Troubleshooting.md)   | DNS, Kerberos, LDAP, certs, OIDC, Docker/proxy issues                                                 |
+| [StudentLabManual.md](docs/StudentLabManual.md) | Day-1 checklist and hands-on exercises                                                                |
 | [DesktopApps.md](docs/DesktopApps.md)           | Client-side app experience: NextCloud Sync, OnlyOffice, Betterbird, Stirling PDF, NextCloud groupware |
-| [SPFDKIMDMARC.md](docs/SPFDKIMDMARC.md)         | Optional sender-authentication enforcement for the mail stack |
-| [MultiBusiness.md](docs/MultiBusiness.md)       | Optional: bridging two independent businesses via IPSec + WireGuard/OpenVPN |
-| [ClassRegistry.md](docs/ClassRegistry.md)       | Optional: classroom-wide shared CA + DNS delegation + edge proxies, via a small self-hosted registry |
-| [LabInternet.md](docs/LabInternet.md)           | Original, larger design doc — mostly superseded by ClassRegistry.md |
+| [SPFDKIMDMARC.md](docs/SPFDKIMDMARC.md)         | Optional sender-authentication enforcement for the mail stack                                         |
+| [MultiBusiness.md](docs/MultiBusiness.md)       | Optional: bridging two independent businesses via IPSec + WireGuard/OpenVPN                           |
+| [ClassRegistry.md](docs/ClassRegistry.md)       | Optional: classroom-wide shared CA + DNS delegation + edge proxies, via a small self-hosted registry  |
+| [LabInternet.md](docs/LabInternet.md)           | Original, larger design doc — mostly superseded by ClassRegistry.md                                   |
 
 ## Diagrams
 
