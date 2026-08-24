@@ -5,6 +5,12 @@ Ansible-managed (see [workstation/README.md](../workstation/README.md#why-not-te
 the equivalent rationale — pfSense's config is XML-based and doesn't lend itself to idempotent
 CLI automation the way Linux does).
 
+**The files below are an optional shortcut, not the default first-run path.**
+[`docs/DeploymentGuide.md`](../docs/DeploymentGuide.md#1-pfsense--fully-manual) and
+[`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md) walk through configuring pfSense
+entirely by hand — start there. Come back to `config.xml.template` once you're comfortable with
+the manual flow and want a reviewed, reusable baseline for future rebuilds.
+
 ## Files
 
 - [`config/config.xml.template`](config/config.xml.template) — a reviewed baseline
