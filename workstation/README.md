@@ -3,7 +3,7 @@
 This directory documents and automates the parts of the lab that live outside any guest OS:
 virtual network configuration and VM inventory/specs. VMware Workstation Pro has no first-class
 declarative IaC tool (unlike ESXi/vSphere, it isn't Terraform-provider-friendly out of the box),
-so this layer is PowerShell scripts wrapping `vnetlib64.exe` / `vmrun.exe` plus documented specs
+so this layer is PowerShell scripts wrapping VMware's `vnetlib.exe` or `vnetlib64.exe` / `vmrun.exe` plus documented specs
 — the most repeatable approach available on the free/Pro desktop product.
 
 ## Contents

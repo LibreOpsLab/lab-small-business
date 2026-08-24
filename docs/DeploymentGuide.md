@@ -25,7 +25,7 @@ all Linux VMs unless stated otherwise.
 Create the two virtual networks described in
 [workstation/networks/README.md](../workstation/networks/README.md) using
 [`workstation/scripts/configure-vmnet.ps1`](../workstation/scripts/configure-vmnet.ps1)
-(elevated PowerShell, wraps `vnetlib64.exe`):
+(elevated PowerShell, wraps VMware's `vnetlib.exe` or `vnetlib64.exe`):
 
 ```powershell
 workstation\scripts\configure-vmnet.ps1
