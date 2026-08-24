@@ -1,0 +1,17 @@
+# This repo targets Linux hosts (shell scripts, YAML, Ansible, Jinja2
+# templates) even though it's often developed from a Windows checkout. CRLF
+# line endings break shebang execution and heredocs on the Linux side, so
+# normalize all text files to LF on checkout and in the repository,
+# regardless of the platform or the user's local core.autocrlf setting.
+* text=auto eol=lf
+
+# Explicitly binary — never touched for line endings or diffed as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.p12 binary
+*.pfx binary
+*.der binary
