@@ -1,11 +1,14 @@
-# WSL2 Setup (Control Host)
+# WSL2 as an alternative control host
 
-This lab is deployed from Windows (VMware Workstation host), but the actual deployment
-tooling — Ansible, the PKI shell scripts, `samba-tool` invocations, `rsync` — needs a real
-Linux environment. This doc covers setting up WSL2 as that environment: why it's needed (not
-just Git Bash), how to configure its networking so it can actually reach the lab's LAN, and
-how to point VS Code at it. Referenced from
-[docs/DeploymentGuide.md](DeploymentGuide.md#0-host-prerequisites).
+This lab's default control host is `linux-client01` (see
+[docs/DeploymentGuide.md](DeploymentGuide.md#2-admin-desktop--linux-client01-control-host)) — a
+VM built inside the lab's own LAN Segment, so it needs no special networking setup to reach the
+rest of the lab.
+
+If you'd rather drive the deployment tooling — Ansible, the PKI shell scripts, `samba-tool`
+invocations, `rsync` — from the Windows host instead, via WSL2, this doc covers what that path
+needs: why WSL2 (not Git Bash), how to configure its networking so it can reach the lab's
+`LAN-LAB` LAN Segment, and how to point VS Code at it.
 
 ## Why WSL2, not Git Bash
 
@@ -29,8 +32,9 @@ scripts, but it cannot be this repo's **control node**:
   ansible openssl rsync samba-common-bin` behaves exactly like it would on any of this lab's
   Ubuntu VMs — no surprises, no missing syscalls.
 
-Keep Git Bash for what it's good at (quick single-script runs, `git` itself); use WSL2 for
-everything under [`docs/DeploymentGuide.md`](DeploymentGuide.md)'s steps 3 onward.
+Keep Git Bash for what it's good at (quick single-script runs, `git` itself); if you're taking
+this path instead of `linux-client01`, use WSL2 for everything
+[`docs/DeploymentGuide.md`](DeploymentGuide.md) documents from step 3 onward.
 
 ## Install WSL2
 
@@ -58,7 +62,7 @@ below needs a reasonably current version.
 ## Networking: the part that actually trips people up
 
 This is the one genuinely non-obvious step. By default, WSL2 puts itself behind its **own**
-NAT'd virtual switch — separate from VMware Workstation's `VMnet-LAB` host-only network
+NAT'd virtual switch — separate from VMware Workstation's `LAN-LAB` LAN Segment
 (`10.10.0.0/24`) that pfSense and every lab VM live on. Concretely: **out of the box, your WSL2
 shell cannot reach `10.10.0.1` (pfSense) at all**, even though the Windows host it's running on
 can. Every `ansible-playbook` run and every `ssh samba-dc01.lab.internal` from WSL depends on
@@ -67,8 +71,8 @@ fixing this first.
 ### Fix: mirrored networking mode (recommended, Windows 11 22H2+)
 
 Mirrored mode makes WSL2 share the Windows host's network interfaces directly — including
-VMware's `VMnet-LAB` adapter — instead of running behind its own NAT. This is the simplest
-correct fix and needs no manual routes or port proxies.
+whichever adapter VMware assigned to the `LAN-LAB` LAN Segment — instead of running behind its
+own NAT. This is the simplest correct fix and needs no manual routes or port proxies.
 
 Create or edit `%UserProfile%\.wslconfig` on the **Windows** side (not inside WSL):
 
@@ -88,7 +92,7 @@ Reopen your WSL terminal and verify:
 ```bash
 ping -c 2 10.10.0.1        # pfSense LAN IP - should respond
 ip addr                     # you should see the same adapters Windows itself has, including
-                             # the one VMware assigned VMnet-LAB
+                             # the one VMware assigned the LAN-LAB LAN Segment
 ```
 
 ### Fallback: NAT mode + explicit route (older Windows/WSL versions)

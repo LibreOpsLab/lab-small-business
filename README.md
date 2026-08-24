@@ -59,7 +59,7 @@ repo-root/
 | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | [Architecture.md](docs/Architecture.md)         | Component inventory, design principles, trade-offs                                                    |
 | [DeploymentGuide.md](docs/DeploymentGuide.md)   | Ordered, repeatable bring-up procedure                                                                |
-| [WSLSetup.md](docs/WSLSetup.md)                 | Setting up WSL2 as the Ansible control host, and why it's needed                                      |
+| [WSLSetup.md](docs/WSLSetup.md)                 | Optional: driving the build from WSL2 on the Windows host instead of the linux-client01 admin VM      |
 | [PKI.md](docs/PKI.md)                           | Two-tier CA design, issuance, renewal, revocation, trust distribution                                 |
 | [SambaAdmin.md](docs/SambaAdmin.md)             | AD provisioning, OUs, users/groups, DNS, backup, health checks                                        |
 | [AuthentikAdmin.md](docs/AuthentikAdmin.md)     | LDAP source, OIDC providers, MFA, recovery                                                            |
@@ -85,21 +85,26 @@ repo-root/
 ## Quick start
 
 ```bash
-# 1. Networking + VMs (Windows host, elevated PowerShell)
-workstation\scripts\configure-vmnet.ps1
+# 1. pfSense + admin desktop (VMware Workstation GUI, fully manual — see
+#    docs/DeploymentGuide.md steps 1-2). Building pfSense's second NIC is what creates the
+#    LAN-LAB LAN Segment every other VM's NIC uses.
+
+# 2. Remaining VM shells (Windows host, elevated PowerShell)
 workstation\scripts\create-vms.ps1
 
-# 2. pfSense, Samba AD, endpoints — see docs/DeploymentGuide.md for the full sequence
-#    (pfSense install and OS installs are interactive; everything after is scripted)
+# 3. Samba AD, endpoints — see docs/DeploymentGuide.md for the full sequence (OS installs for
+#    the four VMs above are unattended; domain-join for the two clients is manual)
 
-# 3. PKI + identity + application layers, once VMs exist and are reachable over SSH
+# 4. PKI + identity + application layers, once VMs exist and are reachable over SSH — run
+#    from linux-client01, the control host (docs/DeploymentGuide.md step 2)
 make pki-init
 make pki-issue-all
 make deploy   # wraps scripts/deploy-all.sh: runs ansible/playbooks/site.yml end to end
 ```
 
 See [docs/DeploymentGuide.md](docs/DeploymentGuide.md) for the complete step-by-step, including
-the manual steps that have no scriptable equivalent (pfSense install, Windows install).
+the manual steps that have no scriptable equivalent (pfSense and linux-client01 builds, Windows
+domain join).
 
 ## Optional: multi-business & federation
 
