@@ -1,9 +1,9 @@
 # Network Topology
 
-VMware Workstation hosts two virtual networks: a NAT/Bridged **WAN** segment (host internet
-access only, no lab services bound to it) and a host-only **LAN** segment (`10.10.0.0/24`)
-that carries all lab traffic. pfSense is the only VM with a leg on both networks and is the
-default gateway, DHCP relay point, and firewall for the LAN.
+VMware Workstation hosts two virtual networks: pfSense's WAN leg on the built-in **NAT**
+network (`VMnet8`) and a **LAN Segment** named `LAN-LAB` (`10.10.0.0/24`) that carries all lab
+traffic. pfSense is the only VM with a leg on both networks and is the default gateway, DHCP
+relay point, and firewall for the LAN.
 
 ```mermaid
 flowchart TB
@@ -13,7 +13,7 @@ flowchart TB
         subgraph WAN_SEG["WAN — VMnet8 (NAT)"]
         end
 
-        subgraph LAN_SEG["LAN — VMnet-LAB (Host-only), 10.10.0.0/24"]
+        subgraph LAN_SEG["LAN — LAN Segment 'LAN-LAB', 10.10.0.0/24"]
             PFSENSE["pfSense\nWAN + LAN\n10.10.0.1/24"]
             DC["samba-dc01\nAD DC / DNS / KDC / NTP\n10.10.0.10"]
             DOCKER["docker01\nDocker Engine + Traefik\n10.10.0.20"]
