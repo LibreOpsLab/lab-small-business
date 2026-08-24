@@ -5,7 +5,7 @@
 | vCPU    | 2                        |
 | RAM     | 4096 MB                  |
 | Disk    | 40 GB (thin)             |
-| NIC     | `VMnet2`                 |
+| NIC     | LAN Segment `LAN-LAB`    |
 | ISO     | Ubuntu Server 24.04 LTS  |
 | IP      | `10.10.0.30/24` (static) |
 | Gateway | `10.10.0.1`              |
