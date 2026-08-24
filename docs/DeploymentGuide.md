@@ -9,45 +9,79 @@ all Linux VMs unless stated otherwise.
 - VMware Workstation Pro installed, virtualization enabled in host BIOS.
 - Ubuntu Server 24.04 LTS ISO, Windows 11 ISO, pfSense CE ISO, Ubuntu Desktop 24.04 ISO
   downloaded to the host.
-- `ansible` (2.16+), `openssl` (3.x), and an SSH client available as the **control host** for
-  everything from step 3 onward — this needs to be WSL2, not Git Bash or PowerShell alone;
-  Ansible does not support Windows as a control node. See
-  [docs/WSLSetup.md](WSLSetup.md) for installing WSL2, the networking fix it needs to reach
-   `VMnet2` (this trips up almost everyone on first try), and cloning this repository inside
-  it — do that clone (not a separate Windows-side one) before continuing.
-- `mkpasswd` (from the `whois` package — WSL2 has it, or any Debian/Ubuntu machine) to generate
+- This repo ends up cloned in **two** places: once on the Windows host (to run the
+  PowerShell/`vmrun` scripts from step 3 onward), and once on `linux-client01` (built in step
+  2 below), which is the **control host** for everything from step 3 onward — Ansible, the PKI
+  scripts, and `samba-tool` all need a real POSIX environment, and Ansible does not support
+  Windows as a control node at all. Because `linux-client01` lives on the lab's own LAN
+  Segment, it needs no extra networking setup to reach the other lab VMs. See
+  [docs/WSLSetup.md](WSLSetup.md) only if you'd rather drive the build from WSL2 on the
+  Windows host instead.
+- `mkpasswd` (from the `whois` package, installed on `linux-client01` in step 2) to generate
   password hashes for the Ubuntu Server autoinstall seeds used in steps 3 and 5. No extra tool
   is needed to build the seed ISOs themselves — `workstation/scripts/build-seed-iso.ps1` uses
   IMAPI2, which ships with Windows.
 
-## 1. Networking (VMware Workstation)
+## 1. pfSense — fully manual
 
-Create the two virtual networks described in
-[workstation/networks/README.md](../workstation/networks/README.md) using
-[`workstation/scripts/configure-vmnet.ps1`](../workstation/scripts/configure-vmnet.ps1)
-(elevated PowerShell, wraps VMware's `vnetlib.exe` or `vnetlib64.exe`):
+There's no networking-setup script to run before this step — the lab's LAN Segment is created
+inline while building this VM, not as a separate stage.
 
-```powershell
-workstation\scripts\configure-vmnet.ps1
-```
+1. In VMware Workstation, create a new VM per
+   [`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md): 2 vCPU, 2 GB RAM, 20 GB disk,
+   pfSense CE ISO attached.
+2. NIC1: leave as VMware's default **NAT** (`VMnet8` — ships with Workstation, needs no setup).
+   NIC2: **Add... > Network Adapter > Custom: Specific virtual network > LAN Segments... >
+   Add...**, name it `LAN-LAB`. This is the only place `LAN-LAB` gets created — every other lab
+   VM's NIC picks it from the same dropdown once it exists.
+3. Install pfSense interactively (the one genuinely manual OS install in the whole lab). At
+   "Assign Interfaces": WAN = the NIC on `VMnet8`, LAN = the NIC on `LAN-LAB`. Set LAN IPv4 to
+   `10.10.0.1/24`; leave LAN DHCP off until the next step.
+4. From the pfSense GUI (`https://10.10.0.1`), configure by hand:
+   - **DHCP server (LAN)**: pool `10.10.0.100`–`10.10.0.199`, DNS server `10.10.0.10`, domain
+     name `lab.internal`, gateway `10.10.0.1`.
+   - **DNS Resolver (Unbound)**: enabled, LAN-only access; forward `lab.internal` to
+     `10.10.0.10` (Samba AD's DNS) and everything else to the WAN interface's upstream DNS —
+     see [dns-architecture.md](../diagrams/dns-architecture.md).
+   - **Firewall rules**: allow LAN → `10.10.0.10` (53, 88, 123, 135, 137-139, 389, 445, 464,
+     636, 3268-3269); allow LAN → `10.10.0.20` (80, 443, 587, 465, 993); allow LAN →
+     `10.10.0.30` (443); block `10.10.0.30` → `10.10.0.10:389` (forces LDAPS); allow LAN → WAN
+     (80, 443, 53, outbound only); default deny + log. Full rationale in
+     [Security.md](Security.md#firewall-recommendations-pfsense).
+5. Run [`pfsense/scripts/pfsense-post-install.sh`](../pfsense/scripts/pfsense-post-install.sh)
+   over SSH for the package installs it automates (optional — see below).
 
-This creates `VMnet8` (NAT, WAN) as-is (Workstation ships it by default) and a new host-only
-`VMnet2` network with **DHCP disabled** (pfSense will be the DHCP server) bound to
-`10.10.0.0/24`.
+Once you're comfortable with the manual flow,
+[`pfsense/config/config.xml.template`](../pfsense/config/config.xml.template) (imported via
+**Diagnostics > Backup & Restore > Restore**) captures everything above as a reviewed, reusable
+baseline for future rebuilds — see [`pfsense/README.md`](../pfsense/README.md). It's an
+optional shortcut, not where to start.
 
-## 2. pfSense
+## 2. Admin desktop — `linux-client01` (control host)
 
-1. Create the VM per [`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md) (2 vCPU,
-   2 GB RAM, 20 GB disk, NIC1→VMnet8/WAN, NIC2→VMnet2/LAN).
-2. Install pfSense interactively (only manual-install step in the whole lab — pfSense has no
-   unattended installer for Workstation). Assign WAN=NIC1, LAN=NIC2, LAN IP `10.10.0.1/24`.
-3. From the pfSense console/GUI, import
-   [`pfsense/config/config.xml.template`](../pfsense/config/config.xml.template)
-   (`Diagnostics > Backup & Restore > Restore`) after filling in the placeholders described in
-   [`pfsense/README.md`](../pfsense/README.md) (WAN type, DHCP range, DNS forwarder target).
-4. Run [`pfsense/scripts/pfsense-post-install.sh`](../pfsense/scripts/pfsense-post-install.sh)
-   over SSH to apply anything not expressible in `config.xml` (package installs via `pkg`,
-   `pfSsh.php`-driven tweaks).
+This VM plays two roles: it's your **control host** for every scripted step from here on
+(replacing the need for WSL2), and later — once AD exists — it also joins the domain as a lab
+endpoint like any other client.
+
+1. Create a new VM per [`workstation/vms/linux-client.md`](../workstation/vms/linux-client.md):
+   2 vCPU, 4 GB RAM, 40 GB disk, single NIC on `LAN-LAB`, Ubuntu Desktop 24.04 ISO attached.
+2. Install Ubuntu Desktop interactively — it gets a DHCP lease from pfSense once step 1 above
+   is done.
+3. Clone this repository onto it and install the tooling the rest of the guide needs:
+
+   ```bash
+   sudo apt update && sudo apt install -y ansible openssl git rsync samba-common-bin whois \
+       python3 python3-pip openssh-client
+   git clone <this-repo-url> ~/lab-small-business
+   cd ~/lab-small-business
+   ansible --version   # confirm ansible-core 2.16+
+   ```
+
+From here on, "control host" in this guide means **this VM** — every `ansible-playbook`,
+`openssl`, and `samba-tool` command from step 3 onward runs from here, not from the Windows
+host. (If you'd rather drive the build from WSL2 on the Windows host instead, see
+[docs/WSLSetup.md](WSLSetup.md) — the LAN Segment reachability fix it documents is the only
+extra step that path needs.)
 
 ## 3. Samba AD Domain Controller
 
@@ -65,8 +99,8 @@ This creates `VMnet8` (NAT, WAN) as-is (Workstation ships it by default) and a n
 
 ## 4. PKI bootstrap
 
-Run from any host with `openssl` 3.x (recommended: `docker01` once it exists, or your
-workstation host in the interim):
+Run from any host with `openssl` 3.x (recommended: `docker01` once it exists, or
+`linux-client01` — the control host — in the interim):
 
 ```bash
 cd pki/scripts
@@ -140,11 +174,16 @@ the WordPress one is left manual since SSO-for-a-website is an opt-in decision, 
 
 ## 7. Endpoints
 
-1. `linux-client01`: install Ubuntu Desktop 24.04, then
-   `sudo samba/scripts/join-linux-client.sh` (joins domain, configures SSSD, installs the CA
-   chain via `ansible-playbook playbooks/05-pki-trust.yml --limit linux-client01` or manually
-   per [PKI.md](PKI.md)).
-2. `win-client01`: install Windows 11, confirm DNS is `10.10.0.10` (DHCP-served), then run
+`linux-client01` already exists (built manually in step 2). `win-client01`'s VM shell and
+unattended Windows 11 install are handled by `workstation/scripts/create-vms.ps1` — see
+[`workstation/vms/windows-client.md`](../workstation/vms/windows-client.md) for the
+`autounattend.xml` setup needed before running it, then boot it once ready. What's left for
+both clients is joining the domain:
+
+1. `linux-client01`: `sudo samba/scripts/join-linux-client.sh` (joins domain, configures SSSD,
+   installs the CA chain via `ansible-playbook playbooks/05-pki-trust.yml --limit
+   linux-client01` or manually per [PKI.md](PKI.md)).
+2. `win-client01`: confirm DNS is `10.10.0.10` (DHCP-served), then run
    [`samba/scripts/join-windows-client.ps1`](../samba/scripts/join-windows-client.ps1) elevated.
    GPOs (including CA trust) apply automatically on next `gpupdate`/reboot.
 3. On each client, run the desktop app provisioning scripts — see
