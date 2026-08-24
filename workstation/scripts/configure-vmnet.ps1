@@ -35,27 +35,41 @@ if (-not $VNetLibPath -or -not (Test-Path $VNetLibPath)) {
 
 function Invoke-VNetLib {
     param([string[]]$Arguments)
-    Write-Verbose "$(Split-Path -Leaf $VNetLibPath) $($Arguments -join ' ')"
+    $executableName = Split-Path -Leaf $VNetLibPath
+    Write-Verbose "$executableName $($Arguments -join ' ')"
     & $VNetLibPath @Arguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "$(Split-Path -Leaf $VNetLibPath) $($Arguments -join ' ') failed with exit code $LASTEXITCODE"
+    $exitCode = $LASTEXITCODE
+
+    if ($exitCode -ne 0) {
+        Write-Verbose "$executableName did not accept the direct command form; retrying with the legacy '--' separator."
+        & $VNetLibPath "--" @Arguments
+        $exitCode = $LASTEXITCODE
+    }
+
+    if ($exitCode -ne 0) {
+        throw "$executableName $($Arguments -join ' ') failed with exit code $exitCode"
     }
 }
 
 Write-Host "[configure-vmnet] Checking existing virtual network mappings..." -ForegroundColor Cyan
-$existing = & $VNetLibPath -- enumerateNetworks 2>$null
+$existing = Invoke-VNetLib -Arguments @("enumerateNetworks") 2>$null
 if ($existing -match [regex]::Escape($VmnetName)) {
     Write-Host "[configure-vmnet] $VmnetName already exists — skipping creation." -ForegroundColor Yellow
 } else {
     Write-Host "[configure-vmnet] Adding host-only network $VmnetName ($Subnet/$Mask)..." -ForegroundColor Cyan
-    Invoke-VNetLib -Arguments @("--", "addAdapter", $VmnetName)
-    Invoke-VNetLib -Arguments @("--", "setNetType", $VmnetName, "hostonly")
-    Invoke-VNetLib -Arguments @("--", "setSubnetAddr", $VmnetName, $Subnet)
-    Invoke-VNetLib -Arguments @("--", "setSubnetMask", $VmnetName, $Mask)
+    Invoke-VNetLib -Arguments @("addAdapter", $VmnetName)
+    Invoke-VNetLib -Arguments @("setNetType", $VmnetName, "hostonly")
+    Invoke-VNetLib -Arguments @("setSubnetAddr", $VmnetName, $Subnet)
+    Invoke-VNetLib -Arguments @("setSubnetMask", $VmnetName, $Mask)
+
+    $created = Invoke-VNetLib -Arguments @("enumerateNetworks") 2>$null
+    if ($created -notmatch [regex]::Escape($VmnetName)) {
+        throw "$VmnetName was not reported by $([System.IO.Path]::GetFileName($VNetLibPath)) after creation. Check VMware Workstation's Virtual Network Editor or run this script with -Verbose."
+    }
 }
 
 Write-Host "[configure-vmnet] Disabling VMware's built-in DHCP service on $VmnetName (pfSense will serve DHCP)..." -ForegroundColor Cyan
-Invoke-VNetLib -Arguments @("--", "setDhcp", $VmnetName, "disabled")
+Invoke-VNetLib -Arguments @("setDhcp", $VmnetName, "disabled")
 
 Write-Host "[configure-vmnet] Restarting VMware networking services to apply changes..." -ForegroundColor Cyan
 Restart-Service -Name "VMware NAT Service" -ErrorAction SilentlyContinue
