@@ -40,8 +40,8 @@ autoinstall:
         # guests in practice. If your install boots and this doesn't match (check with `ip a`
         # from the installer's shell — Ctrl+Alt+F2 during install), edit this before retrying.
         ens160:
-          addresses: [10.10.0.10/24]
-          gateway4: 10.10.0.1
+          addresses: [10.10.10.10/24]
+          gateway4: 10.10.10.1
           nameservers:
             # 127.0.0.1 during install only — this host becomes authoritative for itself once
             # Samba AD is provisioned; nothing else exists yet to ask for lab.internal records.

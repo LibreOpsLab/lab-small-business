@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Provisions a fresh Ubuntu Server 24.04 host as the LAB.INTERNAL Active Directory Domain
-# Controller (samba-dc01, 10.10.0.10). Idempotent-ish: refuses to re-provision an already
+# Controller (samba-dc01, 10.10.10.10). Idempotent-ish: refuses to re-provision an already
 # provisioned DC (samba-tool provisioning is not safely re-runnable).
 #
 # Must be run as root on the target DC. See docs/SambaAdmin.md and docs/DeploymentGuide.md.
@@ -10,7 +10,7 @@ set -euo pipefail
 DOMAIN="lab.internal"
 REALM="LAB.INTERNAL"
 NETBIOS="LAB"
-DC_IP="10.10.0.10"
+DC_IP="10.10.10.10"
 ADMIN_PASSWORD="${SAMBA_ADMIN_PASSWORD:-}"
 
 log()  { printf '\033[1;34m[bootstrap-ad]\033[0m %s\n' "$*"; }

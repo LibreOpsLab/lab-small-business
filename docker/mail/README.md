@@ -4,9 +4,9 @@ A closed, lab-internal-only mail system: users can send and receive `@lab.intern
 any properly-authenticated client, but nothing is relayed to or accepted from the real
 internet. Two services split the responsibilities the way real mail systems do:
 
-| Service | Role | Auth |
-|---|---|---|
-| **Dovecot** | IMAPS (993) — mailbox storage/retrieval; also LMTP (24, internal-only) delivery target and SASL auth backend | LDAP bind against Samba AD (`dovecot-ldap.conf.ext`) |
+| Service     | Role                                                                                                           | Auth                                                                                                |
+| ----------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Dovecot** | IMAPS (993) — mailbox storage/retrieval; also LMTP (24, internal-only) delivery target and SASL auth backend   | LDAP bind against Samba AD (`dovecot-ldap.conf.ext`)                                                |
 | **Postfix** | Submission (587, STARTTLS) + SMTPS (465, implicit TLS) — accepts outgoing mail from authenticated clients only | SASL via Dovecot; recipient validity checked against Samba AD over LDAP (`ldap-virtual-mailbox.cf`) |
 
 See [diagrams/dns-architecture.md](../../diagrams/dns-architecture.md) for `mail.lab.internal`'s
@@ -16,7 +16,7 @@ place in the zone, and [docs/SambaAdmin.md](../../docs/SambaAdmin.md) for the `s
 ## Why not just IMAP (the original scope)?
 
 The base build shipped Dovecot (receive/store) only. That's enough to prove LDAP-backed IMAP
-auth works, but a real "replace Outlook" experience needs to *send* mail too — Betterbird and
+auth works, but a real "replace Outlook" experience needs to _send_ mail too — Betterbird and
 NextCloud Mail both expect a working SMTP submission endpoint. Postfix here is
 deliberately minimal and hand-configured (not a black-box mail-in-a-box image) so
 `docker/mail/postfix/main.cf`/`master.cf` stay readable as a teaching artifact: no internet
@@ -35,12 +35,12 @@ Client (Betterbird/NextCloud Mail)
 
 ## Client configuration
 
-| Setting | Value |
-|---|---|
-| IMAP host/port | `mail.lab.internal` : `993` (SSL/TLS) |
+| Setting        | Value                                                     |
+| -------------- | --------------------------------------------------------- |
+| IMAP host/port | `mail.lab.internal` : `993` (SSL/TLS)                     |
 | SMTP host/port | `mail.lab.internal` : `587` (STARTTLS) or `465` (SSL/TLS) |
-| Username | `student01@lab.internal` (or any domain account's UPN) |
-| Password | the account's AD password |
+| Username       | `student01@lab.internal` (or any domain account's UPN)    |
+| Password       | the account's AD password                                 |
 
 See [docs/DesktopApps.md](../../docs/DesktopApps.md) for how Betterbird gets these values
 automatically via autoconfig.

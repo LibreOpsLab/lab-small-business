@@ -7,9 +7,9 @@
 | Disk    | 80 GB (thin) — NextCloud/mail data grows |
 | NIC     | LAN Segment `LAN-LAB`                    |
 | ISO     | Ubuntu Server 24.04 LTS                  |
-| IP      | `10.10.0.20/24` (static)                 |
-| Gateway | `10.10.0.1`                              |
-| DNS     | `10.10.0.10`                             |
+| IP      | `10.10.10.20/24` (static)                |
+| Gateway | `10.10.10.1`                             |
+| DNS     | `10.10.10.10`                            |
 
 Hosts the Traefik reverse proxy plus NextCloud, OnlyOffice, and Dovecot Compose stacks (see
 [`docker/`](../../docker/)). Installs unattended from

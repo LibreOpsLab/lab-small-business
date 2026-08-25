@@ -16,10 +16,10 @@ with no shared naming or trust. The Class Registry instead gives an entire class
   (`acme.lab.internet`), registered and NS-delegated through a real DNS zone — not a manual
   hosts-file hack.
 - **One shared CA** ("the class CA") that signs each business's edge-proxy certificate, so any
-  student who trusts that one CA sees valid HTTPS for *every* registered business, with no
+  student who trusts that one CA sees valid HTTPS for _every_ registered business, with no
   per-pair cert exchange.
 - **A live, visual directory** of who's registered, at a glance — the registry's homepage table
-  + diagram.
+  - diagram.
 
 It does **not** give businesses a shared AD/Authentik identity, and it does not by itself give
 network reachability between businesses — see [MultiBusiness.md](MultiBusiness.md) for that (a
@@ -58,14 +58,17 @@ flowchart TB
 ## End-to-end workflow
 
 **Lecturer, once:**
+
 ```bash
 cd federation/class-registry
 ./scripts/init-registry.sh --ns-ip <this-host's-reachable-IP>
 docker compose up -d
 ```
+
 Give students the registry URL and the printed `CLASS_REGISTRY_TOKEN`.
 
 **Each business:**
+
 ```bash
 # 1. Register your name/subnet/edge IP
 ./federation/scripts/register-with-class.sh --registry http://<lecturer-ip>:8080 \
@@ -107,7 +110,7 @@ NS delegation pattern: each business gets an in-bailiwick nameserver
 `NS` + `A` (glue) record pair — it never needs to know about any subdomain the business
 creates underneath. The business's own `dnsmasq`
 ([`federation/edge-proxy/dnsmasq/`](../federation/edge-proxy/dnsmasq/)) then authoritatively
-answers *everything* under `<name>.lab.internet` with a single wildcard `address=` rule,
+answers _everything_ under `<name>.lab.internet` with a single wildcard `address=` rule,
 pointed at the same edge IP that terminates HTTPS — no per-service DNS updates needed as a
 business adds more exposed hostnames.
 
@@ -135,6 +138,6 @@ zone delegation looks like, generated from a live database rather than hand-edit
 - [docs/LabInternet.md](LabInternet.md) — the original, larger design this feature grew out of
   (full Issuing-CA cross-signing per business); superseded for most purposes by the simpler
   single-CA-signs-edge-certs approach here, but still the reference if you need every
-  business's *entire* PKI to chain to one root rather than just their edge-proxy certs.
+  business's _entire_ PKI to chain to one root rather than just their edge-proxy certs.
 - [federation/edge-proxy/README.md](../federation/edge-proxy/README.md) — the Caddy/HAProxy +
   dnsmasq setup referenced above.

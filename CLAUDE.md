@@ -11,7 +11,7 @@ the product, not just a means to an end. Read [docs/Architecture.md](docs/Archit
 before making structural changes; it explains the design principles and the trade-offs behind
 them, and most of those trade-offs are deliberate, not oversights.
 
-Domain: `lab.internal` / realm `LAB.INTERNAL` / NetBIOS `LAB` / subnet `10.10.0.0/24`. These
+Domain: `lab.internal` / realm `LAB.INTERNAL` / NetBIOS `LAB` / subnet `10.10.10.0/24`. These
 are placeholders re-derived by [`scripts/provision-business.sh`](scripts/provision-business.sh)
 for spinning up additional "businesses" — see [docs/MultiBusiness.md](docs/MultiBusiness.md).
 
@@ -39,7 +39,7 @@ for spinning up additional "businesses" — see [docs/MultiBusiness.md](docs/Mul
   (gitignored; commit `vault.yml.example`). PKI private key material is always gitignored —
   see `.gitignore`'s dedicated sections before adding a new generated-material path.
 - **Domain/subnet strings are literal, not templated, in most files.** `lab.internal`,
-  `LAB.INTERNAL`, `DC=lab,DC=internal`, `10.10.0.` appear as plain text throughout scripts,
+  `LAB.INTERNAL`, `DC=lab,DC=internal`, `10.10.10.` appear as plain text throughout scripts,
   compose files, and docs (Ansible-rendered `.j2` templates are the exception). This is
   intentional: `scripts/provision-business.sh` does a global sed sweep of exactly these
   patterns to re-base a whole copy of the repo onto a new identity. If you introduce a new

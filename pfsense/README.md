@@ -38,9 +38,9 @@ them down before importing.
 ## What the template configures
 
 - WAN: DHCP client (from VMware NAT).
-- LAN: static `10.10.0.1/24`.
-- DHCP server on LAN: pool `10.10.0.100–10.10.0.199`, DNS option = `10.10.0.10` only, domain
-  name `lab.internal`, gateway `10.10.0.1`.
+- LAN: static `10.10.10.1/24`.
+- DHCP server on LAN: pool `10.10.10.100–10.10.10.199`, DNS option = `10.10.10.10` only, domain
+  name `lab.internal`, gateway `10.10.10.1`.
 - DNS Resolver (Unbound): enabled, LAN-only access, forwarding to Samba AD's DNS for
   `lab.internal` and to the WAN interface's upstream DNS for everything else — see
   [dns-architecture.md](../diagrams/dns-architecture.md).

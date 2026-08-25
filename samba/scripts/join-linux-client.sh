@@ -3,7 +3,7 @@
 # modern, actively-maintained path and integrates better with polkit/GDM).
 #
 # Usage: sudo ./join-linux-client.sh [--user administrator]
-# Assumes DNS is already correctly pointed at 10.10.0.10 (via DHCP option 6 from pfSense).
+# Assumes DNS is already correctly pointed at 10.10.10.10 (via DHCP option 6 from pfSense).
 
 set -euo pipefail
 
@@ -19,7 +19,7 @@ die() { printf '\033[1;31m[join-linux-client][error]\033[0m %s\n' "$*" >&2; exit
 
 log "Verifying DNS resolves ${DOMAIN} to the DC before attempting to join"
 if ! host -t SRV "_kerberos._udp.${DOMAIN}" >/dev/null 2>&1; then
-  die "Cannot resolve _kerberos._udp.${DOMAIN} — check /etc/resolv.conf points at 10.10.0.10. See docs/Troubleshooting.md#dns."
+  die "Cannot resolve _kerberos._udp.${DOMAIN} — check /etc/resolv.conf points at 10.10.10.10. See docs/Troubleshooting.md#dns."
 fi
 
 log "Installing SSSD + realmd + adcli + Kerberos client packages"

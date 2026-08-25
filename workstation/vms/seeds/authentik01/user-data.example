@@ -16,10 +16,10 @@ autoinstall:
       version: 2
       ethernets:
         ens160:
-          addresses: [10.10.0.30/24]
-          gateway4: 10.10.0.1
+          addresses: [10.10.10.30/24]
+          gateway4: 10.10.10.1
           nameservers:
-            addresses: [10.10.0.10]
+            addresses: [10.10.10.10]
   ssh:
     install-server: true
     allow-pw: true

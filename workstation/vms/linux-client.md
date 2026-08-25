@@ -1,13 +1,13 @@
 # Linux Desktop Client / Control Host — `linux-client01`
 
-| Spec | Value                                       |
-| ---- | ------------------------------------------- |
-| vCPU | 2                                           |
-| RAM  | 4096 MB                                     |
-| Disk | 40 GB (thin)                                |
-| NIC  | LAN Segment `LAN-LAB`                       |
-| ISO  | Ubuntu Desktop 24.04 LTS                    |
-| IP   | DHCP (`10.10.0.100-199`, served by pfSense) |
+| Spec | Value                                        |
+| ---- | -------------------------------------------- |
+| vCPU | 2                                            |
+| RAM  | 4096 MB                                      |
+| Disk | 40 GB (thin)                                 |
+| NIC  | LAN Segment `LAN-LAB`                        |
+| ISO  | Ubuntu Desktop 24.04 LTS                     |
+| IP   | DHCP (`10.10.10.100-199`, served by pfSense) |
 
 Built by hand, right after pfSense — no PowerShell script creates this VM. It plays two roles:
 it's the **control host** that drives every scripted step from here on (Ansible, the PKI

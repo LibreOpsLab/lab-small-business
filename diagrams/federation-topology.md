@@ -7,18 +7,18 @@ hosts/ports rather than full subnet trust.
 
 ```mermaid
 flowchart TB
-    subgraph BizA["Business A — acme.internal (10.10.0.0/24)"]
+    subgraph BizA["Business A — acme.internal (10.10.10.0/24)"]
         PFA["pfSense A\nWAN + LAN"]
-        DCA["samba-dc01\n10.10.0.10"]
-        APPA["docker01\n10.10.0.20"]
-        AKA["authentik01\n10.10.0.30"]
+        DCA["samba-dc01\n10.10.10.10"]
+        APPA["docker01\n10.10.10.20"]
+        AKA["authentik01\n10.10.10.30"]
     end
 
-    subgraph BizB["Business B — bizb.internal (10.20.0.0/24)"]
+    subgraph BizB["Business B — bizb.internal (10.20.10.0/24)"]
         PFB["pfSense B\nWAN + LAN"]
-        DCB["samba-dc01\n10.20.0.10"]
-        APPB["docker01\n10.20.0.20"]
-        AKB["authentik01\n10.20.0.30"]
+        DCB["samba-dc01\n10.20.10.10"]
+        APPB["docker01\n10.20.10.20"]
+        AKB["authentik01\n10.20.10.30"]
     end
 
     REMOTE["Remote user\n(student01, off-site laptop)"]
@@ -43,11 +43,11 @@ flowchart TB
 
 ## What crosses the tunnel vs. what doesn't
 
-| Crosses the IPSec tunnel | Does not cross |
-|---|---|
-| Packets to the specific host:port pairs each side's scoped firewall rule allows (see [MultiBusiness.md#scoped-firewall-rules-not-full-subnet-trust](../docs/MultiBusiness.md#scoped-firewall-rules-not-full-subnet-trust)) | PKI trust — each business keeps its own Root/Issuing CA; the other side's certs show as untrusted until deliberately imported |
-| — | AD/Kerberos federation — Business A's Authentik does not federate Business B's Samba AD |
-| — | DNS — each business's DNS remains authoritative only for its own domain; there is no shared resolution unless [LabInternet.md](../docs/LabInternet.md) is layered on top |
+| Crosses the IPSec tunnel                                                                                                                                                                                                   | Does not cross                                                                                                                                                           |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Packets to the specific host:port pairs each side's scoped firewall rule allows (see [MultiBusiness.md#scoped-firewall-rules-not-full-subnet-trust](../docs/MultiBusiness.md#scoped-firewall-rules-not-full-subnet-trust)) | PKI trust — each business keeps its own Root/Issuing CA; the other side's certs show as untrusted until deliberately imported                                            |
+| —                                                                                                                                                                                                                          | AD/Kerberos federation — Business A's Authentik does not federate Business B's Samba AD                                                                                  |
+| —                                                                                                                                                                                                                          | DNS — each business's DNS remains authoritative only for its own domain; there is no shared resolution unless [LabInternet.md](../docs/LabInternet.md) is layered on top |
 
 This gap between "network reachable" and "trusted/federated" is intentional and is the
 teaching point of [docs/MultiBusiness.md](../docs/MultiBusiness.md) — closing that gap

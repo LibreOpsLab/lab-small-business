@@ -31,7 +31,7 @@ and attaches the result as a second CD-ROM.
   executed and observed the way the YAML/XML seed files can. Flag this plainly rather than
   claiming a check that didn't happen. YAML validates with `python3 -c "import yaml; ..."`
   (`pyyaml` confirmed installed); XML validates with `xmllint --noout` (confirmed installed).
-- Every new/touched doc explains *why*, not just *what* — this is a teaching artifact
+- Every new/touched doc explains _why_, not just _what_ — this is a teaching artifact
   (CLAUDE.md, and explicitly requested this session).
 - Follow existing patterns exactly: table-driven `$VMs` array in `create-vms.ps1`, per-VM spec
   sheets under `workstation/vms/*.md`, `Write-Host`-with-`[script-name]`-prefix logging style
@@ -42,12 +42,14 @@ and attaches the result as a second CD-ROM.
 ## Task 1: `samba-dc01` seed data + gitignore convention
 
 **Files:**
+
 - Create: `workstation/vms/seeds/samba-dc01/user-data.example`
 - Create: `workstation/vms/seeds/samba-dc01/meta-data.example`
 - Modify: `.gitignore` (add seed-data + built-ISO ignore rules)
 - Modify: `workstation/vms/samba-dc.md` (point at the real files instead of inline YAML)
 
 **Interfaces:**
+
 - Produces: the `workstation/vms/seeds/<name>/{user-data,meta-data}.example` naming convention
   that Tasks 2–3 follow, and the `workstation/vms/seeds/<name>/{user-data,meta-data}` (no
   `.example` — gitignored, student-filled) pair that Task 5's `build-seed-iso.ps1` reads.
@@ -151,18 +153,22 @@ local-hostname: samba-dc01
 - [ ] **Step 4: Validate both files parse as YAML**
 
 Run:
+
 ```bash
 python3 -c "import yaml; yaml.safe_load(open('workstation/vms/seeds/samba-dc01/user-data.example'))" && echo OK
 python3 -c "import yaml; yaml.safe_load(open('workstation/vms/seeds/samba-dc01/meta-data.example'))" && echo OK
 ```
+
 Expected: `OK` printed twice, no exception.
 
 - [ ] **Step 5: Cross-check the IP against the source of truth**
 
 Run:
+
 ```bash
 grep -n "10.10.0.10" docs/Architecture.md ansible/inventory/hosts.ini workstation/vms/seeds/samba-dc01/user-data.example
 ```
+
 Expected: all three files show `10.10.0.10` for `samba-dc01` — confirms no typo before this
 number gets baked into a seed ISO later.
 
@@ -170,7 +176,7 @@ number gets baked into a seed ISO later.
 
 Replace the "## Autoinstall" section (currently the inline ` ```yaml ` block) with:
 
-```markdown
+````markdown
 ## Autoinstall
 
 Ubuntu Server's `autoinstall` (Subiquity) installs this host with zero prompts, driven by a
@@ -186,10 +192,12 @@ cp workstation/vms/seeds/samba-dc01/user-data.example workstation/vms/seeds/samb
 cp workstation/vms/seeds/samba-dc01/meta-data.example workstation/vms/seeds/samba-dc01/meta-data
 mkpasswd --method=sha-512   # paste the output into user-data's password field
 ```
+````
 
 The real `user-data`/`meta-data` (no `.example` suffix) are gitignored — they'll contain your
 actual password hash, which is not something to commit.
-```
+
+````
 
 - [ ] **Step 7: Commit**
 
@@ -204,18 +212,20 @@ docker01, authentik01, and win-client01 follow next.
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
 )"
-```
+````
 
 ---
 
 ## Task 2: `docker01` seed data
 
 **Files:**
+
 - Create: `workstation/vms/seeds/docker01/user-data.example`
 - Create: `workstation/vms/seeds/docker01/meta-data.example`
 - Modify: `workstation/vms/docker-server.md`
 
 **Interfaces:**
+
 - Consumes: the `.example` convention from Task 1.
 - Produces: nothing new consumed elsewhere — same shape as Task 1's output, different IP/DNS.
 
@@ -269,10 +279,12 @@ local-hostname: docker01
 - [ ] **Step 3: Validate both files parse as YAML**
 
 Run:
+
 ```bash
 python3 -c "import yaml; yaml.safe_load(open('workstation/vms/seeds/docker01/user-data.example'))" && echo OK
 python3 -c "import yaml; yaml.safe_load(open('workstation/vms/seeds/docker01/meta-data.example'))" && echo OK
 ```
+
 Expected: `OK` printed twice.
 
 - [ ] **Step 4: Cross-check the IP**
@@ -308,6 +320,7 @@ EOF
 ## Task 3: `authentik01` seed data
 
 **Files:**
+
 - Create: `workstation/vms/seeds/authentik01/user-data.example`
 - Create: `workstation/vms/seeds/authentik01/meta-data.example`
 - Modify: `workstation/vms/authentik.md`
@@ -358,10 +371,12 @@ local-hostname: authentik01
 - [ ] **Step 3: Validate both files parse as YAML**
 
 Run:
+
 ```bash
 python3 -c "import yaml; yaml.safe_load(open('workstation/vms/seeds/authentik01/user-data.example'))" && echo OK
 python3 -c "import yaml; yaml.safe_load(open('workstation/vms/seeds/authentik01/meta-data.example'))" && echo OK
 ```
+
 Expected: `OK` printed twice.
 
 - [ ] **Step 4: Cross-check the IP**
@@ -397,10 +412,12 @@ EOF
 ## Task 4: `win-client01` autounattend answer file
 
 **Files:**
+
 - Create: `workstation/vms/seeds/win-client01/autounattend.xml.example`
 - Modify: `workstation/vms/windows-client.md`
 
 **Interfaces:**
+
 - Produces: `workstation/vms/seeds/win-client01/autounattend.xml` (the filled, gitignored copy)
   that Task 5's `build-seed-iso.ps1` auto-detects (it checks for `autounattend.xml` before
   falling back to the `user-data`/`meta-data` pair).
@@ -594,7 +611,7 @@ Expected: `OK`, no parse errors.
 
 Replace the file's body (everything after the spec table) with:
 
-```markdown
+````markdown
 Installs unattended from
 [`seeds/win-client01/autounattend.xml.example`](seeds/win-client01/autounattend.xml.example) —
 Windows Setup's equivalent of the cloud-init seeds used for the Ubuntu hosts (see
@@ -608,6 +625,7 @@ cp workstation/vms/seeds/win-client01/autounattend.xml.example \
    workstation/vms/seeds/win-client01/autounattend.xml
 # then edit autounattend.xml and replace REPLACE_ME with a real password
 ```
+````
 
 `create-vms.ps1` also now configures this VM with UEFI firmware, Secure Boot, and a virtual
 TPM 2.0 — Windows 11 Setup hard-requires all three and refuses to install without them, so
@@ -626,7 +644,8 @@ without this the VM would fail at the very first Setup screen regardless of the 
 
 See [docs/StudentLabManual.md](../../docs/StudentLabManual.md) for the exercises students run
 from this VM.
-```
+
+````
 
 - [ ] **Step 4: Commit**
 
@@ -638,16 +657,18 @@ Add autounattend.xml for win-client01's unattended Windows 11 install
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 EOF
 )"
-```
+````
 
 ---
 
 ## Task 5: `build-seed-iso.ps1`
 
 **Files:**
+
 - Create: `workstation/scripts/build-seed-iso.ps1`
 
 **Interfaces:**
+
 - Consumes: `workstation/vms/seeds/<Name>/{user-data,meta-data}` or
   `workstation/vms/seeds/<Name>/autounattend.xml` (real, gitignored files — Tasks 1–4 establish
   the `.example` templates these are copied from).
@@ -787,6 +808,7 @@ Write-Host "[build-seed-iso] Done: $OutFile" -ForegroundColor Green
 - [ ] **Step 2: Manual review pass (this environment has no `pwsh` to execute it)**
 
 Read the script back and confirm, by inspection:
+
 - Every `Join-Path`/`Test-Path`/`Get-Item` call has a matching variable defined above it.
 - The `if (Test-Path $autounattend) { ... } elseif (...) { ... } else { throw ... }` block
   covers all three cases (Windows seed present, cloud-init seed present, neither) with no
@@ -820,9 +842,11 @@ EOF
 ## Task 6: Wire `build-seed-iso.ps1` into `create-vms.ps1` + fix `win-client01`'s vTPM/UEFI gap
 
 **Files:**
+
 - Modify: `workstation/scripts/create-vms.ps1`
 
 **Interfaces:**
+
 - Consumes: `build-seed-iso.ps1 -Name <vm.Name>` (Task 5) and
   `workstation/vms/seeds/<vm.Name>/` (Tasks 1–4) to decide whether a VM gets a seed CD-ROM.
 
@@ -907,13 +931,16 @@ guestOS = "$($vm.GuestOS)"
 - [ ] **Step 4: Update the `.SYNOPSIS`/`.DESCRIPTION` comment block at the top of the file**
 
 Replace:
+
 ```
     Creates the lab's VM shells (disk + .vmx) via vmrun/vmware-vdiskmanager, ready for OS
     installation. Does not install any OS — pfSense and Windows still require interactive
     install; Ubuntu hosts can be handed an autoinstall/cloud-init seed ISO (see each VM's
     spec sheet under workstation/vms/) for unattended installation.
 ```
+
 with:
+
 ```
     Creates the lab's VM shells (disk + .vmx) via vmrun/vmware-vdiskmanager, ready for OS
     installation. For any VM with a workstation/vms/seeds/<name>/ folder (every host except
@@ -926,6 +953,7 @@ with:
 - [ ] **Step 5: Manual review pass (no `pwsh` available in this environment to execute it)**
 
 Read the full modified file back and confirm:
+
 - `$cdromLines`, `$nicLines`, and `$firmwareLines` are each defined before the heredoc that
   references them, for every code path (including the `Test-Path $seedFolder` being false, and
   `$vm.Firmware` not being `"efi"`).
@@ -962,6 +990,7 @@ EOF
 ## Task 7: Update `docs/DeploymentGuide.md` for the now-unattended flow
 
 **Files:**
+
 - Modify: `docs/DeploymentGuide.md`
 
 **Interfaces:** None — pure documentation, consumed only by a student reading it.
@@ -969,6 +998,7 @@ EOF
 - [ ] **Step 1: Update step 3 (Samba AD Domain Controller)**
 
 Replace:
+
 ```markdown
 ## 3. Samba AD Domain Controller
 
@@ -979,7 +1009,9 @@ Replace:
 3. `sudo samba/scripts/bootstrap-ad.sh` — provisions the domain (see
    [SambaAdmin.md](SambaAdmin.md)).
 ```
+
 with:
+
 ```markdown
 ## 3. Samba AD Domain Controller
 
@@ -997,12 +1029,15 @@ with:
 - [ ] **Step 2: Update step 5 (Docker application server + Authentik)**
 
 Replace the first bullet of step 5:
+
 ```markdown
 1. Create `docker01` (`10.10.0.20`) and `authentik01` (`10.10.0.30`) per
    [`workstation/vms/docker-server.md`](../workstation/vms/docker-server.md) and
    [`workstation/vms/authentik.md`](../workstation/vms/authentik.md).
 ```
+
 with:
+
 ```markdown
 1. Fill in `docker01`'s and `authentik01`'s install seeds (same `.example`-copy-and-fill
    pattern as `samba-dc01` — see
@@ -1014,6 +1049,7 @@ with:
 - [ ] **Step 3: Add a note to step 0 (Host prerequisites) about the new dependency**
 
 Append a bullet to the "## 0. Host prerequisites" list:
+
 ```markdown
 - `mkpasswd` (from the `whois` package — WSL2 has it, or any Debian/Ubuntu machine) to generate
   password hashes for the Ubuntu Server autoinstall seeds used in steps 3 and 5. No extra tool
@@ -1024,9 +1060,11 @@ Append a bullet to the "## 0. Host prerequisites" list:
 - [ ] **Step 4: Read the full file back and confirm cross-references still resolve**
 
 Run:
+
 ```bash
 grep -n "workstation/vms/samba-dc.md\|workstation/vms/docker-server.md\|workstation/vms/authentik.md" docs/DeploymentGuide.md
 ```
+
 Expected: the links point at files that exist (`workstation/vms/samba-dc.md` etc. — confirmed
 present from Tasks 1–3, unchanged filenames).
 

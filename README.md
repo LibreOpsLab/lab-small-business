@@ -19,7 +19,7 @@ Built for repeatable deployment and hands-on sysadmin/DevOps teaching.
 | Multi-business                            | `scripts/provision-business.sh` + IPSec/WireGuard federation tooling                                   |
 | Automation                                | Bash, Ansible, Docker Compose, PowerShell                                                              |
 
-Domain: `lab.internal` / realm `LAB.INTERNAL` / NetBIOS `LAB`, on `10.10.0.0/24` — all
+Domain: `lab.internal` / realm `LAB.INTERNAL` / NetBIOS `LAB`, on `10.10.10.0/24` — all
 re-parameterisable per business via [`scripts/provision-business.sh`](scripts/provision-business.sh)
 (see [docs/Architecture.md#domain-and-subnet-naming](docs/Architecture.md#domain-and-subnet-naming)
 and [docs/MultiBusiness.md](docs/MultiBusiness.md)). Full addressing and component inventory:

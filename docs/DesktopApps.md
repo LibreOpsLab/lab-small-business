@@ -8,13 +8,13 @@ walks through.
 
 ## At a glance
 
-| Replaces | App | Automated? |
-|---|---|---|
-| OneDrive | NextCloud Desktop Sync | Install + server URL pre-filled automatically. Login is one click (SSO via Authentik). |
-| Microsoft Office (viewing/editing) | OnlyOffice Desktop Editors | Install automated. Connects to the NextCloud portal for storage; login is the same SSO click. |
-| Adobe Acrobat | Stirling PDF | No install — it's a web app at `pdf.lab.internal`. Installer scripts create a pinned "app" shortcut so it feels like a desktop app. Gated by Authentik forward-auth (see [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md)). |
-| Outlook (mail+calendar+contacts) | **Betterbird** | Fully zero-click account setup via autoconfig — see below. |
-| Teams + Outlook Web | NextCloud Talk + Calendar + Contacts + Mail apps | Installed/enabled automatically by [`docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh`](../docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh). Calendar/Contacts/Talk need zero extra client setup (browser-based, same NextCloud SSO session). Mail app needs one manual step per user — see below. |
+| Replaces                           | App                                              | Automated?                                                                                                                                                                                                                                                                                                  |
+| ---------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OneDrive                           | NextCloud Desktop Sync                           | Install + server URL pre-filled automatically. Login is one click (SSO via Authentik).                                                                                                                                                                                                                      |
+| Microsoft Office (viewing/editing) | OnlyOffice Desktop Editors                       | Install automated. Connects to the NextCloud portal for storage; login is the same SSO click.                                                                                                                                                                                                               |
+| Adobe Acrobat                      | Stirling PDF                                     | No install — it's a web app at `pdf.lab.internal`. Installer scripts create a pinned "app" shortcut so it feels like a desktop app. Gated by Authentik forward-auth (see [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md)).                                                                |
+| Outlook (mail+calendar+contacts)   | **Betterbird**                                   | Fully zero-click account setup via autoconfig — see below.                                                                                                                                                                                                                                                  |
+| Teams + Outlook Web                | NextCloud Talk + Calendar + Contacts + Mail apps | Installed/enabled automatically by [`docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh`](../docker/nextcloud/scripts/bootstrap-nextcloud-apps.sh). Calendar/Contacts/Talk need zero extra client setup (browser-based, same NextCloud SSO session). Mail app needs one manual step per user — see below. |
 
 ## Why Betterbird
 

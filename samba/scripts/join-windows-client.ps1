@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Run elevated on the Windows client after confirming DNS resolves lab.internal to
-    10.10.0.10 (Resolve-DnsName lab.internal). Prompts for domain admin credentials
+    10.10.10.10 (Resolve-DnsName lab.internal). Prompts for domain admin credentials
     interactively — never pass a plaintext password on the command line.
 
 .EXAMPLE
@@ -20,8 +20,8 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "[join-windows-client] Verifying DNS resolution for $DomainName..." -ForegroundColor Cyan
 $dns = Resolve-DnsName -Name $DomainName -ErrorAction SilentlyContinue
-if (-not $dns -or $dns[0].IPAddress -ne "10.10.0.10") {
-    throw "DNS for $DomainName did not resolve to 10.10.0.10. Check the client's DHCP-assigned DNS server before joining. See docs/Troubleshooting.md#dns."
+if (-not $dns -or $dns[0].IPAddress -ne "10.10.10.10") {
+    throw "DNS for $DomainName did not resolve to 10.10.10.10. Check the client's DHCP-assigned DNS server before joining. See docs/Troubleshooting.md#dns."
 }
 
 Write-Host "[join-windows-client] Enter domain admin credentials (e.g. LAB\administrator) when prompted." -ForegroundColor Cyan

@@ -6,9 +6,9 @@ lab_domain: lab.internal
 lab_realm: LAB.INTERNAL
 lab_netbios: LAB
 
-samba_dc_ip: 10.10.0.10
+samba_dc_ip: 10.10.10.10
 samba_dc_fqdn: samba-dc01.lab.internal
-dns_forwarder: 10.10.0.1
+dns_forwarder: 10.10.10.1
 
 repo_root_on_controller: "{{ playbook_dir }}/.."
 

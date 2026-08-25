@@ -3,12 +3,12 @@
 > **Status: mostly superseded.** [docs/ClassRegistry.md](ClassRegistry.md) now implements the
 > practical core of what this document originally proposed as a stub — a lecturer-run
 > registry, a real DNS-delegated `lab.internet` zone, and a shared CA students trust once —
-> using a deliberately simpler design (one CA signs each business's *edge-proxy* cert, rather
+> using a deliberately simpler design (one CA signs each business's _edge-proxy_ cert, rather
 > than cross-signing every business's own Issuing CA). **Read
 > [docs/ClassRegistry.md](ClassRegistry.md) first** — it's the one you actually run.
 >
 > What's left here and NOT built: full cross-signing of each business's own Issuing CA (so
-> *every* internal cert, not just the edge-proxy one, chains to one root), which needs the
+> _every_ internal cert, not just the edge-proxy one, chains to one root), which needs the
 > three-label-domain support in `provision-business.sh` described below. The scripts under
 > `federation/lab-internet/scripts/` remain stubs for that deeper variant, kept for whoever
 > wants to extend the Class Registry to that depth. If you don't specifically need every

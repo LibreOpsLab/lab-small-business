@@ -16,7 +16,7 @@ network, and never blanket trust.
 
 ```mermaid
 flowchart LR
-    subgraph BizA["Business A (10.10.0.0/24, acme.internal)"]
+    subgraph BizA["Business A (10.10.10.0/24, acme.internal)"]
         PFA["pfSense A"]
         DCA["samba-dc01"]
         APPA["docker01 (Traefik/NextCloud/...)"]
@@ -121,7 +121,7 @@ gives you **nothing** at the identity or PKI layer:
 ```bash
 ./federation/scripts/generate-wireguard-roadwarrior.sh \
   --user student01 \
-  --allowed-hosts 10.10.0.20/32,10.10.0.30/32
+  --allowed-hosts 10.10.10.20/32,10.10.10.30/32
 ```
 
 Generates a keypair and a client config in `federation/wireguard-clients/student01.conf` (never

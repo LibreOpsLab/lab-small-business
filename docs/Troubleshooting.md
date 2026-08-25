@@ -5,16 +5,16 @@
 **Symptom:** domain-joined client can't find the DC / `realm join` fails with "Cannot find KDC
 for realm".
 
-- Confirm the client's DNS server is `10.10.0.10`, not pfSense or a public resolver:
+- Confirm the client's DNS server is `10.10.10.10`, not pfSense or a public resolver:
   `resolvectl status` (Linux) / `ipconfig /all` (Windows). If wrong, check pfSense's DHCP scope
   (`pfsense/config/config.xml.template`, `<dnsserver>` under the LAN DHCP block) — option 6
-  must point at `10.10.0.10` only.
-- `dig @10.10.0.10 _kerberos._udp.lab.internal SRV` should return `samba-dc01.lab.internal:88`. If
+  must point at `10.10.10.10` only.
+- `dig @10.10.10.10 _kerberos._udp.lab.internal SRV` should return `samba-dc01.lab.internal:88`. If
   empty, run `samba_dnsupdate --verbose --all-names` on the DC to repair auto-generated SRV
   records.
-- Confirm forwarding works: `dig @10.10.0.10 example.com` should resolve via pfSense's Unbound
+- Confirm forwarding works: `dig @10.10.10.10 example.com` should resolve via pfSense's Unbound
   forwarder. If it times out, check `dns forwarder` in `smb.conf` matches pfSense's LAN IP and
-  that the pfSense LAN rule allows `10.10.0.10 → 10.10.0.1:53`.
+  that the pfSense LAN rule allows `10.10.10.10 → 10.10.10.1:53`.
 
 ## Kerberos / domain join
 
@@ -123,18 +123,18 @@ inspect lab-proxy`) — a container not attached to that network is invisible to
 
 ## General log locations
 
-| Component | Log                                                                                                       |
-| --------- | --------------------------------------------------------------------------------------------------------- |
-| Samba AD  | `journalctl -u samba-ad-dc`, `/var/log/samba/log.samba`                                                   |
-| SSSD      | `journalctl -u sssd`, `/var/log/sssd/*.log`                                                               |
-| pfSense   | GUI: Status > System Logs; SSH: `/var/log/system.log`                                                     |
-| Authentik | `docker compose -f docker/authentik/docker-compose.yml logs -f`                                           |
-| Traefik   | `docker compose -f docker/reverse-proxy/docker-compose.yml logs -f traefik`                               |
-| NextCloud | `docker compose -f docker/nextcloud/docker-compose.yml exec app tail -f /var/www/html/data/nextcloud.log` |
-| Postfix   | `docker compose -f docker/mail/docker-compose.yml logs -f postfix`                                        |
-| Dovecot   | `docker compose -f docker/mail/docker-compose.yml logs -f dovecot`                                        |
-| WordPress | `docker compose -f docker/wordpress/docker-compose.yml logs -f app`                                       |
-| Stirling PDF | `docker compose -f docker/stirling-pdf/docker-compose.yml logs -f stirling-pdf`                        |
+| Component    | Log                                                                                                       |
+| ------------ | --------------------------------------------------------------------------------------------------------- |
+| Samba AD     | `journalctl -u samba-ad-dc`, `/var/log/samba/log.samba`                                                   |
+| SSSD         | `journalctl -u sssd`, `/var/log/sssd/*.log`                                                               |
+| pfSense      | GUI: Status > System Logs; SSH: `/var/log/system.log`                                                     |
+| Authentik    | `docker compose -f docker/authentik/docker-compose.yml logs -f`                                           |
+| Traefik      | `docker compose -f docker/reverse-proxy/docker-compose.yml logs -f traefik`                               |
+| NextCloud    | `docker compose -f docker/nextcloud/docker-compose.yml exec app tail -f /var/www/html/data/nextcloud.log` |
+| Postfix      | `docker compose -f docker/mail/docker-compose.yml logs -f postfix`                                        |
+| Dovecot      | `docker compose -f docker/mail/docker-compose.yml logs -f dovecot`                                        |
+| WordPress    | `docker compose -f docker/wordpress/docker-compose.yml logs -f app`                                       |
+| Stirling PDF | `docker compose -f docker/stirling-pdf/docker-compose.yml logs -f stirling-pdf`                           |
 
 When in doubt, run `samba/scripts/health-check.sh` and
 `ansible-playbook playbooks/site.yml --check --diff` first — the latter surfaces any

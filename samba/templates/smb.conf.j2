@@ -6,7 +6,7 @@
     netbios name = {{ samba_netbios_name | default('SAMBA-DC01') }}
     realm = {{ lab_realm | default('LAB.INTERNAL') }}
     workgroup = {{ lab_netbios | default('LAB') }}
-    dns forwarder = {{ dns_forwarder | default('10.10.0.1') }}
+    dns forwarder = {{ dns_forwarder | default('10.10.10.1') }}
     server role = active directory domain controller
     server services = s3fs, rpc, nbt, wrepl, ldap, cldap, kdc, drepl, winbind, ntp_signd, kcc, dnsupdate, dns
 

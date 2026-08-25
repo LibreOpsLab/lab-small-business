@@ -70,14 +70,14 @@ own session cookies `Secure`.
 Baseline rules (see [`pfsense/config/config.xml.template`](../pfsense/config/config.xml.template)
 and [`pfsense/README.md`](../pfsense/README.md)):
 
-| Rule                      | Source                   | Destination      | Ports                                                    | Action                                            |
-| ------------------------- | ------------------------ | ---------------- | -------------------------------------------------------- | ------------------------------------------------- |
-| LAN → DC                  | LAN net                  | `10.10.0.10`     | 53, 88, 123, 135, 137-139, 389, 445, 464, 636, 3268-3269 | allow                                             |
-| LAN → Docker apps         | LAN net                  | `10.10.0.20`     | 80, 443, 587, 465, 993                                   | allow                                             |
-| LAN → Authentik           | LAN net                  | `10.10.0.30`     | 443                                                      | allow                                             |
-| Client LDAP (plain) block | `10.10.0.30` (Authentik) | `10.10.0.10:389` | 389                                                      | **block** (forces LDAPS)                          |
-| LAN → WAN                 | LAN net                  | any              | 443, 80, 53                                              | allow (outbound only, for updates/DNS forwarding) |
-| default deny              | any                      | any              | any                                                      | deny + log                                        |
+| Rule                      | Source                    | Destination       | Ports                                                    | Action                                            |
+| ------------------------- | ------------------------- | ----------------- | -------------------------------------------------------- | ------------------------------------------------- |
+| LAN → DC                  | LAN net                   | `10.10.10.10`     | 53, 88, 123, 135, 137-139, 389, 445, 464, 636, 3268-3269 | allow                                             |
+| LAN → Docker apps         | LAN net                   | `10.10.10.20`     | 80, 443, 587, 465, 993                                   | allow                                             |
+| LAN → Authentik           | LAN net                   | `10.10.10.30`     | 443                                                      | allow                                             |
+| Client LDAP (plain) block | `10.10.10.30` (Authentik) | `10.10.10.10:389` | 389                                                      | **block** (forces LDAPS)                          |
+| LAN → WAN                 | LAN net                   | any               | 443, 80, 53                                              | allow (outbound only, for updates/DNS forwarding) |
+| default deny              | any                       | any               | any                                                      | deny + log                                        |
 
 `www.lab.internal` (WordPress), `pdf.lab.internal` (Stirling PDF), and `autoconfig.lab.internal`
 share the existing "LAN → Docker apps, 80/443" rule — no extra firewall entries needed, they're

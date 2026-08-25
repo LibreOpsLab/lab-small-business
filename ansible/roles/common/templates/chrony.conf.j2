@@ -7,7 +7,7 @@
 # This host IS samba-dc01 — it is the authoritative time source for the domain, so it syncs
 # against the public pool (via pfSense's NAT) instead of itself.
 pool 2.pool.ntp.org iburst
-allow 10.10.0.0/24
+allow 10.10.10.0/24
 local stratum 10
 {% else %}
 server {{ samba_dc_fqdn | default('samba-dc01.lab.internal') }} iburst

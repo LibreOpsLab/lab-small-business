@@ -36,16 +36,16 @@ inline while building this VM, not as a separate stage.
    VM's NIC picks it from the same dropdown once it exists.
 3. Install pfSense interactively (the one genuinely manual OS install in the whole lab). At
    "Assign Interfaces": WAN = the NIC on `VMnet8`, LAN = the NIC on `LAN-LAB`. Set LAN IPv4 to
-   `10.10.0.1/24`; leave LAN DHCP off until the next step.
-4. From the pfSense GUI (`https://10.10.0.1`), configure by hand:
-   - **DHCP server (LAN)**: pool `10.10.0.100`–`10.10.0.199`, DNS server `10.10.0.10`, domain
-     name `lab.internal`, gateway `10.10.0.1`.
+   `10.10.10.1/24`; leave LAN DHCP off until the next step.
+4. From the pfSense GUI (`https://10.10.10.1`), configure by hand:
+   - **DHCP server (LAN)**: pool `10.10.10.100`–`10.10.10.199`, DNS server `10.10.10.10`, domain
+     name `lab.internal`, gateway `10.10.10.1`.
    - **DNS Resolver (Unbound)**: enabled, LAN-only access; forward `lab.internal` to
-     `10.10.0.10` (Samba AD's DNS) and everything else to the WAN interface's upstream DNS —
+     `10.10.10.10` (Samba AD's DNS) and everything else to the WAN interface's upstream DNS —
      see [dns-architecture.md](../diagrams/dns-architecture.md).
-   - **Firewall rules**: allow LAN → `10.10.0.10` (53, 88, 123, 135, 137-139, 389, 445, 464,
-     636, 3268-3269); allow LAN → `10.10.0.20` (80, 443, 587, 465, 993); allow LAN →
-     `10.10.0.30` (443); block `10.10.0.30` → `10.10.0.10:389` (forces LDAPS); allow LAN → WAN
+   - **Firewall rules**: allow LAN → `10.10.10.10` (53, 88, 123, 135, 137-139, 389, 445, 464,
+     636, 3268-3269); allow LAN → `10.10.10.20` (80, 443, 587, 465, 993); allow LAN →
+     `10.10.10.30` (443); block `10.10.10.30` → `10.10.10.10:389` (forces LDAPS); allow LAN → WAN
      (80, 443, 53, outbound only); default deny + log. Full rationale in
      [Security.md](Security.md#firewall-recommendations-pfsense).
 5. Run [`pfsense/scripts/pfsense-post-install.sh`](../pfsense/scripts/pfsense-post-install.sh)
@@ -89,7 +89,7 @@ extra step that path needs.)
    [`workstation/vms/samba-dc.md#autoinstall`](../workstation/vms/samba-dc.md#autoinstall) —
    copy the `.example` files, generate a password hash with `mkpasswd`).
 2. `workstation/scripts/create-vms.ps1` creates `samba-dc01`'s VM shell (2 vCPU, 4 GB RAM,
-   40 GB disk, static `10.10.0.10`, gateway `10.10.0.1`) and builds/attaches its seed ISO
+   40 GB disk, static `10.10.10.10`, gateway `10.10.10.1`) and builds/attaches its seed ISO
    automatically. Boot it — Ubuntu Server installs with no prompts and reboots into a running
    system with SSH up.
 3. `sudo samba/scripts/bootstrap-ad.sh` — provisions the domain (see
@@ -182,8 +182,8 @@ both clients is joining the domain:
 
 1. `linux-client01`: `sudo samba/scripts/join-linux-client.sh` (joins domain, configures SSSD,
    installs the CA chain via `ansible-playbook playbooks/05-pki-trust.yml --limit
-   linux-client01` or manually per [PKI.md](PKI.md)).
-2. `win-client01`: confirm DNS is `10.10.0.10` (DHCP-served), then run
+linux-client01` or manually per [PKI.md](PKI.md)).
+2. `win-client01`: confirm DNS is `10.10.10.10` (DHCP-served), then run
    [`samba/scripts/join-windows-client.ps1`](../samba/scripts/join-windows-client.ps1) elevated.
    GPOs (including CA trust) apply automatically on next `gpupdate`/reboot.
 3. On each client, run the desktop app provisioning scripts — see

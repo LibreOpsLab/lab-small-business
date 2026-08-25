@@ -20,7 +20,7 @@ only the Caddy piece, not the DNS-delegation-answer piece.
    Repeat for the CA chain if HAProxy's config wants it separately (`<name>.ca-chain.pem`).
 3. **Backend**: Services → HAProxy → Backends → Add:
    - Name: `internal-traefik`
-   - Server: `10.10.0.20` (docker01), port `443`, SSL: yes, "Verify SSL Certificate": add your
+   - Server: `10.10.10.20` (docker01), port `443`, SSL: yes, "Verify SSL Certificate": add your
      business's own PKI chain (`pki/intermediate-ca/certs/ca-chain.cert.pem`) as the backend's
      trusted CA — the same "validate, don't disable" principle as the Caddy setup's
      `tls_trust_pool` directive. Do not check "no SSL verification."

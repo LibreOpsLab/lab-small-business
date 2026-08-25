@@ -44,9 +44,9 @@ single-business deployment, would just be extra moving parts with nothing to dem
 
 ```bash
 # From any host that can reach samba-dc01's DNS:
-dig TXT lab.internal @10.10.0.10
-dig TXT mail._domainkey.lab.internal @10.10.0.10
-dig TXT _dmarc.lab.internal @10.10.0.10
+dig TXT lab.internal @10.10.10.10
+dig TXT mail._domainkey.lab.internal @10.10.10.10
+dig TXT _dmarc.lab.internal @10.10.10.10
 
 # Send a test message via Betterbird/webmail, then check headers on the receiving side for:
 #   Authentication-Results: ...; dkim=pass ...; spf=pass ...; dmarc=pass

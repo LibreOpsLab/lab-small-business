@@ -2,6 +2,6 @@
 # {{ ansible_managed | default("Managed by ansible/roles/common — do not edit by hand.") }}
 # All lab hosts must resolve via Samba AD's internal DNS so SRV record discovery
 # (Kerberos/LDAP) works. See docs/../diagrams/dns-architecture.md.
-nameserver {{ samba_dc_ip | default('10.10.0.10') }}
+nameserver {{ samba_dc_ip | default('10.10.10.10') }}
 search {{ lab_domain | default('lab.internal') }}
 options edns0 trust-ad

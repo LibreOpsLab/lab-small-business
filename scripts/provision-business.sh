@@ -80,8 +80,8 @@ case "${O1}" in
   192) [[ "${O2}" -eq 168 ]] || die "--subnet 192.x.x.0/24 must be 192.168.x.0/24 (RFC1918)" ;;
   *) die "--subnet must be within RFC1918 private space (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)" ;;
 esac
-if [[ "${SUBNET_PREFIX}." == "10.10.0." ]]; then
-  warn "--subnet matches the base lab's default (10.10.0.0/24). Fine for a standalone rename, but if this business will be IPSec-bridged to another running instance of the base lab, they'll collide — pick a distinct /24."
+if [[ "${SUBNET_PREFIX}." == "10.10.10." ]]; then
+  warn "--subnet matches the base lab's default (10.10.10.0/24). Fine for a standalone rename, but if this business will be IPSec-bridged to another running instance of the base lab, they'll collide — pick a distinct /24."
 fi
 
 OUTPUT="${OUTPUT:-${REPO_ROOT}/../${NAME}-lab}"

@@ -1,15 +1,15 @@
 # Authentik IAM — `authentik01`
 
-| Spec    | Value                    |
-| ------- | ------------------------ |
-| vCPU    | 2                        |
-| RAM     | 4096 MB                  |
-| Disk    | 40 GB (thin)             |
-| NIC     | LAN Segment `LAN-LAB`    |
-| ISO     | Ubuntu Server 24.04 LTS  |
-| IP      | `10.10.0.30/24` (static) |
-| Gateway | `10.10.0.1`              |
-| DNS     | `10.10.0.10`             |
+| Spec    | Value                     |
+| ------- | ------------------------- |
+| vCPU    | 2                         |
+| RAM     | 4096 MB                   |
+| Disk    | 40 GB (thin)              |
+| NIC     | LAN Segment `LAN-LAB`     |
+| ISO     | Ubuntu Server 24.04 LTS   |
+| IP      | `10.10.10.30/24` (static) |
+| Gateway | `10.10.10.1`              |
+| DNS     | `10.10.10.10`             |
 
 Kept on its own VM (rather than co-located on `docker01`) so the identity plane's failure
 domain is isolated from the application plane — see

@@ -59,7 +59,7 @@ If any step fails, check [Troubleshooting.md](Troubleshooting.md) before asking 
 ## Exercises
 
 1. **Break and fix DNS.** On `linux-client01`, temporarily point `/etc/resolv.conf` at a public
-   resolver instead of `10.10.0.10`, then try to `kinit`. Explain why it fails (see
+   resolver instead of `10.10.10.10`, then try to `kinit`. Explain why it fails (see
    [dns-architecture.md](../diagrams/dns-architecture.md)) and revert.
 2. **Group-driven access.** Ask your instructor to add you to `Docker-Admins` in AD
    (`samba-tool group addmembers Docker-Admins student01`). Log out and back into
@@ -83,7 +83,7 @@ If any step fails, check [Troubleshooting.md](Troubleshooting.md) before asking 
 7. **Partner with another business.** If a classmate has their own deployment running, work
    through [MultiBusiness.md](MultiBusiness.md) together to bridge them via IPSec, scoped to
    one specific service only. Afterwards, try to visit a page on their NextCloud that you did
-   *not* explicitly allow through the firewall — confirm it's blocked, and explain why that's
+   _not_ explicitly allow through the firewall — confirm it's blocked, and explain why that's
    the correct behaviour, not a bug.
 
 ## Getting help

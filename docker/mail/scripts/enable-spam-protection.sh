@@ -76,5 +76,5 @@ samba-tool dns add samba-dc01 "${MAIL_DOMAIN}" "_dmarc" TXT \
   "\"v=DMARC1; p=${DMARC_POLICY}; rua=mailto:postmaster@${MAIL_DOMAIN}\"" -U administrator || \
   log "DMARC record add failed or already exists."
 
-log "Done. Verify with: dig TXT ${MAIL_DOMAIN} @10.10.0.10 ; dig TXT ${DKIM_SELECTOR}._domainkey.${MAIL_DOMAIN} @10.10.0.10 ; dig TXT _dmarc.${MAIL_DOMAIN} @10.10.0.10"
+log "Done. Verify with: dig TXT ${MAIL_DOMAIN} @10.10.10.10 ; dig TXT ${DKIM_SELECTOR}._domainkey.${MAIL_DOMAIN} @10.10.10.10 ; dig TXT _dmarc.${MAIL_DOMAIN} @10.10.10.10"
 log "See docs/SPFDKIMDMARC.md for what each record means and how to test enforcement."

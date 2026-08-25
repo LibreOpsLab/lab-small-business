@@ -25,14 +25,14 @@ tree can be re-based onto a different domain/realm/NetBIOS/subnet with
 
 ## Component inventory
 
-| Component         | VM/Host          | IP           | Role                                                                 |
-| ----------------- | ---------------- | ------------ | -------------------------------------------------------------------- |
-| pfSense           | `pfsense01`      | `10.10.0.1`  | Perimeter firewall, DHCP, NAT, Unbound DNS forwarder                 |
-| Samba AD DC       | `samba-dc01`     | `10.10.0.10` | AD DC, LDAP, Kerberos KDC, internal DNS, NTP                         |
-| Docker App Server | `docker01`       | `10.10.0.20` | Docker Engine, Traefik reverse proxy, NextCloud, OnlyOffice, Dovecot+Postfix, WordPress, Stirling PDF |
-| Authentik         | `authentik01`    | `10.10.0.30` | IAM/SSO — LDAP source + OIDC provider                                |
-| Linux Desktop     | `linux-client01` | DHCP         | Ubuntu Desktop, SSSD domain member                                   |
-| Windows Desktop   | `win-client01`   | DHCP         | Windows 11, native AD domain member                                  |
+| Component         | VM/Host          | IP            | Role                                                                                                  |
+| ----------------- | ---------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
+| pfSense           | `pfsense01`      | `10.10.10.1`  | Perimeter firewall, DHCP, NAT, Unbound DNS forwarder                                                  |
+| Samba AD DC       | `samba-dc01`     | `10.10.10.10` | AD DC, LDAP, Kerberos KDC, internal DNS, NTP                                                          |
+| Docker App Server | `docker01`       | `10.10.10.20` | Docker Engine, Traefik reverse proxy, NextCloud, OnlyOffice, Dovecot+Postfix, WordPress, Stirling PDF |
+| Authentik         | `authentik01`    | `10.10.10.30` | IAM/SSO — LDAP source + OIDC provider                                                                 |
+| Linux Desktop     | `linux-client01` | DHCP          | Ubuntu Desktop, SSSD domain member                                                                    |
+| Windows Desktop   | `win-client01`   | DHCP          | Windows 11, native AD domain member                                                                   |
 
 See [network-topology.md](../diagrams/network-topology.md) for the full network diagram and
 [docs/DesktopApps.md](DesktopApps.md) for the client-side app/experience layer on top of these
@@ -142,7 +142,7 @@ repo-root/
   reviewed `config.xml` template (imported once via the GUI/`pfSsh.php`) plus a post-install
   shell script for anything better done over SSH. See [pfsense/README.md](../pfsense/README.md).
 - **Authentik is deployed as a Docker Compose stack**, not bare-metal, even though the network
-  diagram gives it its own IP (`10.10.0.30`) — it runs as its own Compose project on a
+  diagram gives it its own IP (`10.10.10.30`) — it runs as its own Compose project on a
   dedicated VM so that the identity plane's failure domain is isolated from the application
   plane on `docker01`.
 - **Root CA is "offline" in spirit, not physically air-gapped**, since this is a single-host

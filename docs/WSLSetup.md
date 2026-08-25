@@ -29,7 +29,7 @@ scripts, but it cannot be this repo's **control node**:
   [`docker/mail/scripts/enable-spam-protection.sh`](../docker/mail/scripts/enable-spam-protection.sh))
   isn't a thing.
 - **WSL2 runs an actual Linux kernel** (unlike WSL1's translation layer), so `apt install
-  ansible openssl rsync samba-common-bin` behaves exactly like it would on any of this lab's
+ansible openssl rsync samba-common-bin` behaves exactly like it would on any of this lab's
   Ubuntu VMs — no surprises, no missing syscalls.
 
 Keep Git Bash for what it's good at (quick single-script runs, `git` itself); if you're taking
@@ -63,8 +63,8 @@ below needs a reasonably current version.
 
 This is the one genuinely non-obvious step. By default, WSL2 puts itself behind its **own**
 NAT'd virtual switch — separate from VMware Workstation's `LAN-LAB` LAN Segment
-(`10.10.0.0/24`) that pfSense and every lab VM live on. Concretely: **out of the box, your WSL2
-shell cannot reach `10.10.0.1` (pfSense) at all**, even though the Windows host it's running on
+(`10.10.10.0/24`) that pfSense and every lab VM live on. Concretely: **out of the box, your WSL2
+shell cannot reach `10.10.10.1` (pfSense) at all**, even though the Windows host it's running on
 can. Every `ansible-playbook` run and every `ssh samba-dc01.lab.internal` from WSL depends on
 fixing this first.
 
@@ -90,7 +90,7 @@ wsl --shutdown
 Reopen your WSL terminal and verify:
 
 ```bash
-ping -c 2 10.10.0.1        # pfSense LAN IP - should respond
+ping -c 2 10.10.10.1        # pfSense LAN IP - should respond
 ip addr                     # you should see the same adapters Windows itself has, including
                              # the one VMware assigned the LAN-LAB LAN Segment
 ```
@@ -99,14 +99,14 @@ ip addr                     # you should see the same adapters Windows itself ha
 
 If `networkingMode=mirrored` isn't available (Windows 10, or WSL below the version that
 supports it), WSL2's default NAT mode needs an explicit route added on the **Windows** side so
-traffic to `10.10.0.0/24` gets sent into the WSL2 NAT interface, and pfSense needs to know how
+traffic to `10.10.10.0/24` gets sent into the WSL2 NAT interface, and pfSense needs to know how
 to route the reply back. This is materially more fragile (the WSL2 NAT subnet can change
 across reboots) — upgrading Windows/WSL to support mirrored mode is worth doing before falling
 back to this. If you're stuck on it:
 
 1. Find WSL2's current gateway IP: `wsl hostname -I` (inside WSL) or check
    `Get-NetIPAddress` on the `vEthernet (WSL)` adapter in Windows.
-2. Add a route on the Windows host so `10.10.0.0/24` is reachable via that gateway (exact
+2. Add a route on the Windows host so `10.10.10.0/24` is reachable via that gateway (exact
    `route add` invocation depends on your WSL2 subnet, which is why mirrored mode is strongly
    preferred — this fallback is not pinned to a stable config the way mirrored mode is).
 3. On pfSense, ensure the LAN interface doesn't have a stricter-than-default gateway/route
@@ -177,7 +177,7 @@ Add the lab hosts to `~/.ssh/config` inside WSL if you want short aliases — th
 Before running anything from [docs/DeploymentGuide.md](DeploymentGuide.md) steps 3+:
 
 ```bash
-ping -c 2 10.10.0.1                        # pfSense reachable
+ping -c 2 10.10.10.1                        # pfSense reachable
 ansible --version                           # ansible-core 2.16+
 openssl version                             # OpenSSL 3.x (pki/scripts requires this)
 ssh -o BatchMode=yes samba-dc01.lab.internal true && echo "SSH OK"
@@ -186,7 +186,7 @@ ssh -o BatchMode=yes samba-dc01.lab.internal true && echo "SSH OK"
 If the ping fails, revisit [Networking](#networking-the-part-that-actually-trips-people-up)
 above before anything else — every subsequent step depends on it.
 
-## What WSL2 is *not* used for in this lab
+## What WSL2 is _not_ used for in this lab
 
 Worth being explicit: WSL2 here is your **Ansible control node and script runner**, not a
 Docker host. `docker01` and `authentik01` are separate Ubuntu VMs running the actual

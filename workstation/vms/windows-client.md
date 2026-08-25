@@ -7,7 +7,7 @@
 | Disk | 60 GB (thin)                                |
 | NIC  | LAN Segment `LAN-LAB`                       |
 | ISO  | Windows 11 (23H2+)                          |
-| IP   | DHCP (`10.10.0.100-199`, served by pfSense) |
+| IP   | DHCP (`10.10.10.100-199`, served by pfSense) |
 
 Installs unattended from
 [`seeds/win-client01/autounattend.xml.example`](seeds/win-client01/autounattend.xml.example) —
@@ -33,7 +33,7 @@ installed post-OS-install for clipboard/display integration.
 ## Post-install
 
 1. Confirm DNS is being served correctly: `Resolve-DnsName lab.internal` should return
-   `10.10.0.10`.
+   `10.10.10.10`.
 2. Run [`samba/scripts/join-windows-client.ps1`](../../samba/scripts/join-windows-client.ps1)
    elevated to join the domain into `OU=Windows,OU=Workstations,OU=LAB`.
 3. After reboot and domain logon, CA trust and any other GPO-managed settings apply

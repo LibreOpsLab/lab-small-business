@@ -1,9 +1,9 @@
 # Virtual Network Design
 
 | Network | VMware type              | Purpose                                         | Subnet                  | DHCP                                      |
-| ------- | ------------------------- | ------------------------------------------------ | ----------------------- | ------------------------------------------ |
+| ------- | ------------------------ | ----------------------------------------------- | ----------------------- | ----------------------------------------- |
 | WAN     | `VMnet8` (NAT, built-in) | Host internet access for pfSense's WAN leg only | Host-assigned NAT range | VMware NAT DHCP (default)                 |
-| LAN     | LAN Segment `LAN-LAB`   | All lab traffic                                 | `10.10.0.0/24`          | **Disabled** — pfSense is the DHCP server |
+| LAN     | LAN Segment `LAN-LAB`    | All lab traffic                                 | `10.10.10.0/24`         | **Disabled** — pfSense is the DHCP server |
 
 ## Rules
 
@@ -14,7 +14,7 @@
   Segment is a named, per-VM virtual switch with no host-adapter binding and no VMware DHCP
   service of its own — there's nothing to turn off, and no Virtual Network Editor entry to
   manage. pfSense is the only DHCP server on `LAN-LAB` by construction, not by configuration.
-- **pfSense's LAN interface is `10.10.0.1/24`**, statically assigned during pfSense install
+- **pfSense's LAN interface is `10.10.10.1/24`**, statically assigned during pfSense install
   (no DHCP client on the LAN side, obviously — it _is_ the DHCP server).
 
 ## Creating the network

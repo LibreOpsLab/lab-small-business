@@ -44,10 +44,12 @@ Ansible/PKI from `linux-client01`.
 ### Task 1: Remove `vnetlib`-based networking script, rewrite the LAN Segment doc
 
 **Files:**
+
 - Delete: `workstation/scripts/configure-vmnet.ps1`
 - Modify: `workstation/networks/README.md` (full rewrite)
 
 **Interfaces:**
+
 - Produces: the LAN Segment name `LAN-LAB` that every later task references.
 
 - [ ] **Step 1: Delete the vnetlib script**
@@ -63,10 +65,10 @@ Replace the entire file with:
 ```markdown
 # Virtual Network Design
 
-| Network | VMware type            | Purpose                                         | Subnet                  | DHCP                                      |
-| ------- | ----------------------- | ------------------------------------------------ | ----------------------- | ------------------------------------------ |
+| Network | VMware type              | Purpose                                         | Subnet                  | DHCP                                      |
+| ------- | ------------------------ | ----------------------------------------------- | ----------------------- | ----------------------------------------- |
 | WAN     | `VMnet8` (NAT, built-in) | Host internet access for pfSense's WAN leg only | Host-assigned NAT range | VMware NAT DHCP (default)                 |
-| LAN     | LAN Segment `LAN-LAB`   | All lab traffic                                 | `10.10.0.0/24`          | **Disabled** — pfSense is the DHCP server |
+| LAN     | LAN Segment `LAN-LAB`    | All lab traffic                                 | `10.10.0.0/24`          | **Disabled** — pfSense is the DHCP server |
 
 ## Rules
 
@@ -126,9 +128,11 @@ have no built-in DHCP service to disable."
 ### Task 2: Update `create-vms.ps1` for the LAN Segment and the two manual-build VMs
 
 **Files:**
+
 - Modify: `workstation/scripts/create-vms.ps1`
 
 **Interfaces:**
+
 - Consumes: LAN Segment name `LAN-LAB` from Task 1.
 - Produces: VM shells for exactly `samba-dc01`, `docker01`, `authentik01`, `win-client01` —
   later tasks' docs describe this as the automated set, with `pfsense01`/`linux-client01`
@@ -310,9 +314,11 @@ remaining entry is dual-homed."
 ### Task 3: Rewrite `workstation/vms/pfsense.md` as a full manual build walkthrough
 
 **Files:**
+
 - Modify: `workstation/vms/pfsense.md` (full rewrite)
 
 **Interfaces:**
+
 - Consumes: `LAN-LAB` (Task 1), the firewall-rule values from `docs/Security.md`'s
   "Firewall recommendations (pfSense)" table.
 - Produces: the manual build/config steps that `docs/DeploymentGuide.md` step 1 (Task 7) links
@@ -413,26 +419,28 @@ default."
 ### Task 4: Rewrite `workstation/vms/linux-client.md` as the control-host build doc
 
 **Files:**
+
 - Modify: `workstation/vms/linux-client.md` (full rewrite)
 
 **Interfaces:**
+
 - Consumes: `LAN-LAB` (Task 1).
 - Produces: the control-host setup steps that `docs/DeploymentGuide.md` step 2 (Task 7) and
   `docs/WSLSetup.md` (Task 8) both link to.
 
 - [ ] **Step 1: Replace the entire file**
 
-```markdown
+````markdown
 # Linux Desktop Client / Control Host — `linux-client01`
 
 | Spec | Value                                       |
-| ---- | -------------------------------------------- |
-| vCPU | 2                                            |
-| RAM  | 4096 MB                                      |
-| Disk | 40 GB (thin)                                 |
-| NIC  | LAN Segment `LAN-LAB`                        |
-| ISO  | Ubuntu Desktop 24.04 LTS                     |
-| IP   | DHCP (`10.10.0.100-199`, served by pfSense)  |
+| ---- | ------------------------------------------- |
+| vCPU | 2                                           |
+| RAM  | 4096 MB                                     |
+| Disk | 40 GB (thin)                                |
+| NIC  | LAN Segment `LAN-LAB`                       |
+| ISO  | Ubuntu Desktop 24.04 LTS                    |
+| IP   | DHCP (`10.10.0.100-199`, served by pfSense) |
 
 Built by hand, right after pfSense — no PowerShell script creates this VM. It plays two roles:
 it's the **control host** that drives every scripted step from here on (Ansible, the PKI
@@ -457,6 +465,7 @@ git clone <this-repo-url> ~/lab-small-business
 cd ~/lab-small-business
 ansible --version   # confirm ansible-core 2.16+
 ```
+````
 
 From here on, every `ansible-playbook`, `openssl`, and `samba-tool` command in
 [docs/DeploymentGuide.md](../../docs/DeploymentGuide.md) runs from this VM.
@@ -474,13 +483,14 @@ without a browser warning.
 
 See [docs/StudentLabManual.md](../../docs/StudentLabManual.md) for the exercises students run
 from this VM.
-```
+
+````
 
 - [ ] **Step 2: Verify**
 
 ```bash
 grep -n "VMnet2" workstation/vms/linux-client.md
-```
+````
 
 Expected: no output.
 
@@ -500,12 +510,14 @@ Domain-join content is unchanged, just moved under its own later section."
 ### Task 5: Update the remaining VM spec sheets' NIC row
 
 **Files:**
+
 - Modify: `workstation/vms/samba-dc.md:8`
 - Modify: `workstation/vms/docker-server.md:8`
 - Modify: `workstation/vms/authentik.md:8`
 - Modify: `workstation/vms/windows-client.md:8`
 
 **Interfaces:**
+
 - Consumes: `LAN-LAB` (Task 1).
 
 - [ ] **Step 1: `workstation/vms/samba-dc.md`**
@@ -555,6 +567,7 @@ git commit -m "Update remaining VM spec sheets' NIC row to the LAN-LAB LAN Segme
 ### Task 6: Relabel the LAN segment in `diagrams/network-topology.md`
 
 **Files:**
+
 - Modify: `diagrams/network-topology.md:3-6,16`
 
 - [ ] **Step 1: Replace the intro paragraph**
@@ -614,9 +627,11 @@ git commit -m "Relabel network-topology.md's LAN segment from VMnet-LAB (Host-on
 ### Task 7: Restructure `docs/DeploymentGuide.md` steps 0-2 and 7
 
 **Files:**
+
 - Modify: `docs/DeploymentGuide.md`
 
 **Interfaces:**
+
 - Consumes: `LAN-LAB`, the manual pfSense build (Task 3), the control-host build (Task 4).
 - Produces: step numbers 3-6 and 8 are **unchanged** (see Global Constraints) — this task only
   touches steps 0, 1, 2, and 7.
@@ -635,7 +650,7 @@ Old (`docs/DeploymentGuide.md:7-21`):
   everything from step 3 onward — this needs to be WSL2, not Git Bash or PowerShell alone;
   Ansible does not support Windows as a control node. See
   [docs/WSLSetup.md](WSLSetup.md) for installing WSL2, the networking fix it needs to reach
-   `VMnet2` (this trips up almost everyone on first try), and cloning this repository inside
+  `VMnet2` (this trips up almost everyone on first try), and cloning this repository inside
   it — do that clone (not a separate Windows-side one) before continuing.
 - `mkpasswd` (from the `whois` package — WSL2 has it, or any Debian/Ubuntu machine) to generate
   password hashes for the Ubuntu Server autoinstall seeds used in steps 3 and 5. No extra tool
@@ -669,7 +684,7 @@ New:
 
 Old (`docs/DeploymentGuide.md:23-50`):
 
-```markdown
+````markdown
 ## 1. Networking (VMware Workstation)
 
 Create the two virtual networks described in
@@ -680,6 +695,7 @@ Create the two virtual networks described in
 ```powershell
 workstation\scripts\configure-vmnet.ps1
 ```
+````
 
 This creates `VMnet8` (NAT, WAN) as-is (Workstation ships it by default) and a new host-only
 `VMnet2` network with **DHCP disabled** (pfSense will be the DHCP server) bound to
@@ -698,7 +714,8 @@ This creates `VMnet8` (NAT, WAN) as-is (Workstation ships it by default) and a n
 4. Run [`pfsense/scripts/pfsense-post-install.sh`](../pfsense/scripts/pfsense-post-install.sh)
    over SSH to apply anything not expressible in `config.xml` (package installs via `pkg`,
    `pfSsh.php`-driven tweaks).
-```
+
+````
 
 New:
 
@@ -737,14 +754,14 @@ Once you're comfortable with the manual flow,
 **Diagnostics > Backup & Restore > Restore**) captures everything above as a reviewed, reusable
 baseline for future rebuilds — see [`pfsense/README.md`](../pfsense/README.md). It's an
 optional shortcut, not where to start.
-```
+````
 
 - [ ] **Step 3: Insert a new "2. Admin desktop" step**
 
 Insert immediately after the "1. pfSense — fully manual" section written in Step 2 above (i.e.
 before the section currently headed `## 3. Samba AD Domain Controller`, which stays unchanged):
 
-```markdown
+````markdown
 ## 2. Admin desktop — `linux-client01` (control host)
 
 This VM plays two roles: it's your **control host** for every scripted step from here on
@@ -764,13 +781,15 @@ endpoint like any other client.
    cd ~/lab-small-business
    ansible --version   # confirm ansible-core 2.16+
    ```
+````
 
 From here on, "control host" in this guide means **this VM** — every `ansible-playbook`,
 `openssl`, and `samba-tool` command from step 3 onward runs from here, not from the Windows
 host. (If you'd rather drive the build from WSL2 on the Windows host instead, see
 [docs/WSLSetup.md](WSLSetup.md) — the LAN Segment reachability fix it documents is the only
 extra step that path needs.)
-```
+
+````
 
 - [ ] **Step 4: Update the "recommended interim host" note in step 4 (PKI bootstrap)**
 
@@ -779,7 +798,7 @@ Old (`docs/DeploymentGuide.md:68-69`, unchanged section number, only this senten
 ```markdown
 Run from any host with `openssl` 3.x (recommended: `docker01` once it exists, or your
 workstation host in the interim):
-```
+````
 
 New:
 
@@ -821,7 +840,7 @@ both clients is joining the domain:
 
 1. `linux-client01`: `sudo samba/scripts/join-linux-client.sh` (joins domain, configures SSSD,
    installs the CA chain via `ansible-playbook playbooks/05-pki-trust.yml --limit
-   linux-client01` or manually per [PKI.md](PKI.md)).
+linux-client01` or manually per [PKI.md](PKI.md)).
 2. `win-client01`: confirm DNS is `10.10.0.10` (DHCP-served), then run
    [`samba/scripts/join-windows-client.ps1`](../samba/scripts/join-windows-client.ps1) elevated.
    GPOs (including CA trust) apply automatically on next `gpupdate`/reboot.
@@ -888,10 +907,12 @@ already-automated unattended install instead of calling it a manual step."
 ### Task 8: Demote `docs/WSLSetup.md` to an optional appendix; update `README.md`
 
 **Files:**
+
 - Modify: `docs/WSLSetup.md`
 - Modify: `README.md`
 
 **Interfaces:**
+
 - Consumes: the control-host framing from Task 7.
 
 - [ ] **Step 1: Replace `docs/WSLSetup.md`'s intro**
@@ -985,13 +1006,15 @@ own NAT. This is the simplest correct fix and needs no manual routes or port pro
 
 Old (`docs/WSLSetup.md:88-92`):
 
-```markdown
+````markdown
 ```bash
 ping -c 2 10.10.0.1        # pfSense LAN IP - should respond
 ip addr                     # you should see the same adapters Windows itself has, including
                              # the one VMware assigned VMnet-LAB
 ```
-```
+````
+
+````
 
 New:
 
@@ -1000,14 +1023,15 @@ New:
 ping -c 2 10.10.0.1        # pfSense LAN IP - should respond
 ip addr                     # you should see the same adapters Windows itself has, including
                              # the one VMware assigned the LAN-LAB LAN Segment
-```
-```
+````
+
+````
 
 - [ ] **Step 4: Verify**
 
 ```bash
 grep -n "VMnet-LAB\|WSL2 Setup (Control Host)" docs/WSLSetup.md
-```
+````
 
 Expected: no output.
 
@@ -1016,20 +1040,20 @@ Expected: no output.
 Old (`README.md:62`):
 
 ```markdown
-| [WSLSetup.md](docs/WSLSetup.md)                 | Setting up WSL2 as the Ansible control host, and why it's needed                                      |
+| [WSLSetup.md](docs/WSLSetup.md) | Setting up WSL2 as the Ansible control host, and why it's needed |
 ```
 
 New:
 
 ```markdown
-| [WSLSetup.md](docs/WSLSetup.md)                 | Optional: driving the build from WSL2 on the Windows host instead of the linux-client01 admin VM     |
+| [WSLSetup.md](docs/WSLSetup.md) | Optional: driving the build from WSL2 on the Windows host instead of the linux-client01 admin VM |
 ```
 
 - [ ] **Step 6: Update `README.md`'s Quick start block**
 
 Old (`README.md:85-102`):
 
-```markdown
+````markdown
 ## Quick start
 
 ```bash
@@ -1045,10 +1069,12 @@ make pki-init
 make pki-issue-all
 make deploy   # wraps scripts/deploy-all.sh: runs ansible/playbooks/site.yml end to end
 ```
+````
 
 See [docs/DeploymentGuide.md](docs/DeploymentGuide.md) for the complete step-by-step, including
 the manual steps that have no scriptable equivalent (pfSense install, Windows install).
-```
+
+````
 
 New:
 
@@ -1071,18 +1097,19 @@ workstation\scripts\create-vms.ps1
 make pki-init
 make pki-issue-all
 make deploy   # wraps scripts/deploy-all.sh: runs ansible/playbooks/site.yml end to end
-```
+````
 
 See [docs/DeploymentGuide.md](docs/DeploymentGuide.md) for the complete step-by-step, including
 the manual steps that have no scriptable equivalent (pfSense and linux-client01 builds, Windows
 domain join).
-```
+
+````
 
 - [ ] **Step 7: Verify**
 
 ```bash
 grep -n "configure-vmnet" README.md
-```
+````
 
 Expected: no output.
 
@@ -1102,6 +1129,7 @@ Windows host. README's quick start and doc index are updated to match."
 ### Task 9: Mark the pfSense config template/script as an optional shortcut
 
 **Files:**
+
 - Modify: `pfsense/README.md`
 
 - [ ] **Step 1: Add a note near the top of the file**

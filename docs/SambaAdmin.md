@@ -4,10 +4,10 @@
 
 | Item             | Value                                                      |
 | ---------------- | ---------------------------------------------------------- |
-| Domain (DNS)     | `lab.internal`                                                |
-| Realm            | `LAB.INTERNAL`                                                |
+| Domain (DNS)     | `lab.internal`                                             |
+| Realm            | `LAB.INTERNAL`                                             |
 | NetBIOS          | `LAB`                                                      |
-| DC hostname      | `samba-dc01.lab.internal` (`10.10.0.10`)                      |
+| DC hostname      | `samba-dc01.lab.internal` (`10.10.10.10`)                  |
 | Functional level | 2016 (`samba-tool domain provision --function-level=2016`) |
 
 ## Provisioning
@@ -105,13 +105,13 @@ shows `student01` rather than `student01@lab.internal`. Home directories are aut
 [`samba/scripts/join-windows-client.ps1`](../samba/scripts/join-windows-client.ps1) wraps
 `Add-Computer -DomainName lab.internal -OUPath "OU=Windows,OU=Workstations,OU=LAB,DC=lab,DC=internal"
 -Restart`, run from an elevated PowerShell prompt on the Windows client after confirming DNS
-resolves `lab.internal` to `10.10.0.10` (`Resolve-DnsName lab.internal`).
+resolves `lab.internal` to `10.10.10.10` (`Resolve-DnsName lab.internal`).
 
 ## DNS
 
 Samba's internal DNS (`SAMBA_INTERNAL` backend) is authoritative for `lab.internal`. Forward zone
-`.` is delegated to pfSense's Unbound resolver (`10.10.0.1`) so domain members still resolve
-public names — configured via `dns forwarder = 10.10.0.1` in
+`.` is delegated to pfSense's Unbound resolver (`10.10.10.1`) so domain members still resolve
+public names — configured via `dns forwarder = 10.10.10.1` in
 [`samba/templates/smb.conf.j2`](../samba/templates/smb.conf.j2). See
 [dns-architecture.md](../diagrams/dns-architecture.md) for the full record set. Manage records
 with `samba-tool dns add/delete samba-dc01 lab.internal <name> <type> <data> -U administrator`.

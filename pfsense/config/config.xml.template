@@ -12,11 +12,11 @@
     <hostname>__HOSTNAME__</hostname>
     <domain>lab.internal</domain>
     <timezone>Australia/Perth</timezone>
-    <timeservers>10.10.0.10</timeservers>
+    <timeservers>10.10.10.10</timeservers>
     <webgui>
       <protocol>https</protocol>
     </webgui>
-    <dnsserver>10.10.0.10</dnsserver>
+    <dnsserver>10.10.10.10</dnsserver>
     <dnsallowoverride>false</dnsallowoverride>
   </system>
 
@@ -29,7 +29,7 @@
     </wan>
     <lan>
       <if>__LAN_IF__</if>
-      <ipaddr>10.10.0.1</ipaddr>
+      <ipaddr>10.10.10.1</ipaddr>
       <subnet>24</subnet>
     </lan>
   </interfaces>
@@ -38,12 +38,12 @@
     <lan>
       <enable>1</enable>
       <range>
-        <from>10.10.0.100</from>
-        <to>10.10.0.199</to>
+        <from>10.10.10.100</from>
+        <to>10.10.10.199</to>
       </range>
-      <gateway>10.10.0.1</gateway>
+      <gateway>10.10.10.1</gateway>
       <domain>lab.internal</domain>
-      <dnsserver>10.10.0.10</dnsserver>
+      <dnsserver>10.10.10.10</dnsserver>
       <defaultleasetime>7200</defaultleasetime>
       <maxleasetime>86400</maxleasetime>
     </lan>
@@ -51,7 +51,7 @@
 
   <unbound>
     <!-- DNS Resolver: forwarding mode, LAN-only, forwards *.lab.internal queries and PTR
-         for 10.10.0.0/24 to Samba AD; everything else follows normal recursive/forwarding
+         for 10.10.10.0/24 to Samba AD; everything else follows normal recursive/forwarding
          resolution out the WAN. -->
     <enable>1</enable>
     <dnssec>1</dnssec>
@@ -63,10 +63,10 @@ server:
   private-domain: "lab.internal"
 forward-zone:
   name: "lab.internal."
-  forward-addr: 10.10.0.10
+  forward-addr: 10.10.10.10
 forward-zone:
   name: "0.10.10.in-addr.arpa."
-  forward-addr: 10.10.0.10
+  forward-addr: 10.10.10.10
 ]]></custom_options>
   </unbound>
 
@@ -79,7 +79,7 @@ forward-zone:
       <protocol>tcp/udp</protocol>
       <source><network>lan</network></source>
       <destination>
-        <address>10.10.0.10</address>
+        <address>10.10.10.10</address>
         <port>53,88,123,135,137:139,389,445,464,636,3268:3269</port>
       </destination>
       <type>pass</type>
@@ -90,7 +90,7 @@ forward-zone:
       <protocol>tcp</protocol>
       <source><network>lan</network></source>
       <destination>
-        <address>10.10.0.20</address>
+        <address>10.10.10.20</address>
         <port>80,443</port>
       </destination>
       <type>pass</type>
@@ -101,7 +101,7 @@ forward-zone:
       <protocol>tcp</protocol>
       <source><network>lan</network></source>
       <destination>
-        <address>10.10.0.30</address>
+        <address>10.10.10.30</address>
         <port>443</port>
       </destination>
       <type>pass</type>
@@ -110,9 +110,9 @@ forward-zone:
       <descr>Block Authentik from using plaintext LDAP (force LDAPS)</descr>
       <interface>lan</interface>
       <protocol>tcp</protocol>
-      <source><address>10.10.0.30</address></source>
+      <source><address>10.10.10.30</address></source>
       <destination>
-        <address>10.10.0.10</address>
+        <address>10.10.10.10</address>
         <port>389</port>
       </destination>
       <type>block</type>

@@ -16,13 +16,13 @@ autoinstall:
       version: 2
       ethernets:
         ens160:
-          addresses: [10.10.0.20/24]
-          gateway4: 10.10.0.1
+          addresses: [10.10.10.20/24]
+          gateway4: 10.10.10.1
           # Unlike samba-dc01, this host installs *after* Samba AD is already up
           # (docs/DeploymentGuide.md's ordering), so it can point straight at the real DNS
           # server instead of 127.0.0.1.
           nameservers:
-            addresses: [10.10.0.10]
+            addresses: [10.10.10.10]
   ssh:
     install-server: true
     allow-pw: true

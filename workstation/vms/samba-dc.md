@@ -7,8 +7,8 @@
 | Disk                 | 40 GB (thin)                                                      |
 | NIC                  | LAN Segment `LAN-LAB`                                             |
 | ISO                  | Ubuntu Server 24.04 LTS                                           |
-| IP                   | `10.10.0.10/24` (static)                                          |
-| Gateway              | `10.10.0.1`                                                       |
+| IP                   | `10.10.10.10/24` (static)                                         |
+| Gateway              | `10.10.10.1`                                                      |
 | DNS (during install) | `127.0.0.1` (will become authoritative for itself post-provision) |
 
 ## Autoinstall
