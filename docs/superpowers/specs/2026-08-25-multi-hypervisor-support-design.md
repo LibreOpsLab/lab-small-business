@@ -75,13 +75,17 @@ notes callout only where values genuinely differ (e.g. VirtIO vs. e1000e NIC dri
 ### Files/paths to repoint (`workstation/` → `hypervisor/`)
 
 `CLAUDE.md`, `README.md`, `docs/Architecture.md`, `docs/DeploymentGuide.md`, `pfsense/README.md`,
-`docs/superpowers/plans/2026-08-16-vmware-vm-helpers.md`,
-`docs/superpowers/plans/2026-08-24-lan-segment-manual-first.md`,
-`docs/superpowers/specs/2026-08-16-cross-platform-vm-helpers-design.md`,
-`docs/superpowers/specs/2026-08-24-lan-segment-manual-first-design.md` (historical spec/plan docs
-get their links fixed but are not rewritten otherwise — they're a record of past decisions, not
-live docs), plus `.gitignore`'s `workstation/vms/**/*-seed.iso` line →
-`hypervisor/vms/**/*-seed.iso`.
+plus `.gitignore`'s `workstation/vms/**/*.{vmdk,nvram,vmsd,log}`, `workstation/vms/**/*.vmx.lck/`,
+`workstation/vms/seeds/**/{user-data,meta-data,autounattend.xml}`, and
+`workstation/vms/**/*-seed.iso` lines → `hypervisor/` equivalents.
+
+**Not touched:** `docs/superpowers/plans/2026-08-16-vmware-vm-helpers.md`,
+`docs/superpowers/plans/2026-08-24-lan-segment-manual-first.md`, and their paired `specs/*.md`
+docs. These are transcripts of already-completed implementation work (80+ internal `workstation/`
+references between them) — historical record, not live documentation; nothing links to them from
+`README.md`'s documentation index. Leaving their `workstation/` references as-is is the same
+judgment call as not rewriting git history: they're accurate to what the repo looked like when
+that work happened.
 
 ## Shared seed-data architecture (unchanged, now with three consumers)
 
