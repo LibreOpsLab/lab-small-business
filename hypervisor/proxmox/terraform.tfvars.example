@@ -1,0 +1,7 @@
+proxmox_api_url   = "https://pve.lab.internal:8006/api2/json"
+proxmox_api_token = "terraform@pve!lab-terraform=REPLACE_ME"
+proxmox_node      = "pve"
+storage_pool      = "local-lvm"
+image_datastore   = "local"
+lan_bridge        = "vmbr-lan"
+cloud_image_path  = "/home/labadmin/isos/noble-server-cloudimg-amd64.img"

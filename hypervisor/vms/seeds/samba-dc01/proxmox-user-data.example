@@ -1,0 +1,35 @@
+#cloud-config
+# Plain cloud-init seed for samba-dc01 on Proxmox — NOT the same format as user-data.example.
+# Proxmox's Linux VMs boot a pre-installed Ubuntu cloud image instead of the Server ISO (see
+# hypervisor/proxmox/README.md for why: the Terraform provider can't attach the two CD-ROMs
+# Subiquity's autoinstall needs), so cloud-init configures the already-installed OS at first
+# boot here, rather than driving an interactive installer like user-data.example does — a
+# genuinely different schema, even though this describes the same host. Static IP/gateway/DNS
+# are set by hypervisor/proxmox/vms.tf's `initialization` block, not here — that keeps exactly
+# one place per platform owning network settings instead of duplicating them into this file too.
+#
+# This .example file is committed to git; the real one (with your actual password hash in it)
+# is not — copy this file to proxmox-user-data (same folder, no ".example") and fill in the
+# placeholder below before running `terraform apply` in hypervisor/proxmox/.
+hostname: samba-dc01
+manage_etc_hosts: true
+
+users:
+  - name: labadmin
+    # matches ansible_user in ansible/inventory/hosts.ini — see user-data.example for the full
+    # explanation of why, unchanged here.
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    lock_passwd: false
+    # Generate with: mkpasswd --method=sha-512
+    passwd: "$6$replace-with-a-mkpasswd-hash"
+
+ssh_pwauth: true
+
+package_update: true
+packages:
+  - openssh-server
+
+runcmd:
+  - systemctl enable --now ssh

@@ -45,6 +45,7 @@ hypervisor/vms/**/*.log
 hypervisor/vms/seeds/**/user-data
 hypervisor/vms/seeds/**/meta-data
 hypervisor/vms/seeds/**/autounattend.xml
+hypervisor/vms/seeds/**/proxmox-user-data
 hypervisor/vms/**/*-seed.iso
 
 # --- OS / editor cruft ---
