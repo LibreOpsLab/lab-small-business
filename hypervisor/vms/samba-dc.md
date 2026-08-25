@@ -31,6 +31,11 @@ mkpasswd --method=sha-512   # paste the output into user-data's password field
 The real `user-data`/`meta-data` (no `.example` suffix) are gitignored — they'll contain your
 actual password hash, which is not something to commit.
 
+**On Proxmox**, this VM doesn't use `user-data`/`meta-data` at all — it boots a cloud image and
+is configured by [`seeds/samba-dc01/proxmox-user-data.example`](seeds/samba-dc01/proxmox-user-data.example)
+instead. See [`../proxmox/README.md`](../proxmox/README.md) for why the mechanism differs and
+what to fill in before `terraform apply`.
+
 ## Post-install
 
 Run [`samba/scripts/bootstrap-ad.sh`](../../samba/scripts/bootstrap-ad.sh) as root — see

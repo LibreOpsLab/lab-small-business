@@ -40,7 +40,7 @@ and [docs/MultiBusiness.md](docs/MultiBusiness.md)). Full addressing and compone
 repo-root/
 ├── docs/           Architecture, deployment, admin, and student documentation
 ├── diagrams/        Mermaid source for network/auth/PKI/OIDC/DNS/federation diagrams
-├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation: Windows or Linux)
+├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation or Proxmox VE)
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
@@ -94,6 +94,8 @@ repo-root/
 hypervisor\vmware-windows\scripts\create-vms.ps1
 #    ...or a Linux host:
 ./hypervisor/vmware-linux/scripts/create-vms.sh
+#    ...or Proxmox VE (see hypervisor/proxmox/README.md — automates 3 of the 4 VMs, not 4):
+cd hypervisor/proxmox && terraform apply
 
 # 3. Samba AD, endpoints — see docs/DeploymentGuide.md for the full sequence (OS installs for
 #    the four VMs above are unattended; domain-join for the two clients is manual)

@@ -17,6 +17,10 @@ Hosts the Traefik reverse proxy plus NextCloud, OnlyOffice, and Dovecot Compose 
 [`samba-dc.md`](samba-dc.md#autoinstall) for how the seed-ISO mechanism works and the
 `cp`/`mkpasswd` steps you need before running `create-vms.ps1`.
 
+**On Proxmox**, see [`samba-dc.md`](samba-dc.md#autoinstall) for why this VM's seed mechanism
+differs there — the short version: cloud image + `seeds/docker01/proxmox-user-data.example`
+instead of an ISO install.
+
 ## Post-install
 
 Handled entirely by Ansible — do not install Docker manually. From the control host:

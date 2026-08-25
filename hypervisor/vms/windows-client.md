@@ -30,6 +30,15 @@ without this the VM would fail at the very first Setup screen regardless of the 
 VMware Tools (or open-vm-tools equivalent installer bundled with Workstation) should be
 installed post-OS-install for clipboard/display integration.
 
+**On Proxmox, this VM is built by hand** through the Proxmox web console, not by Terraform.
+Unlike the three Linux VMs, there's no Windows-cloud-image/native-cloud-init equivalent to fall
+back on, and the same single-CD-ROM Terraform-provider limitation that pushed the Linux VMs onto
+cloud images blocks the ISO+`autounattend.xml`-seed-ISO mechanism this VM uses on VMware. See
+[`../proxmox/README.md`](../proxmox/README.md) for the full reasoning. Build it the same way as
+[`pfsense.md`](pfsense.md) and [`linux-client.md`](linux-client.md) describe: new VM in the
+Proxmox web UI, `vmbr-lan` NIC, `Win11.iso` attached, install interactively, then follow this
+page's "Post-install" section once it's up.
+
 ## Post-install
 
 1. Confirm DNS is being served correctly: `Resolve-DnsName lab.internal` should return

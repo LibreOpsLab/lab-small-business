@@ -37,3 +37,14 @@ step 3 above, so there's nothing further to create for any other VM.
 `vnetlib.exe`/`vnetlib64.exe` to create a host-only `VMnet2` network. That approach is gone —
 Broadcom has confirmed `vnetlib` is broken in recent Workstation releases, and LAN Segments
 need no equivalent tool at all.)
+
+## Proxmox equivalent
+
+Proxmox has no LAN Segment concept — the equivalent is a Linux bridge with no physical port and
+no IP configuration, created once from the Proxmox web UI (Datacenter > *node* > System >
+Network > Create: Linux Bridge) and named `vmbr-lan`. Every automatable VM's `network_device`
+block in `../proxmox/vms.tf` attaches to it by default (the `lan_bridge` variable). pfSense's
+WAN leg needs a second bridge, `vmbr-wan` — see [`../proxmox/README.md`](../proxmox/README.md)'s
+prerequisites for the two ways to wire that one up (dedicated physical NIC vs. Proxmox's SDN NAT
+zone), since unlike VMware's `VMnet8`, Proxmox has no built-in NAT-with-DHCP network to fall
+back on.

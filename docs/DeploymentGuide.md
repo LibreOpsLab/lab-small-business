@@ -1,9 +1,11 @@
 # Deployment Guide
 
 Follow this sequence exactly — later stages (Authentik, apps) depend on DNS and PKI from
-earlier stages. Assumes VMware Workstation Pro 17+ on the host (Windows or Linux — see
-[hypervisor/README.md](../hypervisor/README.md) for the Linux path) and Ubuntu Server 24.04
-LTS for all Linux VMs unless stated otherwise.
+earlier stages. Assumes VMware Workstation Pro 17+ on the host (Windows or Linux) and Ubuntu
+Server 24.04 LTS for all Linux VMs, unless you're on Proxmox VE instead — see
+[hypervisor/README.md](../hypervisor/README.md) for the trade-offs, and
+[hypervisor/proxmox/README.md](../hypervisor/proxmox/README.md) for that path's own sequence
+(cloud image, not an ISO install, for three of the four automatable VMs).
 
 ## 0. Host prerequisites
 

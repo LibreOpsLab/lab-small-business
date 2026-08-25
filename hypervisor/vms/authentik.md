@@ -18,6 +18,10 @@ Installs unattended from
 [`seeds/authentik01/user-data.example`](seeds/authentik01/user-data.example) — see
 [`samba-dc.md`](samba-dc.md#autoinstall) for how the seed-ISO mechanism works.
 
+**On Proxmox**, see [`samba-dc.md`](samba-dc.md#autoinstall) for why this VM's seed mechanism
+differs there — the short version: cloud image + `seeds/authentik01/proxmox-user-data.example`
+instead of an ISO install.
+
 ## Post-install
 
 ```bash

@@ -9,13 +9,21 @@ choice of hypervisor, virtual network configuration, and VM inventory/specs.
 | --------------------------------- | -------------------------------------- | ------- | ------------------------------------------ |
 | VMware Workstation Pro (default) | [`vmware-windows/`](vmware-windows/)  | Windows | PowerShell + `vmrun`/`vmware-vdiskmanager` |
 | VMware Workstation Pro           | [`vmware-linux/`](vmware-linux/)      | Linux   | Bash + `vmrun`/`vmware-vdiskmanager`       |
+| Proxmox VE                       | [`proxmox/`](proxmox/)                | (n/a — Proxmox is bare-metal) | Terraform (`bpg/proxmox`)  |
 
-Both VMware paths behave identically once the VMs exist — same LAN Segment networking (see
+The two VMware paths behave identically once the VMs exist — same LAN Segment networking (see
 [`networks/README.md`](networks/README.md)), same seed-data format (see
 [`vms/seeds/`](vms/seeds/)), same VM specs (see [`vms/`](vms/)). Pick whichever matches the
 host OS you're running VMware Workstation Pro on. `vmware-windows/` is the default,
 most-referenced path this repo's other docs (`docs/DeploymentGuide.md`) assume unless stated
 otherwise.
+
+**Proxmox is a different kind of platform, not just a different host OS**: it's a real
+Type-1 hypervisor (bare-metal, no VMware/host-OS layer at all), it automates only three of the
+four VMware-automated VMs (`win-client01` is manual there — see
+[`proxmox/README.md`](proxmox/README.md) for why), and its Linux VMs install from a cloud image
+instead of the Server ISO everyone else uses. See [`proxmox/README.md`](proxmox/README.md)
+before assuming it's a drop-in swap for either VMware path.
 
 ## Contents
 

@@ -23,6 +23,11 @@ exists, it also joins the domain as a lab endpoint like any other client.
 2. Install interactively (Ubuntu Desktop's installer is graphical; unattended desktop installs
    are out of scope for a lab teaching manual desktop use). It gets a DHCP lease from pfSense.
 
+**On Proxmox**, create the VM through the Proxmox web console instead of the VMware GUI in step
+1 above — same specs, single NIC on `vmbr-lan` (created once per
+[`../proxmox/README.md`](../proxmox/README.md), not per VM). Step 2 is identical regardless of
+hypervisor.
+
 ## Set up as the control host
 
 ```bash
