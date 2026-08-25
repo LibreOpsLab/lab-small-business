@@ -6,7 +6,8 @@ This repository defines a self-contained, IaC-driven homelab that simulates a sm
 organisation's IT estate: perimeter firewall, Active Directory, identity federation, a Docker
 application platform, and both Windows and Linux endpoints. It exists to teach realistic
 sysadmin/DevOps workflows — domain administration, PKI, IAM/SSO, reverse proxying,
-containerised applications — end to end, on a single VMware Workstation host.
+containerised applications — end to end, on a single VMware Workstation host (Windows or
+Linux — see [hypervisor/README.md](../hypervisor/README.md)).
 
 ## Domain and subnet naming
 
@@ -120,7 +121,7 @@ flowchart LR
 repo-root/
 ├── docs/           Architecture, deployment, admin, and student documentation
 ├── diagrams/        Mermaid source for all architecture diagrams
-├── hypervisor/      VMware Workstation VM inventory, network config, provisioning notes
+├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation: Windows or Linux)
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation

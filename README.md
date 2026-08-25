@@ -40,7 +40,7 @@ and [docs/MultiBusiness.md](docs/MultiBusiness.md)). Full addressing and compone
 repo-root/
 ├── docs/           Architecture, deployment, admin, and student documentation
 ├── diagrams/        Mermaid source for network/auth/PKI/OIDC/DNS/federation diagrams
-├── hypervisor/      VMware Workstation VM inventory, network config, provisioning notes
+├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation: Windows or Linux)
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
@@ -89,8 +89,11 @@ repo-root/
 #    docs/DeploymentGuide.md steps 1-2). Building pfSense's second NIC is what creates the
 #    LAN-LAB LAN Segment every other VM's NIC uses.
 
-# 2. Remaining VM shells (Windows host, elevated PowerShell)
+# 2. Remaining VM shells
+#    Windows host, elevated PowerShell:
 hypervisor\vmware-windows\scripts\create-vms.ps1
+#    ...or a Linux host:
+./hypervisor/vmware-linux/scripts/create-vms.sh
 
 # 3. Samba AD, endpoints — see docs/DeploymentGuide.md for the full sequence (OS installs for
 #    the four VMs above are unattended; domain-join for the two clients is manual)

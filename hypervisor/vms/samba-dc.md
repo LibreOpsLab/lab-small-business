@@ -14,12 +14,13 @@
 ## Autoinstall
 
 Ubuntu Server's `autoinstall` (Subiquity) installs this host with zero prompts, driven by a
-seed file `create-vms.ps1` attaches automatically as a second CD-ROM — see
-[`hypervisor/vmware-windows/scripts/build-seed-iso.ps1`](../vmware-windows/scripts/build-seed-iso.ps1) for how that seed
-gets built, and [`seeds/samba-dc01/user-data.example`](seeds/samba-dc01/user-data.example) for
-what it contains (heavily commented — worth reading even if you don't need to change it).
+seed file `create-vms.ps1`/`create-vms.sh` attaches automatically as a second CD-ROM — see
+[`build-seed-iso.ps1`](../vmware-windows/scripts/build-seed-iso.ps1) (Windows) or
+[`build-seed-iso.sh`](../vmware-linux/scripts/build-seed-iso.sh) (Linux) for how that seed gets
+built, and [`seeds/samba-dc01/user-data.example`](seeds/samba-dc01/user-data.example) for what
+it contains (heavily commented — worth reading even if you don't need to change it).
 
-Before running `create-vms.ps1`:
+Before running `create-vms.ps1` (Windows) or `create-vms.sh` (Linux):
 
 ```bash
 cp hypervisor/vms/seeds/samba-dc01/user-data.example hypervisor/vms/seeds/samba-dc01/user-data

@@ -26,7 +26,8 @@ you reference it, which happens naturally while building pfSense's second NIC (s
 1. In pfSense's VM Settings, **Add... > Network Adapter**.
 2. Set **Network connection** to **Custom: Specific virtual network**, open the network
    dropdown, and choose **LAN Segments... > Add...** (exact wording varies slightly by
-   Workstation version — look for "LAN Segments" in the network-connection picker).
+   Workstation version and host OS — look for "LAN Segments" in the network-connection picker
+   on both Windows and Linux).
 3. Name it `LAN-LAB`. This creates the segment and assigns this NIC to it in one step.
 
 Every other lab VM's NIC then picks `LAN-LAB` from the same dropdown — it already exists after

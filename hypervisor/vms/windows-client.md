@@ -15,7 +15,7 @@ Windows Setup's equivalent of the cloud-init seeds used for the Ubuntu hosts (se
 [`samba-dc.md`](samba-dc.md#autoinstall) for that mechanism; the answer file itself explains
 the Windows-specific parts inline).
 
-Before running `create-vms.ps1`:
+Before running `create-vms.ps1` (Windows) or `create-vms.sh` (Linux):
 
 ```bash
 cp hypervisor/vms/seeds/win-client01/autounattend.xml.example \

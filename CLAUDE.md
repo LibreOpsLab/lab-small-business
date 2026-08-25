@@ -5,8 +5,9 @@ Guidance for Claude Code (or any agent) working in this repository.
 ## What this is
 
 A self-contained, IaC-driven homelab simulating a small organisation's IT estate on VMware
-Workstation: pfSense, Samba AD, an internal PKI, Authentik SSO, a Docker application platform,
-and Windows/Linux endpoints. It's a **teaching artifact** — code quality and doc clarity are
+Workstation (Windows or Linux host — see [hypervisor/README.md](hypervisor/README.md)):
+pfSense, Samba AD, an internal PKI, Authentik SSO, a Docker application platform, and
+Windows/Linux endpoints. It's a **teaching artifact** — code quality and doc clarity are
 the product, not just a means to an end. Read [docs/Architecture.md](docs/Architecture.md)
 before making structural changes; it explains the design principles and the trade-offs behind
 them, and most of those trade-offs are deliberate, not oversights.

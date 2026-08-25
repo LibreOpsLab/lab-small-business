@@ -1,8 +1,9 @@
 # Deployment Guide
 
 Follow this sequence exactly — later stages (Authentik, apps) depend on DNS and PKI from
-earlier stages. Assumes VMware Workstation Pro 17+ on the host and Ubuntu Server 24.04 LTS for
-all Linux VMs unless stated otherwise.
+earlier stages. Assumes VMware Workstation Pro 17+ on the host (Windows or Linux — see
+[hypervisor/README.md](../hypervisor/README.md) for the Linux path) and Ubuntu Server 24.04
+LTS for all Linux VMs unless stated otherwise.
 
 ## 0. Host prerequisites
 
