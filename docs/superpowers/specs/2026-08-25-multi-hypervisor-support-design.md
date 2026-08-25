@@ -13,8 +13,8 @@ Goal: let readers run the lab on VMware Workstation Pro for **Linux**, or on **P
 those who want "a full LAB" beyond a single Windows desktop host. Windows/VMware/PowerShell stays
 the default, documented path — nothing about it changes except its new location.
 
-This is a **teaching artifact** (`CLAUDE.md`). New scripts and Terraform explain *why*, not just
-*what*; new docs explain the underlying concept (what a Linux bridge is, why Proxmox's Linux VMs
+This is a **teaching artifact** (`CLAUDE.md`). New scripts and Terraform explain _why_, not just
+_what_; new docs explain the underlying concept (what a Linux bridge is, why Proxmox's Linux VMs
 install from a cloud image instead of the Server ISO everywhere else uses, why `win-client01`
 stays a manual build on Proxmox) — not just list commands.
 
@@ -105,10 +105,10 @@ enough regardless of which OS you're running VMware Workstation Pro on. The plac
 Investigating the actual `bpg/terraform-provider-proxmox` VM resource surfaced a real constraint:
 its `cdrom` argument is a **single, non-repeatable block** (one CD-ROM slot per VM). This repo's
 Ubuntu VMs install from the Server ISO via Subiquity's `autoinstall:`-wrapped NoCloud seed — a
-mechanism that (per Ubuntu's own autoinstall documentation) requires the seed on a *second*,
+mechanism that (per Ubuntu's own autoinstall documentation) requires the seed on a _second_,
 separately-attached CD-ROM alongside the installer ISO. Two simultaneous CD-ROMs isn't something
 this Terraform resource can express — and Proxmox's own native cloud-init drive is a distinct
-mechanism, generated for a *different* purpose (configuring an already-installed OS, from a
+mechanism, generated for a _different_ purpose (configuring an already-installed OS, from a
 cloud image, at its first real boot) and isn't consulted by Subiquity's installer-time seed
 search.
 
@@ -120,7 +120,7 @@ ISO installer, no second-CD-ROM problem, because that problem doesn't exist on t
 also the pattern real Proxmox+Terraform deployments actually use, so it's the more idiomatic
 choice for a "teaching artifact," not just a workaround.
 
-**Consequence:** the seed *content* (hostname, static IP, gateway, DNS, the `labadmin` user, an
+**Consequence:** the seed _content_ (hostname, static IP, gateway, DNS, the `labadmin` user, an
 SSH-authorized-keys/password hash) is the same information as the existing `user-data.example`
 files, but expressed in plain cloud-init format rather than Subiquity's `autoinstall:` wrapper —
 a genuinely different schema, not a formatting difference. Each of the three VMs gets a small,
@@ -131,7 +131,7 @@ per Linux VM instead of one — but it's honest about what each hypervisor's too
 do, which matters more here than the aesthetic of one universal file.
 
 **`win-client01` is not automated on Proxmox.** The same single-CD-ROM constraint applies to
-Windows (which needs an installer ISO *and* an `autounattend.xml` seed simultaneously), and
+Windows (which needs an installer ISO _and_ an `autounattend.xml` seed simultaneously), and
 unlike Linux there's no Windows-cloud-image/native-cloud-init equivalent to fall back on — a
 real unattended-Windows-on-Proxmox setup would mean pre-baking a golden image with Packer (which
 can attach multiple ISOs during a build) and cloning it, a meaningfully bigger addition than this
@@ -161,7 +161,7 @@ regression, just this platform's line falling in a different place.
 ## Proxmox (Terraform)
 
 **Why Terraform, not a `qm`-wrapping shell script:** `workstation/README.md`'s existing "Why not
-Terraform?" reasoning is specific to VMware Workstation's *unmaintained* community provider —
+Terraform?" reasoning is specific to VMware Workstation's _unmaintained_ community provider —
 Proxmox has an actively-maintained one (`bpg/terraform-provider-proxmox`). Given this repo is
 "IaC-driven" and treats doc/code clarity as the product, hand-rolling `qm`/`pvesh` calls here
 would be a step backward from what's actually available, and Terraform is the pattern students
