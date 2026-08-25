@@ -19,7 +19,7 @@ all Linux VMs unless stated otherwise.
   Windows host instead.
 - `mkpasswd` (from the `whois` package, installed on `linux-client01` in step 2) to generate
   password hashes for the Ubuntu Server autoinstall seeds used in steps 3 and 5. No extra tool
-  is needed to build the seed ISOs themselves — `workstation/scripts/build-seed-iso.ps1` uses
+  is needed to build the seed ISOs themselves — `hypervisor/vmware-windows/scripts/build-seed-iso.ps1` uses
   IMAPI2, which ships with Windows.
 
 ## 1. pfSense — fully manual
@@ -28,7 +28,7 @@ There's no networking-setup script to run before this step — the lab's LAN Seg
 inline while building this VM, not as a separate stage.
 
 1. In VMware Workstation, create a new VM per
-   [`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md): 2 vCPU, 2 GB RAM, 20 GB disk,
+   [`hypervisor/vms/pfsense.md`](../hypervisor/vms/pfsense.md): 2 vCPU, 2 GB RAM, 20 GB disk,
    pfSense CE ISO attached.
 2. NIC1: leave as VMware's default **NAT** (`VMnet8` — ships with Workstation, needs no setup).
    NIC2: **Add... > Network Adapter > Custom: Specific virtual network > LAN Segments... >
@@ -63,7 +63,7 @@ This VM plays two roles: it's your **control host** for every scripted step from
 (replacing the need for WSL2), and later — once AD exists — it also joins the domain as a lab
 endpoint like any other client.
 
-1. Create a new VM per [`workstation/vms/linux-client.md`](../workstation/vms/linux-client.md):
+1. Create a new VM per [`hypervisor/vms/linux-client.md`](../hypervisor/vms/linux-client.md):
    2 vCPU, 4 GB RAM, 40 GB disk, single NIC on `LAN-LAB`, Ubuntu Desktop 24.04 ISO attached.
 2. Install Ubuntu Desktop interactively — it gets a DHCP lease from pfSense once step 1 above
    is done.
@@ -86,9 +86,9 @@ extra step that path needs.)
 ## 3. Samba AD Domain Controller
 
 1. Fill in `samba-dc01`'s install seed (see
-   [`workstation/vms/samba-dc.md#autoinstall`](../workstation/vms/samba-dc.md#autoinstall) —
+   [`hypervisor/vms/samba-dc.md#autoinstall`](../hypervisor/vms/samba-dc.md#autoinstall) —
    copy the `.example` files, generate a password hash with `mkpasswd`).
-2. `workstation/scripts/create-vms.ps1` creates `samba-dc01`'s VM shell (2 vCPU, 4 GB RAM,
+2. `hypervisor/vmware-windows/scripts/create-vms.ps1` creates `samba-dc01`'s VM shell (2 vCPU, 4 GB RAM,
    40 GB disk, static `10.10.10.10`, gateway `10.10.10.1`) and builds/attaches its seed ISO
    automatically. Boot it — Ubuntu Server installs with no prompts and reboots into a running
    system with SSH up.
@@ -127,8 +127,8 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
 
 1. Fill in `docker01`'s and `authentik01`'s install seeds (same `.example`-copy-and-fill
    pattern as `samba-dc01` — see
-   [`workstation/vms/docker-server.md`](../workstation/vms/docker-server.md) and
-   [`workstation/vms/authentik.md`](../workstation/vms/authentik.md)), then boot them — both
+   [`hypervisor/vms/docker-server.md`](../hypervisor/vms/docker-server.md) and
+   [`hypervisor/vms/authentik.md`](../hypervisor/vms/authentik.md)), then boot them — both
    install unattended the same way `samba-dc01` did in step 3.
 2. From your control host, populate `ansible/inventory/hosts.ini` (already templated with these
    IPs) and run:
@@ -175,8 +175,8 @@ the WordPress one is left manual since SSO-for-a-website is an opt-in decision, 
 ## 7. Endpoints
 
 `linux-client01` already exists (built manually in step 2). `win-client01`'s VM shell and
-unattended Windows 11 install are handled by `workstation/scripts/create-vms.ps1` — see
-[`workstation/vms/windows-client.md`](../workstation/vms/windows-client.md) for the
+unattended Windows 11 install are handled by `hypervisor/vmware-windows/scripts/create-vms.ps1` — see
+[`hypervisor/vms/windows-client.md`](../hypervisor/vms/windows-client.md) for the
 `autounattend.xml` setup needed before running it, then boot it once ready. What's left for
 both clients is joining the domain:
 

@@ -1,13 +1,13 @@
 # pfSense
 
 pfSense is the perimeter firewall, DHCP server, and DNS forwarder for the LAN. It is not
-Ansible-managed (see [workstation/README.md](../workstation/README.md#why-not-terraform) for
+Ansible-managed (see [hypervisor/README.md](../hypervisor/README.md#why-not-terraform) for
 the equivalent rationale — pfSense's config is XML-based and doesn't lend itself to idempotent
 CLI automation the way Linux does).
 
 **The files below are an optional shortcut, not the default first-run path.**
 [`docs/DeploymentGuide.md`](../docs/DeploymentGuide.md#1-pfsense--fully-manual) and
-[`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md) walk through configuring pfSense
+[`hypervisor/vms/pfsense.md`](../hypervisor/vms/pfsense.md) walk through configuring pfSense
 entirely by hand — start there. Come back to `config.xml.template` once you're comfortable with
 the manual flow and want a reviewed, reusable baseline for future rebuilds.
 
@@ -17,7 +17,7 @@ the manual flow and want a reviewed, reusable baseline for future rebuilds.
   configuration (interfaces, DHCP scope, firewall rules, DNS Resolver settings) with
   placeholders for anything environment-specific. Import via \*\*Diagnostics > Backup & Restore
   > Restore config\*\* after a fresh install (see
-  > [`workstation/vms/pfsense.md`](../workstation/vms/pfsense.md)).
+  > [`hypervisor/vms/pfsense.md`](../hypervisor/vms/pfsense.md)).
 - [`scripts/pfsense-post-install.sh`](scripts/pfsense-post-install.sh) — runs over SSH
   (`Diagnostics > Command Prompt` also works) to install the `pfSense-pkg-Cron` and
   `pfSense-pkg-Notes` packages and apply anything not expressible in `config.xml`.

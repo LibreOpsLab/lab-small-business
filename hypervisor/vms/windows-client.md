@@ -18,8 +18,8 @@ the Windows-specific parts inline).
 Before running `create-vms.ps1`:
 
 ```bash
-cp workstation/vms/seeds/win-client01/autounattend.xml.example \
-   workstation/vms/seeds/win-client01/autounattend.xml
+cp hypervisor/vms/seeds/win-client01/autounattend.xml.example \
+   hypervisor/vms/seeds/win-client01/autounattend.xml
 # then edit autounattend.xml and replace REPLACE_ME with a real password
 ```
 

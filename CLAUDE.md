@@ -29,7 +29,7 @@ for spinning up additional "businesses" — see [docs/MultiBusiness.md](docs/Mul
   referenced by `ansible/playbooks/site.yml` or `docker_compose_stacks`.** If you add something
   to this layer, keep it that way — the base single-business lab must always deploy and run
   with `federation/` deleted entirely.
-- `pki/`, `samba/`, `authentik/`, `ansible/`, `scripts/`, `desktop-apps/`, `workstation/`,
+- `pki/`, `samba/`, `authentik/`, `ansible/`, `scripts/`, `desktop-apps/`, `hypervisor/`,
   `pfsense/` — see `docs/Architecture.md`'s repository layout section for what each owns.
 
 ## Conventions to follow

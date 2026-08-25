@@ -3,7 +3,7 @@
     Creates the lab's VM shells (disk + .vmx) via vmrun/vmware-vdiskmanager, ready for OS
     installation, for the four hosts with an unattended install seed
     (samba-dc01, docker01, authentik01, win-client01) — each one's
-    workstation/vms/seeds/<name>/ folder gets built into a seed ISO via build-seed-iso.ps1 and
+    hypervisor/vms/seeds/<name>/ folder gets built into a seed ISO via build-seed-iso.ps1 and
     attached, so it installs with zero prompts once booted. pfsense01 and linux-client01 are
     built entirely by hand in the Workstation GUI (see their respective vms/*.md) and are not
     in this script's table.
@@ -16,11 +16,11 @@
 
 .PARAMETER VmDir
     Directory under which each VM's folder will be created (default: this repo's
-    workstation/vms/<name>/).
+    hypervisor/vms/<name>/).
 
 .PARAMETER LanNetwork
     Name of the VMware LAN Segment every VM's NIC is attached to (default: "LAN-LAB", created
-    the first time it's referenced from pfSense's NIC2 — see workstation/vms/pfsense.md). Every
+    the first time it's referenced from pfSense's NIC2 — see hypervisor/vms/pfsense.md). Every
     VM this script creates has exactly one NIC, on this network; pfSense is the only VM with a
     WAN-facing NIC, and it's built by hand, not by this script.
 
@@ -29,7 +29,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$VmDir = (Resolve-Path (Join-Path $PSScriptRoot "..\vms")).Path,
+    [string]$VmDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..\vms")).Path,
     [string]$IsoDir = "C:\ISOs",
     [string]$VmwarePath = "$Env:ProgramFiles(x86)\VMware\VMware Workstation",
     [string]$LanNetwork = "LAN-LAB"
@@ -76,7 +76,7 @@ foreach ($vm in $VMs) {
     }
 
     # Unattended-install seed media: every VM left in this script's table has a
-    # workstation/vms/seeds/<name>/ folder (Ubuntu Server autoinstall or Windows autounattend) —
+    # hypervisor/vms/seeds/<name>/ folder (Ubuntu Server autoinstall or Windows autounattend) —
     # pfsense01 and linux-client01 are built by hand and never reach this script at all.
     $seedFolder = Join-Path $VmDir "seeds\$($vm.Name)"
     $cdromLines = ""
@@ -122,5 +122,5 @@ guestOS = "$($vm.GuestOS)"
 }
 
 Write-Host ""
-Write-Host "All VM shells created. See workstation/vms/*.md for per-VM install notes." -ForegroundColor Green
+Write-Host "All VM shells created. See hypervisor/vms/*.md for per-VM install notes." -ForegroundColor Green
 Write-Host "pfsense01 and linux-client01 are built by hand in the Workstation GUI - not by this script."

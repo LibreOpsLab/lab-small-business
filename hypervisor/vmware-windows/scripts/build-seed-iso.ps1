@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Builds a small ISO ("seed media") from the per-VM files under workstation/vms/seeds/<name>/,
+    Builds a small ISO ("seed media") from the per-VM files under hypervisor/vms/seeds/<name>/,
     so create-vms.ps1 can attach it as a second CD-ROM and turn an interactive OS install into
     an unattended one.
 
@@ -14,7 +14,7 @@
                                    string is how cloud-init recognises a NoCloud seed at all.
 
     Real secrets (a password hash, a plaintext local-account password) never live in the
-    .example files committed to git - see workstation/vms/seeds/<name>/*.example. This script
+    .example files committed to git - see hypervisor/vms/seeds/<name>/*.example. This script
     reads the filled-in *copies* you make of those files (same names, no .example suffix),
     which are gitignored, and refuses to build a seed ISO if it finds placeholder text still
     sitting in them un-replaced. That check exists because a seed ISO built from an untouched
@@ -22,14 +22,14 @@
     history - not a mistake worth being possible to make by accident.
 
 .PARAMETER Name
-    VM name matching a subfolder of workstation/vms/seeds/ (e.g. "samba-dc01").
+    VM name matching a subfolder of hypervisor/vms/seeds/ (e.g. "samba-dc01").
 
 .PARAMETER SeedsDir
-    Directory containing per-VM seed subfolders (default: workstation/vms/seeds, next to this
+    Directory containing per-VM seed subfolders (default: hypervisor/vms/seeds, next to this
     script).
 
 .PARAMETER OutFile
-    Where to write the built ISO. Defaults to workstation/vms/<Name>/<Name>-seed.iso - the same
+    Where to write the built ISO. Defaults to hypervisor/vms/<Name>/<Name>-seed.iso - the same
     folder create-vms.ps1 creates for the VM's .vmx/.vmdk, since that's where create-vms.ps1
     expects to find it.
 
@@ -39,7 +39,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string]$Name,
-    [string]$SeedsDir = (Resolve-Path (Join-Path $PSScriptRoot "..\vms\seeds")).Path,
+    [string]$SeedsDir = (Resolve-Path (Join-Path $PSScriptRoot "..\..\vms\seeds")).Path,
     [string]$OutFile
 )
 
@@ -52,7 +52,7 @@ if (-not (Test-Path $seedDir)) {
 }
 
 if (-not $OutFile) {
-    $vmDir = Join-Path (Resolve-Path (Join-Path $PSScriptRoot "..\vms")).Path $Name
+    $vmDir = Join-Path (Resolve-Path (Join-Path $PSScriptRoot "..\..\vms")).Path $Name
     # create-vms.ps1 normally creates this folder before calling this script; create it here
     # too so this script also works standalone, e.g. re-building a seed after editing user-data
     # without recreating the whole VM.

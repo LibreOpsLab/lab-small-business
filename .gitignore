@@ -34,18 +34,18 @@ pki/issued/
 **/data/mail/
 
 # --- VMware Workstation artifacts ---
-workstation/vms/**/*.vmdk
-workstation/vms/**/*.nvram
-workstation/vms/**/*.vmsd
-workstation/vms/**/*.vmx.lck/
-workstation/vms/**/*.log
+hypervisor/vms/**/*.vmdk
+hypervisor/vms/**/*.nvram
+hypervisor/vms/**/*.vmsd
+hypervisor/vms/**/*.vmx.lck/
+hypervisor/vms/**/*.log
 
 # --- Unattended-install seed data (real secrets students fill in — .example files are
 # --- safe to commit, the filled copies are not) ---
-workstation/vms/seeds/**/user-data
-workstation/vms/seeds/**/meta-data
-workstation/vms/seeds/**/autounattend.xml
-workstation/vms/**/*-seed.iso
+hypervisor/vms/seeds/**/user-data
+hypervisor/vms/seeds/**/meta-data
+hypervisor/vms/seeds/**/autounattend.xml
+hypervisor/vms/**/*-seed.iso
 
 # --- OS / editor cruft ---
 .DS_Store

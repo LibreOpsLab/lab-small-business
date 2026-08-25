@@ -21,7 +21,7 @@
 
 There's no setup script for this — a LAN Segment doesn't need one. It's created the first time
 you reference it, which happens naturally while building pfSense's second NIC (see
-[`workstation/vms/pfsense.md`](../vms/pfsense.md)):
+[`hypervisor/vms/pfsense.md`](../vms/pfsense.md)):
 
 1. In pfSense's VM Settings, **Add... > Network Adapter**.
 2. Set **Network connection** to **Custom: Specific virtual network**, open the network

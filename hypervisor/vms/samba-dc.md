@@ -15,15 +15,15 @@
 
 Ubuntu Server's `autoinstall` (Subiquity) installs this host with zero prompts, driven by a
 seed file `create-vms.ps1` attaches automatically as a second CD-ROM — see
-[`workstation/scripts/build-seed-iso.ps1`](../scripts/build-seed-iso.ps1) for how that seed
+[`hypervisor/vmware-windows/scripts/build-seed-iso.ps1`](../vmware-windows/scripts/build-seed-iso.ps1) for how that seed
 gets built, and [`seeds/samba-dc01/user-data.example`](seeds/samba-dc01/user-data.example) for
 what it contains (heavily commented — worth reading even if you don't need to change it).
 
 Before running `create-vms.ps1`:
 
 ```bash
-cp workstation/vms/seeds/samba-dc01/user-data.example workstation/vms/seeds/samba-dc01/user-data
-cp workstation/vms/seeds/samba-dc01/meta-data.example workstation/vms/seeds/samba-dc01/meta-data
+cp hypervisor/vms/seeds/samba-dc01/user-data.example hypervisor/vms/seeds/samba-dc01/user-data
+cp hypervisor/vms/seeds/samba-dc01/meta-data.example hypervisor/vms/seeds/samba-dc01/meta-data
 mkpasswd --method=sha-512   # paste the output into user-data's password field
 ```
 

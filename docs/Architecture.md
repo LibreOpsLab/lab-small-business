@@ -120,7 +120,7 @@ flowchart LR
 repo-root/
 ├── docs/           Architecture, deployment, admin, and student documentation
 ├── diagrams/        Mermaid source for all architecture diagrams
-├── workstation/     VMware Workstation VM inventory, network config, provisioning notes
+├── hypervisor/      VMware Workstation VM inventory, network config, provisioning notes
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
