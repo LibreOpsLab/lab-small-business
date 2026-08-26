@@ -14,13 +14,21 @@
 Kept on its own VM (rather than co-located on `docker01`) so the identity plane's failure
 domain is isolated from the application plane — see
 [docs/Architecture.md#trade-offs-and-scope](../../docs/Architecture.md#trade-offs-and-scope).
-Installs unattended from
-[`seeds/authentik01/user-data.example`](seeds/authentik01/user-data.example) — see
-[`samba-dc.md`](samba-dc.md#autoinstall) for how the seed-ISO mechanism works.
 
-**On Proxmox**, see [`samba-dc.md`](samba-dc.md#autoinstall) for why this VM's seed mechanism
-differs there — the short version: cloud image + `seeds/authentik01/proxmox-user-data.example`
-instead of an ISO install.
+## Build + install
+
+1. In VMware Workstation/Fusion, create a new VM per the spec table above: 2 vCPU, 4096 MB RAM,
+   40 GB disk (thin provisioned), Ubuntu Server 24.04 LTS ISO attached, single NIC on `LAN-LAB`.
+2. Install interactively. In Subiquity's network step, set a static address `10.10.10.30/24`,
+   gateway `10.10.10.1`, nameserver `10.10.10.10`. Create the `labadmin` user (matches
+   `ansible_user` in `ansible/inventory/hosts.ini`). On the SSH step, install OpenSSH server and
+   paste your public key.
+3. Apply [`hypervisor/desktop/baseline.md`](../desktop/baseline.md) before continuing.
+
+**On Proxmox**, this VM boots a cloud image instead and is configured by
+[`seeds/authentik01/proxmox-user-data.example`](seeds/authentik01/proxmox-user-data.example).
+See [`../proxmox/README.md`](../proxmox/README.md) for why the mechanism differs and what to
+fill in before `terraform apply`.
 
 ## Post-install
 

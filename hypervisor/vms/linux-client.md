@@ -22,6 +22,7 @@ exists, it also joins the domain as a lab endpoint like any other client.
    dropdown, don't create it again).
 2. Install interactively (Ubuntu Desktop's installer is graphical; unattended desktop installs
    are out of scope for a lab teaching manual desktop use). It gets a DHCP lease from pfSense.
+3. Apply [`hypervisor/desktop/baseline.md`](../desktop/baseline.md) before continuing.
 
 **On Proxmox**, create the VM through the Proxmox web console instead of the VMware GUI in step
 1 above — same specs, single NIC on `vmbr-lan` (created once per

@@ -11,30 +11,25 @@
 | Gateway              | `10.10.10.1`                                                      |
 | DNS (during install) | `127.0.0.1` (will become authoritative for itself post-provision) |
 
-## Autoinstall
+## Build + install
 
-Ubuntu Server's `autoinstall` (Subiquity) installs this host with zero prompts, driven by a
-seed file `create-vms.ps1`/`create-vms.sh` attaches automatically as a second CD-ROM — see
-[`build-seed-iso.ps1`](../vmware-windows/scripts/build-seed-iso.ps1) (Windows) or
-[`build-seed-iso.sh`](../vmware-linux/scripts/build-seed-iso.sh) (Linux) for how that seed gets
-built, and [`seeds/samba-dc01/user-data.example`](seeds/samba-dc01/user-data.example) for what
-it contains (heavily commented — worth reading even if you don't need to change it).
+1. In VMware Workstation/Fusion, create a new VM per the spec table above: 2 vCPU, 4096 MB RAM,
+   40 GB disk (thin provisioned), Ubuntu Server 24.04 LTS ISO attached, single NIC on the
+   `LAN-LAB` LAN Segment (already exists once pfSense's second NIC is set up — pick it from the
+   dropdown, don't create it again).
+2. Install interactively. In Subiquity's network step, set a **static** address:
+   `10.10.10.10/24`, gateway `10.10.10.1`, nameserver `127.0.0.1` (this host becomes
+   authoritative for itself once Samba AD is provisioned; nothing else exists yet to ask for
+   `lab.internal` records). Create the `labadmin` user — it matches `ansible_user` in
+   `ansible/inventory/hosts.ini`, so don't rename it without updating the inventory too. On the
+   SSH step, install OpenSSH server and paste your public key rather than relying on password
+   auth alone.
+3. Apply [`hypervisor/desktop/baseline.md`](../desktop/baseline.md) before continuing.
 
-Before running `create-vms.ps1` (Windows) or `create-vms.sh` (Linux):
-
-```bash
-cp hypervisor/vms/seeds/samba-dc01/user-data.example hypervisor/vms/seeds/samba-dc01/user-data
-cp hypervisor/vms/seeds/samba-dc01/meta-data.example hypervisor/vms/seeds/samba-dc01/meta-data
-mkpasswd --method=sha-512   # paste the output into user-data's password field
-```
-
-The real `user-data`/`meta-data` (no `.example` suffix) are gitignored — they'll contain your
-actual password hash, which is not something to commit.
-
-**On Proxmox**, this VM doesn't use `user-data`/`meta-data` at all — it boots a cloud image and
-is configured by [`seeds/samba-dc01/proxmox-user-data.example`](seeds/samba-dc01/proxmox-user-data.example)
-instead. See [`../proxmox/README.md`](../proxmox/README.md) for why the mechanism differs and
-what to fill in before `terraform apply`.
+**On Proxmox**, this VM boots a cloud image instead and is configured by
+[`seeds/samba-dc01/proxmox-user-data.example`](seeds/samba-dc01/proxmox-user-data.example). See
+[`../proxmox/README.md`](../proxmox/README.md) for why the mechanism differs and what to fill in
+before `terraform apply`.
 
 ## Post-install
 

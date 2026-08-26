@@ -12,14 +12,22 @@
 | DNS     | `10.10.10.10`                            |
 
 Hosts the Traefik reverse proxy plus NextCloud, OnlyOffice, and Dovecot Compose stacks (see
-[`docker/`](../../docker/)). Installs unattended from
-[`seeds/docker01/user-data.example`](seeds/docker01/user-data.example) — see
-[`samba-dc.md`](samba-dc.md#autoinstall) for how the seed-ISO mechanism works and the
-`cp`/`mkpasswd` steps you need before running `create-vms.ps1`.
+[`docker/`](../../docker/)).
 
-**On Proxmox**, see [`samba-dc.md`](samba-dc.md#autoinstall) for why this VM's seed mechanism
-differs there — the short version: cloud image + `seeds/docker01/proxmox-user-data.example`
-instead of an ISO install.
+## Build + install
+
+1. In VMware Workstation/Fusion, create a new VM per the spec table above: 4 vCPU, 8192 MB RAM,
+   80 GB disk (thin provisioned), Ubuntu Server 24.04 LTS ISO attached, single NIC on `LAN-LAB`.
+2. Install interactively. In Subiquity's network step, set a static address `10.10.10.20/24`,
+   gateway `10.10.10.1`, nameserver `10.10.10.10`. Create the `labadmin` user (matches
+   `ansible_user` in `ansible/inventory/hosts.ini`). On the SSH step, install OpenSSH server and
+   paste your public key.
+3. Apply [`hypervisor/desktop/baseline.md`](../desktop/baseline.md) before continuing.
+
+**On Proxmox**, this VM boots a cloud image instead and is configured by
+[`seeds/docker01/proxmox-user-data.example`](seeds/docker01/proxmox-user-data.example). See
+[`../proxmox/README.md`](../proxmox/README.md) for why the mechanism differs and what to fill in
+before `terraform apply`.
 
 ## Post-install
 
