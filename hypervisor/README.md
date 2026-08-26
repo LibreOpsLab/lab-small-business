@@ -24,7 +24,7 @@ The lab's default subnet (`10.10.10.0/24`) is a suggested starter, not a require
 - [`desktop/baseline.md`](desktop/baseline.md) — the shared post-install checklist (patch, VM
   tools, locale, SSH keys) applied to every VM except `pfsense01`.
 - [`vms/`](vms/) — one spec sheet per VM (CPU/RAM/disk/NIC, OS, static IP where applicable, and
-  build/install steps), shared by every platform above.
+  build/install steps).
 
 ## Why hand-built, not scripted?
 
