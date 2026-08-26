@@ -40,7 +40,7 @@ and [docs/MultiBusiness.md](docs/MultiBusiness.md)). Full addressing and compone
 repo-root/
 ├── docs/           Architecture, deployment, admin, and student documentation
 ├── diagrams/        Mermaid source for network/auth/PKI/OIDC/DNS/federation diagrams
-├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation or Proxmox VE)
+├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation/Fusion Pro)
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
@@ -92,8 +92,6 @@ repo-root/
 # 2. Remaining VMs — same hypervisor GUI, hand-built, one per hypervisor/vms/*.md:
 #    samba-dc01, docker01, authentik01, win-client01. Apply hypervisor/desktop/baseline.md
 #    (patch, VM tools, locale, SSH keys) to each after its OS install.
-#    ...or Proxmox VE instead (see hypervisor/proxmox/README.md — automates 3 of the 4 VMs):
-cd hypervisor/proxmox && terraform apply
 
 # 3. Samba AD, endpoints — see docs/DeploymentGuide.md for the full sequence (every OS install
 #    above is interactive; domain-join for the two clients is manual)

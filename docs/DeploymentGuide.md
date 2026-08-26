@@ -2,12 +2,8 @@
 
 Follow this sequence exactly — later stages (Authentik, apps) depend on DNS and PKI from
 earlier stages. Assumes VMware Workstation Pro (Windows/Linux) or Fusion Pro (macOS) and Ubuntu
-Server 24.04 LTS for all Linux VMs, unless you're on Proxmox VE instead — see
-[hypervisor/README.md](../hypervisor/README.md) for the trade-offs, and
-[hypervisor/proxmox/README.md](../hypervisor/proxmox/README.md) for that path's own sequence
-(cloud image, not an ISO install, for three of the four VMs Proxmox automates). Every VM on the
-desktop-hypervisor path is hand-built through the hypervisor's own GUI — see
-[hypervisor/desktop/README.md](../hypervisor/desktop/README.md).
+Server 24.04 LTS for all Linux VMs. Every VM is hand-built through the hypervisor's own GUI —
+see [hypervisor/desktop/README.md](../hypervisor/desktop/README.md).
 
 ## 0. Host prerequisites
 

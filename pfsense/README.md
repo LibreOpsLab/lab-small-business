@@ -1,17 +1,15 @@
 # pfSense
 
 pfSense is the perimeter firewall, DHCP server, and DNS forwarder for the LAN. It is not
-Ansible-managed (see [hypervisor/README.md](../hypervisor/README.md#why-not-terraform) for
-the equivalent rationale — pfSense's config is XML-based and doesn't lend itself to idempotent
-CLI automation the way Linux does).
+Ansible-managed (see [hypervisor/README.md](../hypervisor/README.md#why-hand-built-not-scripted)
+for the equivalent rationale — pfSense's config is XML-based and doesn't lend itself to
+idempotent CLI automation the way Linux does).
 
 **The files below are an optional shortcut, not the default first-run path.**
 [`docs/DeploymentGuide.md`](../docs/DeploymentGuide.md#1-pfsense--fully-manual) and
 [`hypervisor/vms/pfsense.md`](../hypervisor/vms/pfsense.md) walk through configuring pfSense
-entirely by hand — start there (that page covers both the VMware and Proxmox build steps; only
-the DHCP/DNS/firewall configuration below is hypervisor-agnostic). Come back to
-`config.xml.template` once you're comfortable with the manual flow and want a reviewed, reusable
-baseline for future rebuilds.
+entirely by hand — start there. Come back to `config.xml.template` once you're comfortable with
+the manual flow and want a reviewed, reusable baseline for future rebuilds.
 
 ## Files
 
