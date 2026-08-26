@@ -22,7 +22,9 @@ mDNS collision risk. Every hostname, DN, and cert SAN in this repository derives
 `lab_domain`/`lab_realm` (Ansible) or the equivalent shell variables (scripts), so the whole
 tree can be re-based onto a different domain/realm/NetBIOS/subnet with
 [`scripts/provision-business.sh`](../scripts/provision-business.sh) — see
-[docs/MultiBusiness.md](MultiBusiness.md) for why you'd want more than one.
+[docs/MultiBusiness.md](MultiBusiness.md) for why you'd want more than one. If you only need a
+different subnet, [`scripts/set-subnet.sh`](../scripts/set-subnet.sh) does just that without
+the domain/NetBIOS rename.
 
 ## Component inventory
 

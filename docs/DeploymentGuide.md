@@ -9,6 +9,10 @@ Server 24.04 LTS for all Linux VMs, unless you're on Proxmox VE instead — see
 
 ## 0. Host prerequisites
 
+- This lab defaults to the `10.10.10.0/24` subnet. If that collides with your home/office
+  network, or you just want a different range, run `scripts/set-subnet.sh <new-cidr>` now
+  (before building any VMs) and do the rest of this guide from the resulting copy — see the
+  script's header comment for usage.
 - VMware Workstation Pro installed, virtualization enabled in host BIOS.
 - Ubuntu Server 24.04 LTS ISO, Windows 11 ISO, pfSense CE ISO, Ubuntu Desktop 24.04 ISO
   downloaded to the host.

@@ -5,11 +5,11 @@ choice of hypervisor, virtual network configuration, and VM inventory/specs.
 
 ## Choosing a platform
 
-| Platform                         | Directory                             | Host OS | Automation                                |
-| --------------------------------- | -------------------------------------- | ------- | ------------------------------------------ |
-| VMware Workstation Pro (default) | [`vmware-windows/`](vmware-windows/)  | Windows | PowerShell + `vmrun`/`vmware-vdiskmanager` |
-| VMware Workstation Pro           | [`vmware-linux/`](vmware-linux/)      | Linux   | Bash + `vmrun`/`vmware-vdiskmanager`       |
-| Proxmox VE                       | [`proxmox/`](proxmox/)                | (n/a — Proxmox is bare-metal) | Terraform (`bpg/proxmox`)  |
+| Platform                         | Directory                            | Host OS                       | Automation                                 |
+| -------------------------------- | ------------------------------------ | ----------------------------- | ------------------------------------------ |
+| VMware Workstation Pro (default) | [`vmware-windows/`](vmware-windows/) | Windows                       | PowerShell + `vmrun`/`vmware-vdiskmanager` |
+| VMware Workstation Pro           | [`vmware-linux/`](vmware-linux/)     | Linux                         | Bash + `vmrun`/`vmware-vdiskmanager`       |
+| Proxmox VE                       | [`proxmox/`](proxmox/)               | (n/a — Proxmox is bare-metal) | Terraform (`bpg/proxmox`)                  |
 
 The two VMware paths behave identically once the VMs exist — same LAN Segment networking (see
 [`networks/README.md`](networks/README.md)), same seed-data format (see
@@ -24,6 +24,10 @@ four VMware-automated VMs (`win-client01` is manual there — see
 [`proxmox/README.md`](proxmox/README.md) for why), and its Linux VMs install from a cloud image
 instead of the Server ISO everyone else uses. See [`proxmox/README.md`](proxmox/README.md)
 before assuming it's a drop-in swap for either VMware path.
+
+Whichever platform you pick, the lab's default subnet (`10.10.10.0/24`) is a suggested
+starter, not a requirement — see `scripts/set-subnet.sh` in the repo root if you need a
+different one before building VMs.
 
 ## Contents
 
