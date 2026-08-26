@@ -40,14 +40,6 @@ hypervisor/vms/**/*.vmsd
 hypervisor/vms/**/*.vmx.lck/
 hypervisor/vms/**/*.log
 
-# --- Unattended-install seed data (real secrets students fill in — .example files are
-# --- safe to commit, the filled copies are not) ---
-hypervisor/vms/seeds/**/user-data
-hypervisor/vms/seeds/**/meta-data
-hypervisor/vms/seeds/**/autounattend.xml
-hypervisor/vms/seeds/**/proxmox-user-data
-hypervisor/vms/**/*-seed.iso
-
 # --- OS / editor cruft ---
 .DS_Store
 Thumbs.db
