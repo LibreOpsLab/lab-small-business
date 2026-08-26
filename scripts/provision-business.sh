@@ -9,6 +9,9 @@
 # Docker stacks. Nothing here talks to another business until you explicitly bridge them via
 # the federation/ tooling.
 #
+# If you only need a different subnet — no domain/NetBIOS rename — use the lighter-weight
+# scripts/set-subnet.sh instead.
+#
 # Usage:
 #   ./scripts/provision-business.sh --name businessb --domain businessb.internal \
 #       --netbios BIZB --subnet 10.20.0.0/24 [--output ../businessb-lab] [--force]
@@ -27,11 +30,7 @@
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-
-log()  { printf '\033[1;34m[provision-business]\033[0m %s\n' "$*"; }
-warn() { printf '\033[1;33m[provision-business][warn]\033[0m %s\n' "$*" >&2; }
-die()  { printf '\033[1;31m[provision-business][error]\033[0m %s\n' "$*" >&2; exit 1; }
+source "${SCRIPT_DIR}/lib/business-rebase.sh"
 
 NAME=""
 DOMAIN=""
@@ -71,17 +70,9 @@ REALM="$(tr '[:lower:]' '[:upper:]' <<< "${DOMAIN}")"
 [[ "${NETBIOS}" =~ ^[A-Z0-9-]{1,15}$ ]] || die "--netbios must be 1-15 uppercase letters/digits/hyphens, got '${NETBIOS}'"
 
 # --- Validate subnet: RFC1918 /24 ---
-[[ "${SUBNET}" =~ ^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.0/24$ ]] || die "--subnet must be a /24 CIDR ending in .0/24, e.g. 10.20.0.0/24, got '${SUBNET}'"
-SUBNET_PREFIX="${SUBNET%.0/24}"  # e.g. "10.20.0"
-IFS='.' read -r O1 O2 O3 <<< "${SUBNET_PREFIX}"
-case "${O1}" in
-  10) : ;;
-  172) [[ "${O2}" -ge 16 && "${O2}" -le 31 ]] || die "--subnet 172.x.x.0/24 must have x in 16-31 (RFC1918)" ;;
-  192) [[ "${O2}" -eq 168 ]] || die "--subnet 192.x.x.0/24 must be 192.168.x.0/24 (RFC1918)" ;;
-  *) die "--subnet must be within RFC1918 private space (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)" ;;
-esac
-if [[ "${SUBNET_PREFIX}." == "10.10.10." ]]; then
-  warn "--subnet matches the base lab's default (10.10.10.0/24). Fine for a standalone rename, but if this business will be IPSec-bridged to another running instance of the base lab, they'll collide — pick a distinct /24."
+SUBNET_PREFIX="$(validate_subnet "${SUBNET}")"
+if [[ "${SUBNET_PREFIX}" == "${REPO_DEFAULT_SUBNET_PREFIX}" ]]; then
+  warn "--subnet matches the base lab's default (${REPO_DEFAULT_SUBNET_PREFIX}.0/24). Fine for a standalone rename, but if this business will be IPSec-bridged to another running instance of the base lab, they'll collide — pick a distinct /24."
 fi
 
 OUTPUT="${OUTPUT:-${REPO_ROOT}/../${NAME}-lab}"
@@ -91,36 +82,21 @@ fi
 
 log "Provisioning '${NAME}': domain=${DOMAIN} realm=${REALM} netbios=${NETBIOS} subnet=${SUBNET} -> ${OUTPUT}"
 
-mkdir -p "${OUTPUT}"
-log "Copying repository (excluding .git, generated secrets, and any existing PKI/env material)"
-if command -v rsync >/dev/null 2>&1; then
-  rsync -a \
-    --exclude=.git \
-    --exclude='pki/root-ca' --exclude='pki/intermediate-ca' --exclude='pki/issued' \
-    --exclude='*.env' --exclude='**/.generated-secrets' \
-    --exclude='ansible/inventory/host_vars/*/vault.yml' \
-    "${REPO_ROOT}/" "${OUTPUT}/"
-else
-  warn "rsync not found — falling back to cp -a (Git for Windows' Git Bash doesn't bundle rsync by default; install it via MSYS2 or run this from WSL2/Linux for the cleaner path)"
-  cp -a "${REPO_ROOT}/." "${OUTPUT}/"
-  rm -rf "${OUTPUT}/.git" \
-    "${OUTPUT}/pki/root-ca" "${OUTPUT}/pki/intermediate-ca" "${OUTPUT}/pki/issued"
-  find "${OUTPUT}" -name '*.env' -delete
-  find "${OUTPUT}" -type d -name '.generated-secrets' -exec rm -rf {} +
-  find "${OUTPUT}/ansible/inventory/host_vars" -mindepth 2 -name 'vault.yml' -delete 2>/dev/null || true
-fi
+copy_repo "${REPO_ROOT}" "${OUTPUT}"
 
 log "Rewriting domain/realm references (lab.internal -> ${DOMAIN}, LAB.INTERNAL -> ${REALM})"
-FILES="$(grep -rlI "lab\.internal\|LAB\.INTERNAL\|DC=lab,DC=internal\|\bLAB\b\|10\.10\.0\." "${OUTPUT}" 2>/dev/null || true)"
+FILES="$(grep -rlI "lab\.internal\|LAB\.INTERNAL\|DC=lab,DC=internal\|\bLAB\b" "${OUTPUT}" 2>/dev/null || true)"
 for f in ${FILES}; do
   sed -i \
     -e "s/lab\.internal/${DOMAIN}/g" \
     -e "s/LAB\.INTERNAL/${REALM}/g" \
     -e "s/DC=lab,DC=internal/DC=${DOMAIN_LABEL1},DC=${DOMAIN_LABEL2}/g" \
     -e "s/\bLAB\b/${NETBIOS}/g" \
-    -e "s/10\.10\.0\./${SUBNET_PREFIX}./g" \
     "${f}"
 done
+
+log "Rewriting subnet references (${REPO_DEFAULT_SUBNET_PREFIX}.0/24 -> ${SUBNET})"
+rewrite_subnet "${OUTPUT}" "${REPO_DEFAULT_SUBNET_PREFIX}" "${SUBNET_PREFIX}"
 
 log "Writing provenance banner into ${OUTPUT}/README.md"
 {
