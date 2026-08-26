@@ -24,11 +24,6 @@ Hosts the Traefik reverse proxy plus NextCloud, OnlyOffice, and Dovecot Compose 
    paste your public key.
 3. Apply [`hypervisor/desktop/baseline.md`](../desktop/baseline.md) before continuing.
 
-**On Proxmox**, this VM boots a cloud image instead and is configured by
-[`seeds/docker01/proxmox-user-data.example`](seeds/docker01/proxmox-user-data.example). See
-[`../proxmox/README.md`](../proxmox/README.md) for why the mechanism differs and what to fill in
-before `terraform apply`.
-
 ## Post-install
 
 Handled entirely by Ansible — do not install Docker manually. From the control host:

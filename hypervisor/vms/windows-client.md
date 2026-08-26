@@ -21,10 +21,6 @@
    scope for this lab). It gets a DHCP lease from pfSense.
 3. Apply [`hypervisor/desktop/baseline.md`](../desktop/baseline.md) before continuing.
 
-**On Proxmox**, build through the Proxmox web console instead of the VMware GUI — same specs,
-`vmbr-lan` NIC, `Win11.iso` attached. See [`../proxmox/README.md`](../proxmox/README.md). Install
-and baseline steps above are identical regardless of hypervisor.
-
 ## Post-install
 
 1. Confirm DNS is being served correctly: `Resolve-DnsName lab.internal` should return
