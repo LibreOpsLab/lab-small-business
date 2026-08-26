@@ -3,32 +3,16 @@
 This directory documents the parts of the lab that live outside any guest OS: choice of
 hypervisor, virtual network configuration, and VM inventory/specs.
 
-## Choosing a platform
+## The platform
 
-| Platform                                | Directory              | Host OS                       | Automation                                |
-| --------------------------------------- | ---------------------- | ----------------------------- | ----------------------------------------- |
-| VMware Workstation/Fusion Pro (default) | [`desktop/`](desktop/) | Windows, Linux, macOS         | Manual — hypervisor GUI + guided baseline |
-| Proxmox VE                              | [`proxmox/`](proxmox/) | (n/a — Proxmox is bare-metal) | Terraform (`bpg/proxmox`)                 |
+VMware Workstation Pro (Windows/Linux) or Fusion Pro (macOS) — see [`desktop/`](desktop/).
+Every VM is hand-built through the hypervisor's own GUI: New VM wizard, interactive OS install,
+then a shared post-install baseline (patch, VM tools, locale, SSH keys). This is deliberate:
+building each VM by hand is where the actual learning happens in a teaching lab like this one —
+see ["Why hand-built, not scripted?"](#why-hand-built-not-scripted) below.
 
-Every VM on the `desktop/` path is hand-built through the hypervisor's own GUI — New VM wizard,
-interactive OS install, then a shared post-install baseline (patch, VM tools, locale, SSH keys).
-This is deliberate: building each VM by hand is where the actual learning happens in a teaching
-lab like this one — see ["Why hand-built, not scripted?"](#why-hand-built-not-scripted) below.
-`desktop/` is the default, most-referenced path this repo's other docs
-(`docs/DeploymentGuide.md`) assume unless stated otherwise.
-
-**Proxmox is a different kind of platform, not just a different host OS**: it's a real
-Type-1 hypervisor (bare-metal, no VMware/host-OS layer at all), and it takes the opposite
-approach — automated via Terraform, for anyone who wants a fast, repeatable "environment in a
-box" rather than a guided build. It automates only three of the four VMs the desktop path hand-
-builds (`win-client01` is manual there too — see [`proxmox/README.md`](proxmox/README.md) for
-why), and its Linux VMs install from a cloud image instead of the Server ISO the desktop path
-uses. See [`proxmox/README.md`](proxmox/README.md) before assuming it's a drop-in swap for the
-desktop path.
-
-Whichever platform you pick, the lab's default subnet (`10.10.10.0/24`) is a suggested
-starter, not a requirement — see `scripts/set-subnet.sh` in the repo root if you need a
-different one before building VMs.
+The lab's default subnet (`10.10.10.0/24`) is a suggested starter, not a requirement — see
+`scripts/set-subnet.sh` in the repo root if you need a different one before building VMs.
 
 ## Contents
 
@@ -48,5 +32,6 @@ Earlier versions of this repo drove VM creation on the desktop path with a `vmru
 helper (PowerShell on Windows, Bash on Linux). That automation is gone by design: in a teaching
 lab, watching a script create a VM teaches nothing, while clicking through the New VM wizard
 yourself — and understanding why each setting is what it is — is the point. If you want the
-"spin up a whole environment in a box" automated experience instead, that's what the Proxmox
-path is for.
+"spin up a whole environment in a box" automated experience instead, that's a separate project,
+`lab-scale-business` — a Terraform-driven take on this same environment, deliberately kept out
+of this repo so the two don't get tangled together.
