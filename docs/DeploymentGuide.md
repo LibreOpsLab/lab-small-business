@@ -1,11 +1,13 @@
 # Deployment Guide
 
 Follow this sequence exactly — later stages (Authentik, apps) depend on DNS and PKI from
-earlier stages. Assumes VMware Workstation Pro 17+ on the host (Windows or Linux) and Ubuntu
+earlier stages. Assumes VMware Workstation Pro (Windows/Linux) or Fusion Pro (macOS) and Ubuntu
 Server 24.04 LTS for all Linux VMs, unless you're on Proxmox VE instead — see
 [hypervisor/README.md](../hypervisor/README.md) for the trade-offs, and
 [hypervisor/proxmox/README.md](../hypervisor/proxmox/README.md) for that path's own sequence
-(cloud image, not an ISO install, for three of the four automatable VMs).
+(cloud image, not an ISO install, for three of the four VMs Proxmox automates). Every VM on the
+desktop-hypervisor path is hand-built through the hypervisor's own GUI — see
+[hypervisor/desktop/README.md](../hypervisor/desktop/README.md).
 
 ## 0. Host prerequisites
 
@@ -13,28 +15,23 @@ Server 24.04 LTS for all Linux VMs, unless you're on Proxmox VE instead — see
   network, or you just want a different range, run `scripts/set-subnet.sh <new-cidr>` now
   (before building any VMs) and do the rest of this guide from the resulting copy — see the
   script's header comment for usage.
-- VMware Workstation Pro installed, virtualization enabled in host BIOS.
+- VMware Workstation Pro (Windows/Linux) or Fusion Pro (macOS) installed, virtualization enabled
+  in host BIOS/firmware.
 - Ubuntu Server 24.04 LTS ISO, Windows 11 ISO, pfSense CE ISO, Ubuntu Desktop 24.04 ISO
   downloaded to the host.
-- This repo ends up cloned in **two** places: once on the Windows host (to run the
-  PowerShell/`vmrun` scripts from step 3 onward), and once on `linux-client01` (built in step
-  2 below), which is the **control host** for everything from step 3 onward — Ansible, the PKI
-  scripts, and `samba-tool` all need a real POSIX environment, and Ansible does not support
-  Windows as a control node at all. Because `linux-client01` lives on the lab's own LAN
-  Segment, it needs no extra networking setup to reach the other lab VMs. See
-  [docs/WSLSetup.md](WSLSetup.md) only if you'd rather drive the build from WSL2 on the
-  Windows host instead.
-- `mkpasswd` (from the `whois` package, installed on `linux-client01` in step 2) to generate
-  password hashes for the Ubuntu Server autoinstall seeds used in steps 3 and 5. No extra tool
-  is needed to build the seed ISOs themselves — `hypervisor/vmware-windows/scripts/build-seed-iso.ps1` uses
-  IMAPI2, which ships with Windows.
+- `linux-client01` (built in step 2 below) is the **control host** for everything from step 3
+  onward — Ansible, the PKI scripts, and `samba-tool` all need a real POSIX environment, and
+  Ansible does not support Windows as a control node at all. Because `linux-client01` lives on
+  the lab's own LAN Segment, it needs no extra networking setup to reach the other lab VMs. See
+  [docs/WSLSetup.md](WSLSetup.md) only if you'd rather drive the build from WSL2 on a Windows
+  host instead.
 
 ## 1. pfSense — fully manual
 
 There's no networking-setup script to run before this step — the lab's LAN Segment is created
 inline while building this VM, not as a separate stage.
 
-1. In VMware Workstation, create a new VM per
+1. In VMware Workstation/Fusion, create a new VM per
    [`hypervisor/vms/pfsense.md`](../hypervisor/vms/pfsense.md): 2 vCPU, 2 GB RAM, 20 GB disk,
    pfSense CE ISO attached.
 2. NIC1: leave as VMware's default **NAT** (`VMnet8` — ships with Workstation, needs no setup).
@@ -74,7 +71,8 @@ endpoint like any other client.
    2 vCPU, 4 GB RAM, 40 GB disk, single NIC on `LAN-LAB`, Ubuntu Desktop 24.04 ISO attached.
 2. Install Ubuntu Desktop interactively — it gets a DHCP lease from pfSense once step 1 above
    is done.
-3. Clone this repository onto it and install the tooling the rest of the guide needs:
+3. Apply [`hypervisor/desktop/baseline.md`](../hypervisor/desktop/baseline.md).
+4. Clone this repository onto it and install the tooling the rest of the guide needs:
 
    ```bash
    sudo apt update && sudo apt install -y ansible openssl git rsync samba-common-bin whois \
@@ -85,24 +83,20 @@ endpoint like any other client.
    ```
 
 From here on, "control host" in this guide means **this VM** — every `ansible-playbook`,
-`openssl`, and `samba-tool` command from step 3 onward runs from here, not from the Windows
-host. (If you'd rather drive the build from WSL2 on the Windows host instead, see
+`openssl`, and `samba-tool` command from step 3 onward runs from here, not from your hypervisor
+host machine. (If you'd rather drive the build from WSL2 on a Windows host instead, see
 [docs/WSLSetup.md](WSLSetup.md) — the LAN Segment reachability fix it documents is the only
 extra step that path needs.)
 
 ## 3. Samba AD Domain Controller
 
-1. Fill in `samba-dc01`'s install seed (see
-   [`hypervisor/vms/samba-dc.md#autoinstall`](../hypervisor/vms/samba-dc.md#autoinstall) —
-   copy the `.example` files, generate a password hash with `mkpasswd`).
-2. `hypervisor/vmware-windows/scripts/create-vms.ps1` creates `samba-dc01`'s VM shell (2 vCPU, 4 GB RAM,
-   40 GB disk, static `10.10.10.10`, gateway `10.10.10.1`) and builds/attaches its seed ISO
-   automatically. Boot it — Ubuntu Server installs with no prompts and reboots into a running
-   system with SSH up.
-3. `sudo samba/scripts/bootstrap-ad.sh` — provisions the domain (see
+1. Build and install `samba-dc01` by hand, then apply the baseline — see
+   [`hypervisor/vms/samba-dc.md`](../hypervisor/vms/samba-dc.md) for the VM spec, static IP, and
+   `labadmin`/SSH-key setup.
+2. `sudo samba/scripts/bootstrap-ad.sh` — provisions the domain (see
    [SambaAdmin.md](SambaAdmin.md)).
-4. `sudo samba/scripts/create-ous.sh && sudo samba/scripts/create-groups.sh && sudo samba/scripts/create-users.sh`
-5. `samba/scripts/health-check.sh` — confirm green before proceeding.
+3. `sudo samba/scripts/create-ous.sh && sudo samba/scripts/create-groups.sh && sudo samba/scripts/create-users.sh`
+4. `samba/scripts/health-check.sh` — confirm green before proceeding.
 
 ## 4. PKI bootstrap
 
@@ -132,11 +126,10 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
 
 ## 5. Docker application server + Authentik
 
-1. Fill in `docker01`'s and `authentik01`'s install seeds (same `.example`-copy-and-fill
-   pattern as `samba-dc01` — see
-   [`hypervisor/vms/docker-server.md`](../hypervisor/vms/docker-server.md) and
-   [`hypervisor/vms/authentik.md`](../hypervisor/vms/authentik.md)), then boot them — both
-   install unattended the same way `samba-dc01` did in step 3.
+1. Build and install `docker01` and `authentik01` by hand, then apply the baseline to each —
+   see [`hypervisor/vms/docker-server.md`](../hypervisor/vms/docker-server.md) and
+   [`hypervisor/vms/authentik.md`](../hypervisor/vms/authentik.md) for VM specs, static IPs, and
+   `labadmin`/SSH-key setup.
 2. From your control host, populate `ansible/inventory/hosts.ini` (already templated with these
    IPs) and run:
 
@@ -181,11 +174,11 @@ the WordPress one is left manual since SSO-for-a-website is an opt-in decision, 
 
 ## 7. Endpoints
 
-`linux-client01` already exists (built manually in step 2). `win-client01`'s VM shell and
-unattended Windows 11 install are handled by `hypervisor/vmware-windows/scripts/create-vms.ps1` — see
-[`hypervisor/vms/windows-client.md`](../hypervisor/vms/windows-client.md) for the
-`autounattend.xml` setup needed before running it, then boot it once ready. What's left for
-both clients is joining the domain:
+`linux-client01` already exists (built manually in step 2). Build and install `win-client01` by
+hand, then apply the baseline — see
+[`hypervisor/vms/windows-client.md`](../hypervisor/vms/windows-client.md) for the VM spec (note
+its UEFI/Secure Boot/vTPM requirement) and install steps. What's left for both clients is
+joining the domain:
 
 1. `linux-client01`: `sudo samba/scripts/join-linux-client.sh` (joins domain, configures SSSD,
    installs the CA chain via `ansible-playbook playbooks/05-pki-trust.yml --limit
