@@ -131,36 +131,88 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
    [`hypervisor/vms/authentik.md`](../hypervisor/vms/authentik.md) for VM specs, static IPs, and
    `labadmin`/SSH-key setup.
 2. From your control host, populate `ansible/inventory/hosts.ini` (already templated with these
-   IPs) and run:
+   IPs), `cd ansible`, and run each of the following in order. Each is idempotent and
+   individually re-runnable — this is the same sequence `ansible-playbook playbooks/site.yml`
+   chains automatically for redeploys (see "One-shot re-runs" below), broken out here so each
+   stage is visible on its own:
 
    ```bash
-   cd ansible
-   ansible-playbook playbooks/site.yml --ask-vault-pass
+   ansible-playbook playbooks/00-common-hardening.yml --ask-vault-pass
    ```
 
-   `site.yml` runs, in order: `00-common-hardening.yml`, `04-linux-client-join.yml` (for
-   `docker01`/`authentik01` as domain-joined Linux hosts), `05-pki-trust.yml`,
-   `02-docker-server.yml` (installs Docker Engine + brings up the reverse proxy stack), and
-   `03-authentik.yml` (brings up Authentik and applies blueprints via
-   [`bootstrap-authentik.sh`](../authentik/scripts/bootstrap-authentik.sh)).
+   SSH hardening, `ufw`, `unattended-upgrades`, and NTP against `samba-dc01`, applied to all
+   three servers (`samba-dc01`, `docker01`, `authentik01`) — plus Fail2Ban on `docker01`/
+   `authentik01`. This is `samba-dc01`'s first contact with Ansible: everything in step 3 ran
+   directly on the DC over SSH, not through a playbook.
+
+   ```bash
+   ansible-playbook playbooks/04-linux-client-join.yml --ask-vault-pass
+   ```
+
+   SSSD-joins `docker01` and `authentik01` to `LAB.INTERNAL` — the same underlying mechanism
+   `linux-client01` used interactively in step 7's `join-linux-client.sh`, automated here
+   because there are two hosts to join instead of one interactive session.
+
+   ```bash
+   ansible-playbook playbooks/05-pki-trust.yml --ask-vault-pass
+   ```
+
+   Distributes the CA chain built in step 4 to all three servers, `samba-dc01` included (its
+   first CA-trust pass too).
+
+   ```bash
+   ansible-playbook playbooks/02-docker-server.yml --ask-vault-pass
+   ```
+
+   Installs Docker Engine and brings up all 5 Compose stacks (`docker/{reverse-proxy,nextcloud,
+   onlyoffice,mail,wordpress,stirling-pdf}`) on `docker01` in one run.
+
+   ```bash
+   ansible-playbook playbooks/03-authentik.yml --ask-vault-pass
+   ```
+
+   Brings up Authentik and applies its OIDC/LDAP blueprints via
+   [`bootstrap-authentik.sh`](../authentik/scripts/bootstrap-authentik.sh) — the actual
+   bootstrap logic; Ansible's role here is just plumbing (copy the repo, render `.env`, invoke
+   the script).
+
+   ```bash
+   ansible-playbook playbooks/99-backups.yml --ask-vault-pass
+   ```
+
+   Installs the daily backup timers for Samba AD (`samba-dc01`) and Docker volumes + PKI
+   (`docker01`) — see [Backup.md](Backup.md).
 
 3. Verify: `https://auth.lab.internal` loads with a trusted cert and you can sign in as
    `akadmin` (bootstrap credentials in `ansible/inventory/host_vars/authentik01/vault.yml`).
 
 ## 6. Applications
 
-Still via `ansible-playbook playbooks/02-docker-server.yml --tags apps` (already included in
-`site.yml`, listed separately here for iterative re-runs): brings up NextCloud, OnlyOffice,
-Dovecot+Postfix, WordPress, and Stirling PDF Compose stacks under `docker/`, wired to Traefik
-and to the OIDC/proxy providers created in step 5. Confirm:
+NextCloud, OnlyOffice, Dovecot+Postfix, WordPress, and Stirling PDF all came up already, as part
+of step 5's `02-docker-server.yml` run — this step is about understanding what you now have, not
+deploying anything new. (To reapply this layer later, after editing a Compose file or `.env`,
+re-run `ansible-playbook playbooks/02-docker-server.yml --ask-vault-pass` — it's idempotent, so
+re-running the whole playbook to pick up one app's change is safe and cheap.)
 
-- `https://cloud.lab.internal` → NextCloud, "Log in with Authentik" button present and working.
-- `https://docs.lab.internal` → OnlyOffice Document Server status page.
-- `mail.lab.internal:993` (IMAPS) / `:587` (submission) → see
+- **NextCloud** (`https://cloud.lab.internal`) — file storage/groupware. Its "Log in with
+  Authentik" button is OIDC against the identity provider you stood up in step 5: NextCloud
+  never sees your AD password, only a token from Authentik. Confirm the button is present and
+  working.
+- **OnlyOffice** (`https://docs.lab.internal`) — the document-editing backend NextCloud calls
+  out to for in-browser editing. It's a separate Compose stack/container, not bundled into
+  NextCloud, so it can be updated or replaced independently. Confirm the Document Server status
+  page loads.
+- **Mail** (`mail.lab.internal:993` IMAPS / `:587` submission) — Dovecot and Postfix authenticate
+  directly against Samba AD via LDAP bind, not OIDC — a different, older pattern worth
+  contrasting with NextCloud's SSO button above. See
   [docker/mail/README.md](../docker/mail/README.md) for a full send/receive test.
-- `https://www.lab.internal` → WordPress, installed and ready (SSO is opt-in — see step 6a).
-- `https://pdf.lab.internal` → Stirling PDF, prompts an Authentik login before showing the app
-  (forward-auth, not native OIDC — see [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md)).
+- **WordPress** (`https://www.lab.internal`) — installed and ready; unlike the other apps, SSO
+  here is opt-in rather than default (see step 6a) — a public-facing CMS doesn't always want
+  every visitor routed through the internal identity provider.
+- **Stirling PDF** (`https://pdf.lab.internal`) — a third distinct access-control pattern:
+  forward-auth. Traefik asks Authentik "is this request allowed?" *before* proxying the request
+  at all, rather than the app itself handling an OIDC login like NextCloud does. See
+  [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md).
 
 ### 6a. Groupware apps and optional WordPress SSO
 
