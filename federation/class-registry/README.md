@@ -17,14 +17,10 @@ without ever standing this up.**
 
 ## Quick start (lecturer)
 
-```bash
-cd federation/class-registry
-./scripts/init-registry.sh --ns-ip <this-host's-IP-students-can-reach>
-docker compose up -d
-```
-
-Then give students: the registry URL (`http://<ns-ip>:8080`) and the generated
-`CLASS_REGISTRY_TOKEN` (printed by `init-registry.sh`, also in `.env`).
+See [docs/ClassRegistry.md#end-to-end-workflow](../../docs/ClassRegistry.md#end-to-end-workflow)
+for the staged, explained setup (shared BIND/registry secret, DNS zone seed, class CA init,
+`.env`) — worth reading through once. [`scripts/init-registry.sh`](scripts/init-registry.sh) is
+the fast-path once you've done it by hand.
 
 ## Quick start (student)
 

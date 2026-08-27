@@ -57,15 +57,66 @@ flowchart TB
 
 ## End-to-end workflow
 
-**Lecturer, once:**
+**Lecturer, once.** Four things need to exist before the registry can run — each is small
+enough to do by hand and worth understanding once, since this is the one piece of `federation/`
+you're not just handing to students pre-built. `init-registry.sh` does all four in one shot as a
+documented fast-path once you've been through them (see the end of this section).
+
+1. **A shared secret between BIND9 and the registry container.** The registry rewrites the DNS
+   zone and tells BIND9 to reload it via `rndc` — TSIG-authenticated, so the two containers need
+   a shared key:
+
+   ```bash
+   cd federation/class-registry
+   mkdir -p bind/keys
+   SECRET="$(openssl rand -base64 32)"
+   cat > bind/keys/rndc.key <<EOF
+   key "rndc-key" {
+       algorithm hmac-sha256;
+       secret "${SECRET}";
+   };
+   EOF
+   chmod 600 bind/keys/rndc.key
+   ```
+
+2. **Seed the `lab.internet` zone.** BIND9 needs a starting zone file with your registry host's
+   own NS/A glue record before it can serve anything — the registry app rewrites this file on
+   every student registration from here on
+   ([`app/app.py`](../federation/class-registry/app/app.py)'s `regenerate_zone_file()`):
+
+   ```bash
+   sed "s/__ZONE_NS_IP__/<this-host's-reachable-IP>/" \
+     bind/zones/db.lab.internet.seed > bind/zones/db.lab.internet
+   ```
+
+3. **Initialise the class CA.** This is the single-tier, online-key CA described in "PKI
+   design" above — run it explicitly and read its output, since it explains the trade-off
+   you're accepting:
+
+   ```bash
+   ./ca/init-class-ca.sh
+   ```
+
+4. **Configure the registry's `.env`.**
+
+   ```bash
+   cp .env.example .env
+   # edit .env: set CLASS_REGISTRY_TOKEN to a random value students will need to register,
+   # and ZONE_NS_IP to the same IP used in step 2
+   ```
+
+Then bring it up:
 
 ```bash
-cd federation/class-registry
-./scripts/init-registry.sh --ns-ip <this-host's-reachable-IP>
 docker compose up -d
 ```
 
-Give students the registry URL and the printed `CLASS_REGISTRY_TOKEN`.
+Give students the registry URL and the token from `.env`.
+
+**Fast-path for later course offerings**: once you've done the above by hand and understand what
+each piece does,
+[`scripts/init-registry.sh --ns-ip <ip>`](../federation/class-registry/scripts/init-registry.sh)
+does steps 1-4 in one command (idempotent — safe to re-run) — then just `docker compose up -d`.
 
 **Each business:**
 
