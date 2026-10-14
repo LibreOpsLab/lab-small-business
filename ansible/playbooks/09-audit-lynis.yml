@@ -1,0 +1,46 @@
+---
+# Measures a host's hardening with Lynis and saves the report, so "before" and "after" are
+# numbers rather than opinions. Lynis is an open-source auditing tool in the Ubuntu archive.
+# Its hardening index is a useful trend, not a CIS compliance certificate: for a formal CIS
+# result use the role's own audit mode or CIS-CAT. See docs/CISHardening.md.
+#
+#   ansible-playbook playbooks/09-audit-lynis.yml -l docker01 -e audit_label=before
+#   ansible-playbook playbooks/09-audit-lynis.yml -l docker01 -e audit_label=after
+#
+# Reports land in ansible/audit-reports/ (gitignored).
+
+- name: Audit hosts with Lynis
+  hosts: linux
+  become: true
+  vars:
+    audit_label: "unlabelled"
+  tasks:
+    - name: Install Lynis
+      ansible.builtin.apt:
+        name: lynis
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Run the audit
+      ansible.builtin.command: lynis audit system --quick --no-colors --quiet
+      register: lynis_run
+      changed_when: false
+      failed_when: lynis_run.rc not in [0, 1, 2]
+
+    - name: Read the hardening index
+      ansible.builtin.shell: set -o pipefail && grep '^hardening_index=' /var/log/lynis-report.dat | cut -d= -f2
+      args:
+        executable: /bin/bash
+      register: lynis_index
+      changed_when: false
+
+    - name: Fetch the full report
+      ansible.builtin.fetch:
+        src: /var/log/lynis-report.dat
+        dest: "{{ playbook_dir }}/../audit-reports/{{ inventory_hostname }}-{{ audit_label }}.dat"
+        flat: true
+
+    - name: Show the result
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} ({{ audit_label }}): Lynis hardening index {{ lynis_index.stdout }} / 100"

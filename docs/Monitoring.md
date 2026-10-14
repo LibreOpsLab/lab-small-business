@@ -83,5 +83,5 @@ exposes clock offset like the Linux one.
 ## Next steps (not built yet)
 
 - Alertmanager for email delivery, using the lab's own mail server.
-- Central log collection and security events (Wazuh, or Loki and syslog).
+- Security events on top of the logs in [Logging.md](Logging.md) (Wazuh).
 - Proxmox host metrics via a read-only API token (Pulse, or the Proxmox exporter).

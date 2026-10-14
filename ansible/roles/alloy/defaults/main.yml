@@ -1,0 +1,4 @@
+---
+# Where logs are pushed. Hosts verify the Traefik certificate against the lab CA, which the
+# pki_trust role installs in the system trust store.
+loki_push_url: "https://loki.lab.internal/loki/api/v1/push"

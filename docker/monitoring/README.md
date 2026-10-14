@@ -8,7 +8,8 @@ failure exercise: [docs/Monitoring.md](../../docs/Monitoring.md).
 | ------------------- | --------------------------------------------------------------------------- | --------------------- |
 | `prometheus`        | Scrapes and stores metrics, evaluates alert rules                           | `monitoring` network only |
 | `blackbox-exporter` | Probes HTTPS (with certificate validation) and TCP services from outside    | `monitoring` network only |
-| `grafana`           | Dashboards; reads Prometheus                                                | Traefik, behind SSO   |
+| `loki`              | Stores logs pushed by Alloy on each host ([Logging.md](../../docs/Logging.md)) | Traefik, push only, basic auth |
+| `grafana`           | Dashboards; reads Prometheus and Loki                                       | Traefik, behind SSO   |
 
 ## Access control: forward-auth
 
@@ -34,4 +35,5 @@ be through Traefik.
 
 1. `ansible/roles/node_exporter` on each host (applied by `00-common-hardening.yml`).
 2. `grafana.lab.internal` DNS CNAME and certificate (`make pki-issue-all`).
-3. `.env` rendered from the vault (`grafana_admin_password`), or copied from `.env.example`.
+3. `loki.lab.internal` CNAME and certificate, and `ansible/playbooks/07-logging.yml` on each host.
+4. `.env` rendered from the vault (`grafana_admin_password`), or copied from `.env.example`.

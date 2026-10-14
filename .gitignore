@@ -53,6 +53,9 @@ Thumbs.db
 
 # --- Ansible ---
 *.retry
+# Third-party role installed from ansible/requirements.yml, and Lynis audit reports
+ansible/roles/ubuntu24_cis/
+ansible/audit-reports/
 ansible/collections/
 ansible/roles/external/
 

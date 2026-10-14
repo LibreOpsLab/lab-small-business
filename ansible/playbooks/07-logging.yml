@@ -1,0 +1,12 @@
+---
+# Ships every Linux host's journal to Loki (docker/monitoring). Run after 02-docker-server.yml
+# has brought Loki up and after 05-pki-trust.yml, so hosts trust https://loki.lab.internal.
+# See docs/Logging.md.
+
+- name: Ship logs to Loki with Grafana Alloy
+  hosts: linux
+  become: true
+  vars_files:
+    - "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/vault.yml"
+  roles:
+    - alloy

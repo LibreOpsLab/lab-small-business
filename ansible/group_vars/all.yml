@@ -20,3 +20,7 @@ pki_intermediate_ca_cert: "{{ repo_root_on_controller }}/pki/intermediate-ca/cer
 ssh_permit_root_login: "no"
 ssh_password_authentication: "no"
 unattended_upgrades_enabled: true
+
+# Central logging: the user hosts push logs to Loki as. The password is in each host's vault.yml
+# (loki_push_password, identical everywhere). See docs/Logging.md.
+loki_push_user: lab-logs

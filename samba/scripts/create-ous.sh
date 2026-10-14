@@ -26,6 +26,8 @@ create_ou "OU=Service-Accounts,OU=LAB,${DOMAIN_DN}"
 create_ou "OU=Workstations,OU=LAB,${DOMAIN_DN}"
 create_ou "OU=Linux,OU=Workstations,OU=LAB,${DOMAIN_DN}"
 create_ou "OU=Windows,OU=Workstations,OU=LAB,${DOMAIN_DN}"
+create_ou "OU=Servers,OU=LAB,${DOMAIN_DN}"
+create_ou "OU=Windows,OU=Servers,OU=LAB,${DOMAIN_DN}"
 
 log "Delegating scoped administration of OU=LAB to the IT-Admins group (not full Domain Admins)"
 # create-groups.sh creates IT-Admins itself; this script only wires up the ACL delegation,

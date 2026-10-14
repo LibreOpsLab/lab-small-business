@@ -4,3 +4,5 @@
 
 samba_admin_password: "changeme-strong-password"
 samba_seed_password: "changeme-initial-password-for-seeded-users"
+# Must be identical on every host. Pushes logs to Loki (docs/Logging.md)
+loki_push_password: "changeme-generate-with-openssl-rand"

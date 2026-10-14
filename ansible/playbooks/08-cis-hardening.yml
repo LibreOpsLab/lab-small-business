@@ -1,0 +1,35 @@
+---
+# Applies the CIS Ubuntu 24.04 benchmark (Level 1 Server) with the community role pinned in
+# ansible/requirements.yml. NOT part of site.yml. The role changes SSH, firewall, kernel and
+# service settings, and its authors warn it "will make changes to the system which may have
+# unintended consequences" and that check mode is "not guaranteed". So:
+#
+#   1. Snapshot the VM first.
+#   2. Audit before:   ansible-playbook playbooks/09-audit-lynis.yml -l <host> -e audit_label=before
+#   3. Apply to ONE host: ansible-playbook playbooks/08-cis-hardening.yml -l <host> \
+#                           -e cis_snapshot_taken=true --tags level1-server
+#   4. Audit after:    ansible-playbook playbooks/09-audit-lynis.yml -l <host> -e audit_label=after
+#   5. Record every control you turned off, and why, in docs/CISHardening.md's exceptions register.
+#
+# Per-rule exceptions are variables named ubtu24cis_rule_<section>_<number>: false, set in
+# ansible/inventory/host_vars/<host>/ (not committed with secrets: these are not secret).
+# Check the exact names in the role's defaults/main.yml for the pinned version.
+
+- name: Apply the CIS Ubuntu 24.04 benchmark
+  hosts: linux
+  become: true
+  pre_tasks:
+    - name: Refuse to run on anything but Ubuntu 24.04
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == "Ubuntu"
+          - ansible_distribution_version == "24.04"
+        fail_msg: "The pinned CIS role supports Ubuntu 24.04 only."
+
+    - name: Refuse to run without a snapshot
+      ansible.builtin.assert:
+        that:
+          - cis_snapshot_taken | default(false) | bool
+        fail_msg: "Take a VM snapshot, then re-run with -e cis_snapshot_taken=true."
+  roles:
+    - role: ubuntu24_cis

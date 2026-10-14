@@ -15,3 +15,5 @@ wordpress_db_root_pass: "changeme-generate-with-openssl-rand"
 wordpress_db_pass: "changeme-generate-with-openssl-rand"
 wordpress_admin_password: "changeme-strong-password"
 grafana_admin_password: "changeme-strong-password"
+# Must be identical on every host. Pushes logs to Loki (docs/Logging.md)
+loki_push_password: "changeme-generate-with-openssl-rand"

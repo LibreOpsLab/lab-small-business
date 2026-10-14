@@ -1,0 +1,53 @@
+{
+  "uid": "lab-logs",
+  "title": "LAB logs",
+  "tags": ["lab", "logs"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-3h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "host",
+        "type": "query",
+        "datasource": { "type": "loki", "uid": "loki" },
+        "query": "label_values(host)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Log lines per second by host",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "expr": "sum by (host) (rate({host=~\"$host\"}[1m]))", "legendFormat": "{{host}}", "refId": "A" }],
+      "fieldConfig": { "defaults": {}, "overrides": [] }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Failed SSH logins per host",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "expr": "sum by (host) (count_over_time({host=~\"$host\", unit=\"ssh.service\"} |~ \"Failed password|Invalid user|Connection closed by authenticating user\" [5m]))", "legendFormat": "{{host}}", "refId": "A" }],
+      "fieldConfig": { "defaults": {}, "overrides": [] }
+    },
+    {
+      "id": 3,
+      "type": "logs",
+      "title": "Warnings and errors",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 7 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "expr": "{host=~\"$host\", level=~\"warning|err|crit|alert|emerg\"}", "refId": "A" }],
+      "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending" }
+    }
+  ]
+}

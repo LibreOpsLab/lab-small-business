@@ -28,6 +28,11 @@ scrape_configs:
       - targets: ["10.10.10.30:9100"]
         labels: { host: authentik01 }
 
+  # Loki's own metrics, scraped directly on the internal monitoring network.
+  - job_name: loki
+    static_configs:
+      - targets: ["loki:3100"]
+
   # HTTPS services, checked end to end including the certificate chain.
   - job_name: probe-https
     metrics_path: /probe

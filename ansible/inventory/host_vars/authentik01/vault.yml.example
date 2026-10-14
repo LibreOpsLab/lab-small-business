@@ -10,3 +10,5 @@ authentik_pg_pass: "changeme-generate-with-openssl-rand"
 authentik_secret_key: "changeme-generate-with-openssl-rand"
 authentik_bootstrap_password: "changeme-strong-password"
 authentik_bootstrap_token: "changeme-generate-with-openssl-rand"
+# Must be identical on every host. Pushes logs to Loki (docs/Logging.md)
+loki_push_password: "changeme-generate-with-openssl-rand"

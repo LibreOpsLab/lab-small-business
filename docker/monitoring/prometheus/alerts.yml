@@ -14,6 +14,13 @@ groups:
           summary: "{{ $labels.host }} is not answering node_exporter"
           description: "No metrics from {{ $labels.instance }} for 2 minutes. Host down, exporter stopped, or firewall."
 
+      - alert: LokiDown
+        expr: up{job="loki"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "Loki is not answering, so logs are not being stored"
+
       - alert: ServiceProbeFailed
         expr: probe_success == 0
         for: 2m

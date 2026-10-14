@@ -1,0 +1,15 @@
+---
+# Third-party roles. Install with, from the ansible/ directory:
+#   ansible-galaxy role install -r requirements.yml -p roles/
+#
+# ansible-lockdown/UBUNTU24-CIS is the community CIS Ubuntu 24.04 benchmark remediation role
+# (MIT licence). It is used by playbooks/08-cis-hardening.yml, which is NOT part of site.yml:
+# applying a benchmark is a deliberate, snapshotted step. See docs/CISHardening.md.
+#
+# Pinned to a release tag so a class builds the same thing every time. Review the role's
+# changelog before bumping the version, and re-run the audit afterwards.
+roles:
+  - name: ubuntu24_cis
+    src: https://github.com/ansible-lockdown/UBUNTU24-CIS.git
+    scm: git
+    version: 1.7.0

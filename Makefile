@@ -6,7 +6,7 @@ help:
 	@echo "lab-small-business — common entry points"
 	@echo ""
 	@echo "  make pki-init        Bootstrap the Root + Issuing CA (first run only)"
-	@echo "  make pki-issue-all   Issue leaf certs for cloud/docs/mail/auth/www/pdf/grafana/autoconfig/samba-dc01"
+	@echo "  make pki-issue-all   Issue leaf certs for cloud/docs/mail/auth/www/pdf/grafana/loki/autoconfig/samba-dc01"
 	@echo "  make deploy          Run scripts/deploy-all.sh (PKI + full Ansible playbook)"
 	@echo "  make backup-samba    Run samba/scripts/backup-ad.sh on samba-dc01 (via ssh)"
 	@echo "  make health-samba    Run samba/scripts/health-check.sh on samba-dc01 (via ssh)"
@@ -25,7 +25,9 @@ pki-issue-all:
 	./02-issue-server-cert.sh --cn mail.lab.internal       --san DNS:mail.lab.internal && \
 	./02-issue-server-cert.sh --cn auth.lab.internal       --san DNS:auth.lab.internal && \
 	./02-issue-server-cert.sh --cn www.lab.internal        --san DNS:www.lab.internal && \
-	./02-issue-server-cert.sh --cn pdf.lab.internal        --san DNS:pdf.lab.internal && 	./02-issue-server-cert.sh --cn grafana.lab.internal    --san DNS:grafana.lab.internal && \
+	./02-issue-server-cert.sh --cn pdf.lab.internal        --san DNS:pdf.lab.internal && \
+	./02-issue-server-cert.sh --cn grafana.lab.internal    --san DNS:grafana.lab.internal && \
+	./02-issue-server-cert.sh --cn loki.lab.internal       --san DNS:loki.lab.internal && \
 	./02-issue-server-cert.sh --cn autoconfig.lab.internal --san DNS:autoconfig.lab.internal
 
 deploy:

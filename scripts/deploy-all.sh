@@ -38,6 +38,7 @@ if [[ "${SKIP_PKI}" -eq 0 ]]; then
   ./02-issue-server-cert.sh --cn www.lab.internal        --san DNS:www.lab.internal
   ./02-issue-server-cert.sh --cn pdf.lab.internal        --san DNS:pdf.lab.internal
   ./02-issue-server-cert.sh --cn grafana.lab.internal    --san DNS:grafana.lab.internal
+  ./02-issue-server-cert.sh --cn loki.lab.internal       --san DNS:loki.lab.internal
   ./02-issue-server-cert.sh --cn autoconfig.lab.internal --san DNS:autoconfig.lab.internal
   popd >/dev/null
 else

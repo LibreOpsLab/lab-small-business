@@ -35,6 +35,32 @@ services:
     networks:
       - monitoring
 
+  # Central log store. Hosts push to it through Traefik (https://loki.lab.internal) with HTTP
+  # basic auth, so there is TLS and a credential on the only path in. Loki publishes no ports:
+  # Docker would open them straight past the host firewall (docs/HostFirewalls.md).
+  loki:
+    image: grafana/loki:3.2.1
+    container_name: loki
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+    networks:
+      - lab-proxy
+      - monitoring
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=lab-proxy
+      - traefik.http.routers.loki.rule=Host(`loki.lab.internal`)
+      - traefik.http.routers.loki.tls=true
+      - traefik.http.routers.loki.middlewares=loki-push-auth,security-headers@file
+      - traefik.http.middlewares.loki-push-auth.basicauth.users=${LOKI_PUSH_USERS:?Set LOKI_PUSH_USERS in .env}
+      - traefik.http.services.loki.loadbalancer.server.port=3100
+
   grafana:
     image: grafana/grafana:11.2.0
     container_name: grafana
@@ -81,3 +107,4 @@ networks:
 volumes:
   prometheus_data:
   grafana_data:
+  loki_data:

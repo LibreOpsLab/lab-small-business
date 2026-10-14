@@ -111,6 +111,7 @@ cd pki/scripts
 ./02-issue-server-cert.sh --cn www.lab.internal        --san DNS:www.lab.internal
 ./02-issue-server-cert.sh --cn pdf.lab.internal        --san DNS:pdf.lab.internal
 ./02-issue-server-cert.sh --cn grafana.lab.internal    --san DNS:grafana.lab.internal
+./02-issue-server-cert.sh --cn loki.lab.internal       --san DNS:loki.lab.internal
 ./02-issue-server-cert.sh --cn autoconfig.lab.internal --san DNS:autoconfig.lab.internal
 ```
 
@@ -181,6 +182,14 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
    Creates jailed, key-only SFTP accounts on `docker01` from `sftp_users` in
    `group_vars/docker_server.yml`. That list is empty by default, so it changes nothing until
    you add a user. See [SFTP.md](SFTP.md).
+
+   ```bash
+   ansible-playbook playbooks/07-logging.yml --ask-vault-pass
+   ```
+
+   Installs Grafana Alloy on every Linux host to ship its journal (SSH logins, sudo, service
+   and kernel messages) to Loki on `docker01`. Needs the same `loki_push_password` in each
+   host's `vault.yml`. See [Logging.md](Logging.md).
 
    ```bash
    ansible-playbook playbooks/99-backups.yml --ask-vault-pass

@@ -1,0 +1,36 @@
+// {{ ansible_managed }}
+// Ships this host's systemd journal to Loki. See docs/Logging.md.
+
+// Turn journal fields into Loki labels. Labels are what you filter on in Grafana, so keep them
+// few and low-cardinality: a label per unique value (a request id, say) would swamp Loki.
+loki.relabel "journal" {
+  forward_to = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal_priority_keyword"]
+    target_label  = "level"
+  }
+}
+
+loki.source.journal "system" {
+  max_age       = "12h"
+  relabel_rules = loki.relabel.journal.rules
+  labels        = { job = "systemd-journal", host = "{{ inventory_hostname }}" }
+  forward_to    = [loki.write.lab.receiver]
+}
+
+loki.write "lab" {
+  endpoint {
+    url = "{{ loki_push_url }}"
+
+    basic_auth {
+      username = "{{ loki_push_user }}"
+      password = "{{ loki_push_password }}"
+    }
+  }
+}
