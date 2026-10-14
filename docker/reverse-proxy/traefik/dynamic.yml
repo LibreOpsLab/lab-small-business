@@ -17,6 +17,8 @@ tls:
       keyFile: /etc/traefik/certs/www.lab.internal/key.pem
     - certFile: /etc/traefik/certs/pdf.lab.internal/fullchain.pem
       keyFile: /etc/traefik/certs/pdf.lab.internal/key.pem
+    - certFile: /etc/traefik/certs/grafana.lab.internal/fullchain.pem
+      keyFile: /etc/traefik/certs/grafana.lab.internal/key.pem
     - certFile: /etc/traefik/certs/autoconfig.lab.internal/fullchain.pem
       keyFile: /etc/traefik/certs/autoconfig.lab.internal/key.pem
 

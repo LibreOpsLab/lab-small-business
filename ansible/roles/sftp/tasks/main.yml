@@ -1,0 +1,108 @@
+---
+# SFTP-only accounts, jailed to their own directory. Uses the existing SSH daemon, so there is
+# no new port and no new firewall rule: plain FTP is deliberately not offered (credentials and
+# data cross the network in clear text). See docs/SFTP.md.
+
+- name: Create the SFTP group
+  ansible.builtin.group:
+    name: "{{ sftp_group }}"
+    state: present
+
+# sshd refuses a chroot unless every directory in the path is owned by root and not
+# group/world-writable. The writable part is a subdirectory inside the jail.
+- name: Create the jail root (root-owned)
+  ansible.builtin.file:
+    path: "{{ sftp_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create the directory for public keys (root-owned so users cannot edit their own)
+  ansible.builtin.file:
+    path: /etc/ssh/sftp_keys
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create each SFTP user (no shell, no password)
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    group: "{{ sftp_group }}"
+    home: "{{ sftp_root }}/{{ item.name }}"
+    shell: /usr/sbin/nologin
+    create_home: false
+    password: "!"
+  loop: "{{ sftp_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Create each user's jail directory (root-owned)
+  ansible.builtin.file:
+    path: "{{ sftp_root }}/{{ item.name }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ sftp_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Create each user's writable upload directory
+  ansible.builtin.file:
+    path: "{{ sftp_root }}/{{ item.name }}/upload"
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ sftp_group }}"
+    mode: "0700"
+  loop: "{{ sftp_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Install each user's public key
+  ansible.builtin.copy:
+    dest: "/etc/ssh/sftp_keys/{{ item.name }}"
+    owner: root
+    group: root
+    mode: "0644"
+    content: "{{ item.pubkey }}\n"
+  loop: "{{ sftp_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+# Written as a drop-in (Ubuntu's sshd_config includes /etc/ssh/sshd_config.d/*.conf) so the
+# distribution's own file stays untouched. internal-sftp via ForceCommand needs no Subsystem
+# line, which avoids clashing with the one already in sshd_config.
+- name: Install the SFTP jail configuration, rolling back if sshd rejects it
+  block:
+    - name: Write the drop-in
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/50-lab-sftp.conf
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          {{ ansible_managed | comment }}
+          Match Group {{ sftp_group }}
+              ChrootDirectory {{ sftp_root }}/%u
+              ForceCommand internal-sftp
+              AuthorizedKeysFile /etc/ssh/sftp_keys/%u
+              PasswordAuthentication no
+              AllowTcpForwarding no
+              X11Forwarding no
+              PermitTTY no
+      notify: restart sshd
+
+    - name: Check the whole sshd configuration parses
+      ansible.builtin.command: /usr/sbin/sshd -t
+      changed_when: false
+  rescue:
+    - name: Remove the drop-in so SSH is not left broken
+      ansible.builtin.file:
+        path: /etc/ssh/sshd_config.d/50-lab-sftp.conf
+        state: absent
+
+    - name: Stop with a clear message
+      ansible.builtin.fail:
+        msg: "sshd rejected the SFTP configuration, so it was removed. Run sshd -t on the host to see why."

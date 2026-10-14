@@ -37,6 +37,7 @@ flowchart TB
 | CNAME       | `auth.lab.internal`           | `authentik01.lab.internal`    | Authentik                                 |
 | CNAME       | `www.lab.internal`            | `docker01.lab.internal`       | WordPress                                 |
 | CNAME       | `pdf.lab.internal`            | `docker01.lab.internal`       | Stirling PDF (forward-auth via Authentik) |
+| CNAME       | `grafana.lab.internal`        | `docker01.lab.internal`       | Grafana (forward-auth via Authentik)      |
 | CNAME       | `autoconfig.lab.internal`     | `docker01.lab.internal`       | Betterbird account autoconfig             |
 | SRV         | `_kerberos._udp.lab.internal` | `samba-dc01.lab.internal:88`  | KDC discovery                             |
 | SRV         | `_ldap._tcp.lab.internal`     | `samba-dc01.lab.internal:389` | LDAP discovery                            |
@@ -44,7 +45,7 @@ flowchart TB
 DNS forwarding from Samba's internal DNS to pfSense's Unbound resolver is configured via the
 `dns forwarder` setting in `smb.conf` (see
 [samba/templates/smb.conf.j2](../samba/templates/smb.conf.j2)). Reverse-proxy hostnames
-(`cloud`, `docs`, `mail`, `auth`, `www`, `pdf`, `autoconfig`) all resolve internally — there is
+(`cloud`, `docs`, `mail`, `auth`, `www`, `pdf`, `grafana`, `autoconfig`) all resolve internally — there is
 no public DNS exposure by design, since this is an isolated homelab, not an internet-facing
 deployment.
 

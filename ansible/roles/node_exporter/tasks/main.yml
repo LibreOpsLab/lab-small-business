@@ -1,0 +1,33 @@
+---
+# Installs Prometheus node_exporter from the distribution package (patched by
+# unattended-upgrades like everything else) and exposes it to the monitoring host only.
+# See docs/Monitoring.md.
+
+- name: Install node_exporter
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Listen on the LAN address only, not every interface
+  ansible.builtin.lineinfile:
+    path: /etc/default/prometheus-node-exporter
+    regexp: '^ARGS='
+    line: 'ARGS="--web.listen-address={{ ansible_default_ipv4.address }}:{{ node_exporter_port }}"'
+  notify: restart node_exporter
+
+- name: Allow the monitoring sources to scrape it (host firewall)
+  community.general.ufw:
+    rule: allow
+    port: "{{ node_exporter_port | string }}"
+    proto: tcp
+    from_ip: "{{ item }}"
+    comment: "Prometheus scrape (node_exporter)"
+  loop: "{{ node_exporter_allowed_sources }}"
+
+- name: Enable and start node_exporter
+  ansible.builtin.systemd:
+    name: prometheus-node-exporter
+    enabled: true
+    state: started

@@ -69,7 +69,7 @@
     dest: "/opt/lab-small-business/docker/{{ item }}/.env"
     mode: "0600"
   loop: "{{ docker_compose_stacks | default([]) }}"
-  when: item in ['nextcloud', 'onlyoffice', 'wordpress']  # authentik/.env is rendered by the authentik playbook; mail/reverse-proxy/stirling-pdf need no per-stack .env
+  when: item in ['nextcloud', 'onlyoffice', 'wordpress', 'monitoring']  # authentik/.env is rendered by the authentik playbook; mail/reverse-proxy/stirling-pdf need no per-stack .env
 
 - name: Render Dovecot's LDAP auth config with the real bind password
   ansible.builtin.template:

@@ -9,4 +9,5 @@
 - import_playbook: 05-pki-trust.yml
 - import_playbook: 02-docker-server.yml
 - import_playbook: 03-authentik.yml
+- import_playbook: 06-sftp.yml
 - import_playbook: 99-backups.yml

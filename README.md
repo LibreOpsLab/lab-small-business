@@ -59,11 +59,16 @@ repo-root/
 | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | [Architecture.md](docs/Architecture.md)         | Component inventory, design principles, trade-offs                                                    |
 | [DeploymentGuide.md](docs/DeploymentGuide.md)   | Ordered, repeatable bring-up procedure                                                                |
+| [scenarios/](scenarios/README.md)               | The three build scenarios: VMware by hand, nested Proxmox, native Proxmox                             |
 | [WSLSetup.md](docs/WSLSetup.md)                 | Optional: driving the build from WSL2 on the Windows host instead of the linux-client01 admin VM      |
 | [PKI.md](docs/PKI.md)                           | Two-tier CA design, issuance, renewal, revocation, trust distribution                                 |
 | [SambaAdmin.md](docs/SambaAdmin.md)             | AD provisioning, OUs, users/groups, DNS, backup, health checks                                        |
 | [AuthentikAdmin.md](docs/AuthentikAdmin.md)     | LDAP source, OIDC providers, MFA, recovery                                                            |
 | [Security.md](docs/Security.md)                 | RBAC, cert validation, firewall rules, hardening, Fail2Ban, secrets                                   |
+| [Monitoring.md](docs/Monitoring.md)             | Prometheus + Grafana: host metrics, service probes, alert rules, adding a service                     |
+| [HostFirewalls.md](docs/HostFirewalls.md)       | Host-level firewalls: ufw, nftables, Windows Defender Firewall, and how they relate to pfSense        |
+| [SFTP.md](docs/SFTP.md)                         | Jailed SFTP accounts and why plain FTP is not offered                                                 |
+| [pfsense/squid.md](pfsense/squid.md)            | Filtering web proxy (Squid) on pfSense                                                                |
 | [Backup.md](docs/Backup.md)                     | Backup/restore for AD, Authentik, Docker volumes, PKI, config                                         |
 | [Troubleshooting.md](docs/Troubleshooting.md)   | DNS, Kerberos, LDAP, certs, OIDC, Docker/proxy issues                                                 |
 | [StudentLabManual.md](docs/StudentLabManual.md) | Day-1 checklist and hands-on exercises                                                                |

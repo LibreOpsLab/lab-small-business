@@ -30,7 +30,7 @@ tree can be re-based onto a different domain/realm/NetBIOS/subnet with
 | ----------------- | ---------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
 | pfSense           | `pfsense01`      | `10.10.10.1`  | Perimeter firewall, DHCP, NAT, Unbound DNS forwarder                                                  |
 | Samba AD DC       | `samba-dc01`     | `10.10.10.10` | AD DC, LDAP, Kerberos KDC, internal DNS, NTP                                                          |
-| Docker App Server | `docker01`       | `10.10.10.20` | Docker Engine, Traefik reverse proxy, NextCloud, OnlyOffice, Dovecot+Postfix, WordPress, Stirling PDF |
+| Docker App Server | `docker01`       | `10.10.10.20` | Docker Engine, Traefik reverse proxy, NextCloud, OnlyOffice, Dovecot+Postfix, WordPress, Stirling PDF, Prometheus + Grafana monitoring |
 | Authentik         | `authentik01`    | `10.10.10.30` | IAM/SSO — LDAP source + OIDC provider                                                                 |
 | Linux Desktop     | `linux-client01` | DHCP          | Ubuntu Desktop, SSSD domain member                                                                    |
 | Windows Desktop   | `win-client01`   | DHCP          | Windows 11, native AD domain member                                                                   |
@@ -125,7 +125,7 @@ repo-root/
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
-├── docker/          Docker Compose stacks: proxy, Authentik, NextCloud, OnlyOffice, mail, WordPress, Stirling PDF
+├── docker/          Docker Compose stacks: proxy, Authentik, NextCloud, OnlyOffice, mail, WordPress, Stirling PDF, monitoring
 ├── authentik/       Authentik blueprints (LDAP source, OIDC/proxy providers, groups, MFA) + bootstrap
 ├── ansible/         Playbooks and roles that tie every component together
 ├── scripts/         Top-level orchestration entry points (deploy-all.sh, provision-business.sh, ...)

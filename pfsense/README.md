@@ -24,6 +24,8 @@ baseline for future rebuilds.
   (`Diagnostics > Command Prompt` also works) to install the `pfSense-pkg-Cron` and
   `pfSense-pkg-Notes` packages and apply anything not expressible in `config.xml`.
 
+- [`squid.md`](squid.md) — filtering web proxy on pfSense (manual instructions, no template).
+
 ## Before importing config.xml.template
 
 Replace these placeholders (search for `__` prefixed tokens):

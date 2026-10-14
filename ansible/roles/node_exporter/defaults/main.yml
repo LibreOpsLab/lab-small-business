@@ -1,0 +1,10 @@
+---
+node_exporter_port: 9100
+
+# Who may reach the exporter. Prometheus runs in a container on docker01, so its traffic
+# arrives from docker01 itself (when scraping other hosts) or from a Docker bridge address
+# (when scraping docker01 locally). 172.16.0.0/12 is Docker's default address pool. The
+# exporter listens on the LAN address only and ufw limits who can reach that port.
+node_exporter_allowed_sources:
+  - 10.10.10.20
+  - 172.16.0.0/12

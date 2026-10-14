@@ -1,0 +1,83 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    user: "65534:65534"   # nobody - Prometheus needs no privileges
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring
+    # No Traefik labels and no published ports: Prometheus is reached through Grafana, so
+    # there is exactly one authenticated way in. Query it directly with
+    # `docker exec prometheus wget -qO- localhost:9090/api/v1/targets` when debugging.
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.25.0
+    container_name: blackbox-exporter
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - --config.file=/etc/blackbox/blackbox.yml
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+      # Probes verify the lab certificates properly: the chain is mounted, never skipped.
+      - ../../pki/intermediate-ca/certs/ca-chain.cert.pem:/etc/ssl/certs/lab-ca-chain.pem:ro
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: grafana
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      GF_SERVER_ROOT_URL: https://grafana.lab.internal
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      # Authentik forward-auth (Traefik authentik-forwardauth middleware) authenticates the
+      # request, then passes the username in X-authentik-username. Grafana trusts that header.
+      # This is safe only because Grafana publishes no ports: the sole route to it is Traefik,
+      # which overwrites the header from Authentik's answer. Do not add a ports: section.
+      GF_AUTH_PROXY_ENABLED: "true"
+      GF_AUTH_PROXY_HEADER_NAME: X-authentik-username
+      GF_AUTH_PROXY_HEADER_PROPERTY: username
+      GF_AUTH_PROXY_AUTO_SIGN_UP: "true"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - lab-proxy
+      - monitoring
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=lab-proxy
+      - traefik.http.routers.grafana.rule=Host(`grafana.lab.internal`)
+      - traefik.http.routers.grafana.tls=true
+      - traefik.http.routers.grafana.middlewares=authentik-forwardauth@file,security-headers@file
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
+
+networks:
+  lab-proxy:
+    name: lab-proxy
+    external: true
+  monitoring:
+    name: lab-monitoring
+
+volumes:
+  prometheus_data:
+  grafana_data:

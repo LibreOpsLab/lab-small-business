@@ -1,0 +1,71 @@
+# Prometheus scrape configuration for the lab. See docs/Monitoring.md.
+#
+# Two ways of watching, which answer different questions:
+#   - node_exporter on each host    -> "is the machine healthy?" (CPU, disk, clock, memory)
+#   - blackbox probes from outside  -> "does the service work for a user?" (HTTPS, TCP)
+# A host can be healthy while its service is down, and the reverse, so we keep both.
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Host metrics. Installed by ansible/roles/node_exporter on every Linux host. Add a Windows
+  # host here once windows_exporter is installed (docs/Monitoring.md#windows-hosts), port 9182.
+  - job_name: node
+    static_configs:
+      - targets: ["10.10.10.10:9100"]
+        labels: { host: samba-dc01 }
+      - targets: ["10.10.10.20:9100"]
+        labels: { host: docker01 }
+      - targets: ["10.10.10.30:9100"]
+        labels: { host: authentik01 }
+
+  # HTTPS services, checked end to end including the certificate chain.
+  - job_name: probe-https
+    metrics_path: /probe
+    params:
+      module: [https_2xx]
+    static_configs:
+      - targets:
+          - https://cloud.lab.internal
+          - https://docs.lab.internal
+          - https://auth.lab.internal
+          - https://www.lab.internal
+          - https://pdf.lab.internal
+          - https://grafana.lab.internal
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Plain TCP services: is anything answering on the port?
+  - job_name: probe-tcp
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+          - 10.10.10.1:53      # pfSense DNS resolver
+          - 10.10.10.10:53     # Samba DNS
+          - 10.10.10.10:88     # Kerberos
+          - 10.10.10.10:389    # LDAP
+          - 10.10.10.20:25     # SMTP
+          - 10.10.10.20:993    # IMAPS
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

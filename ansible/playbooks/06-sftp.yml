@@ -1,0 +1,9 @@
+---
+# SFTP-only jailed accounts on the application host. Define users in
+# ansible/group_vars/docker_server.yml (sftp_users). See docs/SFTP.md.
+
+- name: Configure SFTP on the Docker application host
+  hosts: docker_server
+  become: true
+  roles:
+    - sftp

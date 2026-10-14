@@ -1,0 +1,21 @@
+# Blackbox exporter probe modules. Certificate validation is ON: the lab CA chain is mounted
+# into the container by docker-compose.yml and trusted here, never bypassed.
+
+modules:
+  https_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      method: GET
+      # 2xx is the default. Redirects are followed, so an SSO login redirect (302 then 200)
+      # counts as up. A 5xx or a TLS failure counts as down.
+      follow_redirects: true
+      preferred_ip_protocol: ip4
+      tls_config:
+        ca_file: /etc/ssl/certs/lab-ca-chain.pem
+
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      preferred_ip_protocol: ip4

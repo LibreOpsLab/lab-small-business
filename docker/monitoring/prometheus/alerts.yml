@@ -1,0 +1,51 @@
+# Alert rules. These fire inside Prometheus and show on Grafana (Alerting > Alert rules, via the
+# Prometheus data source) and Prometheus's /alerts page. No notifier is wired up on purpose:
+# in a lab, "the alert fired and I can see it" is the lesson. Add Alertmanager when you want
+# email or chat delivery (docs/Monitoring.md#next-steps).
+
+groups:
+  - name: lab-availability
+    rules:
+      - alert: HostDown
+        expr: up{job="node"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.host }} is not answering node_exporter"
+          description: "No metrics from {{ $labels.instance }} for 2 minutes. Host down, exporter stopped, or firewall."
+
+      - alert: ServiceProbeFailed
+        expr: probe_success == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.instance }} failed its probe"
+          description: "The {{ $labels.job }} check has failed for 2 minutes."
+
+      - alert: CertificateExpiringSoon
+        expr: (probe_ssl_earliest_cert_expiry - time()) < 14 * 86400
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: "Certificate for {{ $labels.instance }} expires in under 14 days"
+          description: "Reissue it with pki/scripts/02-issue-server-cert.sh. See docs/PKI.md."
+
+  - name: lab-hosts
+    rules:
+      - alert: DiskSpaceLow
+        expr: |
+          node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs"}
+            / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs"} < 0.10
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.host }} {{ $labels.mountpoint }} has under 10% free"
+
+      # Kerberos rejects tickets when clocks differ by more than 5 minutes. Watching the clock
+      # catches that long before logins start failing. See docs/SambaAdmin.md (NTP).
+      - alert: ClockDrift
+        expr: abs(node_timex_offset_seconds) > 0.1
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.host }} clock is {{ $value }}s off"

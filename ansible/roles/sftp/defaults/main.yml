@@ -1,0 +1,7 @@
+---
+# Each entry: { name: alice, pubkey: "ssh-ed25519 AAAA... alice@laptop" }
+# Password logins stay disabled (common role), so every SFTP user needs a public key.
+sftp_users: []
+
+sftp_group: sftponly
+sftp_root: /srv/sftp

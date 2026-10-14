@@ -6,6 +6,7 @@ docker_compose_stacks:
   - mail
   - wordpress
   - stirling-pdf
+  - monitoring
 
 docker_proxy_network: lab-proxy
 
@@ -15,3 +16,8 @@ docker_proxy_network: lab-proxy
 # for how these are templated in.
 dovecot_ldap_bind_dn: "CN=svc-dovecot,OU=Service-Accounts,OU=LAB,DC=lab,DC=internal"
 postfix_ldap_bind_dn: "CN=svc-postfix,OU=Service-Accounts,OU=LAB,DC=lab,DC=internal"
+
+# SFTP-only accounts (ansible/roles/sftp, docs/SFTP.md). Empty by default; passwords are
+# disabled, so each user needs a public key. Example:
+#   - { name: supplier1, pubkey: "ssh-ed25519 AAAA... supplier1@example" }
+sftp_users: []

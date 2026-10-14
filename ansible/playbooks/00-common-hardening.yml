@@ -8,6 +8,12 @@
   roles:
     - common
 
+- name: Expose host metrics to Prometheus (see docs/Monitoring.md)
+  hosts: linux
+  become: true
+  roles:
+    - node_exporter
+
 - name: Install Fail2Ban on application-plane hosts (not the DC - see docs/Security.md#fail2ban)
   hosts: linux_clients
   become: true
