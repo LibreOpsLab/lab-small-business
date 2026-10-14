@@ -13,6 +13,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./prometheus/targets:/etc/prometheus/targets:ro
       - prometheus_data:/prometheus
     networks:
       - monitoring
@@ -60,6 +61,30 @@ services:
       - traefik.http.routers.loki.middlewares=loki-push-auth,security-headers@file
       - traefik.http.middlewares.loki-push-auth.basicauth.users=${LOKI_PUSH_USERS:?Set LOKI_PUSH_USERS in .env}
       - traefik.http.services.loki.loadbalancer.server.port=3100
+
+  # Receives pfSense's remote syslog and forwards it to Loki. Syslog has no authentication and
+  # no encryption, so this listener is bound to the LAN address only and anything on the LAN can
+  # write to it. That is acceptable for a lab firewall feed; say so in the threat model. Docker
+  # opens this port past the host firewall (docs/HostFirewalls.md), so the bind address is the
+  # only restriction. See pfsense/remote-logging.md.
+  alloy-syslog:
+    image: grafana/alloy:v1.17.0
+    container_name: alloy-syslog
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - run
+      - --server.http.listen-addr=127.0.0.1:12345
+      - --disable-reporting
+      - /etc/alloy/config.alloy
+    ports:
+      - "${SYSLOG_BIND_ADDRESS:-10.10.10.20}:1514:1514/udp"
+      - "${SYSLOG_BIND_ADDRESS:-10.10.10.20}:1514:1514/tcp"
+    volumes:
+      - ./alloy-syslog/config.alloy:/etc/alloy/config.alloy:ro
+    networks:
+      - monitoring
 
   grafana:
     image: grafana/grafana:11.2.0

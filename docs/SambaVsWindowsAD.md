@@ -31,6 +31,7 @@ the same.
 | Read-only DC (RODC) | Supported | Not covered by the FAQ's feature list: check the current release notes before relying on it |
 | Mixed DCs | n/a | Windows Server 2008 to 2012 R2 are listed as supported to join; the FAQ lists 2016 as not supported, which later guides contradict: test before committing |
 | Functional level | Current Windows levels | Behind Windows. Newer Samba releases (4.20 onwards) raised the level; older ones top out lower |
+| PowerShell AD module (`New-ADUser`, `Get-ADUser`) | Works: the DC runs Active Directory Web Services (ADWS) | **Does not work.** Samba does not implement ADWS; the cmdlets fail with "Unable to find a default server with Active Directory Web Services running". Use LDAP-based scripts ([`New-LabUsers.ps1`](../scripts/windows/New-LabUsers.ps1)), `samba-tool`, or the RSAT GUI tools |
 | Certificate Authority (AD CS) | Built in as a role | Not provided. This lab uses its own OpenSSL PKI ([PKI.md](PKI.md)) and distributes trust by Group Policy |
 | Trusts with other domains | Full forest and external trusts | Marked experimental in the FAQ: SID filtering not applied |
 | Hybrid cloud (Entra ID / Azure) | Supported, with Microsoft tooling | Not supported by Microsoft tooling |
@@ -38,6 +39,13 @@ the same.
 | Vendor support | Microsoft | Samba Team and partners; no single vendor SLA |
 
 ## What this means in the lab
+
+- **The AD PowerShell module will not work.** The course teaches PowerShell provisioning in place
+  of `csvde`. Here that means LDAP through .NET ([`New-LabUsers.ps1`](../scripts/windows/New-LabUsers.ps1)).
+  The `GroupPolicy` cmdlets are different: they use LDAP and the SYSVOL share, not ADWS, and work
+  with Samba. This is the single most surprising difference for a Windows administrator, and a
+  good reason to know both platforms. Samba's wiki tracks ADWS support
+  ([ADWS / AD PowerShell compatibility](https://wiki.samba.org/index.php/ADWS_/_AD_Powershell_compatibility)).
 
 - **Group Policy still works, with Windows doing the work.** Create and edit GPOs from the
   Windows Server (GPMC), and they land in Samba's SYSVOL; Windows clients apply them. The CA
@@ -70,7 +78,7 @@ native VMware VM, 4 GB of RAM, so stop `winsrv01` and the Windows client first.
 
 | Task | Windows AD | Samba AD | Record |
 |---|---|---|---|
-| Create an OU, a user, a group | `Active Directory Users and Computers` | `samba-tool ou/user/group create` | Same result? Which was faster? |
+| Create an OU, a user, a group | `Active Directory Users and Computers`, or `New-ADUser` | `samba-tool ou/user/group create`, or `New-LabUsers.ps1` (`New-ADUser` fails) | Same result? Which was faster? |
 | Create a GPO and filter it by security group | GPMC | GPMC from `winsrv01` | Does filtering work? Where is it enforced? |
 | Fine-grained password policy for one group | Password Settings Container | `samba-tool domain passwordsettings` | What can you scope? |
 | Add a second DC, change a GPO on one, check the other | Replicates automatically | Check SYSVOL on the second DC | How long until it appears? |

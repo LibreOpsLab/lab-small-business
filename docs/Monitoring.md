@@ -59,17 +59,16 @@ Every new service finishes with these three steps (the definition of done):
 
 ## Windows hosts
 
-Install `windows_exporter` (a Prometheus project), restricted to the monitoring host:
+[`scripts/windows/Install-MonitoringAgents.ps1`](../scripts/windows/Install-MonitoringAgents.ps1)
+installs `windows_exporter` (port 9182, firewall rule limited to the monitoring host) together
+with the logging agent. Then add the machine to
+[`prometheus/targets/windows.yml`](../docker/monitoring/prometheus/targets/windows.yml). Prometheus
+re-reads that file every minute, so there is no restart. This is **file-based service
+discovery**: a list of targets kept outside the main config, which is how real estates avoid
+editing Prometheus for every new machine. The `WindowsHostDown` alert covers them.
 
-```powershell
-# Run elevated. Download the MSI from the windows_exporter GitHub releases page first.
-msiexec /i windows_exporter.msi ENABLED_COLLECTORS="cpu,memory,logical_disk,net,os,service,time" LISTEN_PORT=9182 /qn
-New-NetFirewallRule -DisplayName "Prometheus scrape (windows_exporter)" `
-  -Direction Inbound -Protocol TCP -LocalPort 9182 -RemoteAddress 10.10.10.20 -Action Allow
-```
-
-Then add `10.10.10.x:9182` under a new `windows` job in `prometheus.yml`. The `time` collector
-exposes clock offset like the Linux one.
+The `time` collector exposes clock offset like the Linux one. Windows also needs the monitoring
+host allowed through its own firewall; the installer's `REMOTE_ADDR` setting does that.
 
 ## Things that surprise people
 

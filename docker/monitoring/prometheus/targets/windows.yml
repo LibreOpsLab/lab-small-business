@@ -1,0 +1,14 @@
+# Windows machines to monitor. Prometheus re-reads this file every minute: edit it, no restart.
+# Add an entry once windows_exporter is installed on the machine
+# (scripts/windows/Install-MonitoringAgents.ps1, docs/Monitoring.md#windows-hosts), for example:
+#
+# - targets: ["10.10.10.40:9182"]
+#   labels:
+#     host: winsrv01
+#
+# - targets: ["10.10.10.101:9182"]
+#   labels:
+#     host: win-client01
+#
+# Leave the list empty until then, so a lab without Windows machines raises no alerts.
+[]

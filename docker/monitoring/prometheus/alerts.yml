@@ -14,6 +14,14 @@ groups:
           summary: "{{ $labels.host }} is not answering node_exporter"
           description: "No metrics from {{ $labels.instance }} for 2 minutes. Host down, exporter stopped, or firewall."
 
+      - alert: WindowsHostDown
+        expr: up{job="windows"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.host }} is not answering windows_exporter"
+          description: "Host down, exporter stopped, or the Windows firewall rule is missing."
+
       - alert: LokiDown
         expr: up{job="loki"} == 0
         for: 2m

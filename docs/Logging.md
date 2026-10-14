@@ -78,10 +78,26 @@ service in debug mode is not.
 
 ## Windows hosts
 
-Windows logs go to the Event Log, not the journal. Install Alloy on the Windows machine and use
-its Windows event component to read the Security, System and Application logs, with the same
-`loki.write` block and credential as the Linux config. Download Alloy from the Grafana releases
-page. Not automated in this repo yet: it is the Windows counterpart of the `alloy` role.
+Windows logs go to the Event Log, not the journal.
+[`scripts/windows/Install-MonitoringAgents.ps1`](../scripts/windows/Install-MonitoringAgents.ps1)
+installs Alloy on a Windows machine with a configuration that ships the **Application**,
+**System** and **Security** logs to Loki, with the same credential as the Linux hosts. You download
+the installer and give the script its SHA-256 from the release page; it refuses a file that does
+not match. Query them with:
+
+```logql
+{job="windows-eventlog", host="winsrv01"}
+{job="windows-eventlog", log="security"} |= "4625"      # 4625 = failed logon
+```
+
+Event IDs worth knowing: **4624** successful logon, **4625** failed logon, **4720** account
+created, **4728/4732** added to a privileged group. Windows events arrive as structured text;
+add `| json` to a query to split the fields.
+
+## Firewall logs (pfSense)
+
+pfSense sends its syslog to an `alloy-syslog` receiver on `docker01`, which forwards it to Loki
+with `job="pfsense-syslog"`. Setup and the queries: [pfsense/remote-logging.md](../pfsense/remote-logging.md).
 
 ## Gotchas
 
@@ -95,6 +111,6 @@ page. Not automated in this repo yet: it is the Windows counterpart of the `allo
 
 ## Next steps (not built yet)
 
-- Firewall logs: send pfSense remote syslog to a Loki-bound receiver.
 - Alert on log patterns (many failed logins in five minutes), using Grafana alerting or Loki's ruler.
 - Wazuh or another security-event layer on top, if the course needs host-based detection.
+- Ship the Windows agent by Group Policy startup script instead of by hand.

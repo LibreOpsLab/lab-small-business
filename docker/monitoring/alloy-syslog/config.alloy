@@ -1,0 +1,51 @@
+// Receives syslog from pfSense and forwards it to Loki. See pfsense/remote-logging.md.
+//
+// pfSense sends BSD-style (RFC 3164) syslog by default, so that is the format for both
+// listeners. If you change pfSense to RFC 5424, change syslog_format to match.
+
+loki.relabel "pfsense" {
+  forward_to = []
+
+  // Keep the sending host's name and the severity as labels, so the same {host=...} and
+  // {level=...} queries used for the Linux hosts work here too.
+  rule {
+    source_labels = ["__syslog_message_hostname"]
+    target_label  = "host"
+  }
+
+  rule {
+    source_labels = ["__syslog_message_severity"]
+    target_label  = "level"
+  }
+
+  rule {
+    source_labels = ["__syslog_message_app_name"]
+    target_label  = "unit"
+  }
+}
+
+loki.source.syslog "pfsense" {
+  listener {
+    address       = "0.0.0.0:1514"
+    protocol      = "udp"
+    syslog_format = "rfc3164"
+    labels        = { job = "pfsense-syslog", protocol = "udp" }
+  }
+
+  listener {
+    address       = "0.0.0.0:1514"
+    protocol      = "tcp"
+    syslog_format = "rfc3164"
+    labels        = { job = "pfsense-syslog", protocol = "tcp" }
+  }
+
+  relabel_rules = loki.relabel.pfsense.rules
+  forward_to    = [loki.write.lab.receiver]
+}
+
+// Loki is on the internal monitoring network, so no TLS or credential is needed for this hop.
+loki.write "lab" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

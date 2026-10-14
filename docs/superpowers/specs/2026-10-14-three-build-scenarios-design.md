@@ -223,12 +223,12 @@ Lab capability against the weekly schedule:
 | 4 | NTP, DNS, DHCP; **monitoring stack** | Samba DNS/NTP, pfSense DHCP/Unbound | Prometheus, Grafana, blackbox, node_exporter: **done** (`docker/monitoring`, `docs/Monitoring.md`). Still open: Pulse (Proxmox-side), DNS/DHCP failure exercise |
 | 5 | Web, reverse proxy + TLS, **filtering proxy**, **SFTP**, host firewall | Traefik, PKI, WordPress | SFTP **done** (`roles/sftp`, `docs/SFTP.md`); Squid **done as pfSense instructions** (`pfsense/squid.md`); host firewalls **done as docs + per-role ufw rules** (`docs/HostFirewalls.md`) |
 | 6 | Mail, SPF/DKIM/DMARC, headers | `docker/mail`, `docs/SPFDKIMDMARC.md` | Have |
-| 7 | AD, shares, ACLs, GPO, PowerShell provisioning | Samba AD, win-client01 | Windows Server VM page, OU and join **done** (`hypervisor/vms/windows-server.md`); Samba vs Windows AD comparison **done**. Still open: PowerShell bulk-user script, file-server walkthrough |
+| 7 | AD, shares, ACLs, GPO, PowerShell provisioning | Samba AD, win-client01 | Windows Server VM page, OU and join **done** (`hypervisor/vms/windows-server.md`); Samba vs Windows AD comparison **done**. PowerShell bulk users (`New-LabUsers.ps1`, LDAP-based because Samba has no ADWS) and file-server walkthrough **written**, untested |
 | 8 | Prototype by code, test plan | Ansible roles, Terraform | Partial: roles cover the base only; no test-plan template |
 | 9 | Backup, restore, RPO/RTO | `docs/Backup.md` | PBS **done** (`terraform/lxc.tf`, `guests/pbs-install.sh`). Still open: timed restore exercise, immutable copy |
 | 12-14 | Threat model, risk, security design | Course templates applied to this lab | Content, not lab; lab supplies diagrams and an asset list |
-| 15 | CIS/Essential Eight hardening via Ansible and GPO; MFA; PKI; patching | `common`/`fail2ban` roles, Authentik MFA, PKI | CIS **done** (`playbooks/08-09`, `docs/CISHardening.md`); unattended-upgrades exists. Still open: Windows GPO baseline, WSUS/patch service for Windows, LAPS |
-| 16 | Central logging, alerts, baselines, Wazuh | Fail2ban only | Loki + Alloy **done** (`docs/Logging.md`). Still open: pfSense syslog, Windows Alloy, benchmark baseline report |
+| 15 | CIS/Essential Eight hardening via Ansible and GPO; MFA; PKI; patching | `common`/`fail2ban` roles, Authentik MFA, PKI | CIS **done** (`playbooks/08-09`, `docs/CISHardening.md`); unattended-upgrades exists. Windows GPO import **scripted** (untested). Still open: WSUS/patch service for Windows, LAPS |
+| 16 | Central logging, alerts, baselines, Wazuh | Fail2ban only | Loki + Alloy **done** (`docs/Logging.md`). pfSense syslog and Windows agents **scripted** (untested). Still open: benchmark baseline report |
 | 17 | Vulnerability scan, audit, remediate | none | Greenbone **documented** (`hypervisor/vms/scanner.md`, `docs/VulnerabilityScanning.md`); not automated. Scan targets exist |
 | 18 | IR runbook, timed recovery drill, handover | none in the lab | **Gap:** drill scenario using the monitoring stack |
 

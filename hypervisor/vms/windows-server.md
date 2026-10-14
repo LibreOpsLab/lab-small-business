@@ -49,8 +49,52 @@ nested KVM is slow. In scenario 3 it is a Proxmox VM. Sizing and the weeks it ru
 - Install the Group Policy tools (`Install-WindowsFeature GPMC, RSAT-AD-Tools`) and manage the
   domain's GPOs from here. A Samba domain stores GPOs in SYSVOL and Windows manages them with
   the standard tools: see [SambaVsWindowsAD.md](../../docs/SambaVsWindowsAD.md).
-- Host a file share with permissions based on domain groups (course week 7).
-- Provision users in bulk with PowerShell (`New-ADUser`), not `csvde`.
-- Install `windows_exporter` and Alloy so it shows up in monitoring and logging:
+- Host a file share with permissions based on domain groups (course week 7): see
+  [File server exercise](#file-server-exercise) below.
+- Provision users in bulk with PowerShell, not `csvde`:
+  [`scripts/windows/New-LabUsers.ps1`](../../scripts/windows/New-LabUsers.ps1). It uses LDAP
+  through .NET, not `New-ADUser`, because the Active Directory PowerShell module needs Active
+  Directory Web Services, which Samba does not provide
+  ([SambaVsWindowsAD.md](../../docs/SambaVsWindowsAD.md)).
+- Install the monitoring and logging agents with
+  [`scripts/windows/Install-MonitoringAgents.ps1`](../../scripts/windows/Install-MonitoringAgents.ps1):
   [Monitoring.md](../../docs/Monitoring.md#windows-hosts), [Logging.md](../../docs/Logging.md#windows-hosts).
-- Harden it with Group Policy: [CISHardening.md](../../docs/CISHardening.md#windows-server-and-clients).
+- Harden it with Group Policy, using
+  [`scripts/windows/Import-BaselineGpo.ps1`](../../scripts/windows/Import-BaselineGpo.ps1):
+  [CISHardening.md](../../docs/CISHardening.md#windows-server-and-clients).
+
+## File server exercise
+
+A file share where access follows **domain groups**, and people only see what they may open.
+This is the pattern behind every departmental share. None of these commands need the Active
+Directory module, so they work against the Samba domain.
+
+```powershell
+# 1. Install the role and create the folder
+Install-WindowsFeature FS-FileServer
+New-Item -ItemType Directory -Path D:\Shares\Lecturers -Force
+
+# 2. Share it. Access-based enumeration hides files a user cannot open.
+New-SmbShare -Name Lecturers -Path D:\Shares\Lecturers `
+  -FolderEnumerationMode AccessBased `
+  -FullAccess "LAB\Domain Admins" -ChangeAccess "LAB\Lecturers"
+
+# 3. NTFS permissions: the share permission and the NTFS permission BOTH apply, and the
+#    stricter one wins. Remove inherited access, then grant by group.
+$acl = Get-Acl D:\Shares\Lecturers
+$acl.SetAccessRuleProtection($true, $false)
+$rules = @(
+  New-Object System.Security.AccessControl.FileSystemAccessRule("LAB\Domain Admins","FullControl","ContainerInherit,ObjectInherit","None","Allow"),
+  New-Object System.Security.AccessControl.FileSystemAccessRule("LAB\Lecturers","Modify","ContainerInherit,ObjectInherit","None","Allow")
+)
+$rules | ForEach-Object { $acl.AddAccessRule($_) }
+Set-Acl D:\Shares\Lecturers $acl
+```
+
+Then sign in as `lecturer01` and `student01` from `win-client01` and open the share at `\\winsrv01\Lecturers`.
+Which can open it, which can see it, and why? Change a group membership and sign in again: when
+does the change take effect (a new logon token is needed)?
+
+Discuss: why use groups rather than users in permissions, what "stricter wins" means when the
+share and NTFS permissions differ, and why `Domain Admins` is not the group to give day-to-day
+access.

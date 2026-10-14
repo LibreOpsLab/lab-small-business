@@ -22,6 +22,7 @@ the manual flow and want a reviewed, reusable baseline for future rebuilds.
   (`Diagnostics > Command Prompt` also works) to install the `pfSense-pkg-Cron` and
   `pfSense-pkg-Notes` packages and apply anything not expressible in `config.xml`.
 
+- [`remote-logging.md`](remote-logging.md) — send firewall logs to Loki (manual instructions).
 - [`squid.md`](squid.md) — filtering web proxy on pfSense (manual instructions, no template).
 
 ## Before importing config.xml.template

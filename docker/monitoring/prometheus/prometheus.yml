@@ -17,8 +17,8 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-  # Host metrics. Installed by ansible/roles/node_exporter on every Linux host. Add a Windows
-  # host here once windows_exporter is installed (docs/Monitoring.md#windows-hosts), port 9182.
+  # Host metrics. Installed by ansible/roles/node_exporter on every Linux host. Windows hosts
+  # have their own job below.
   - job_name: node
     static_configs:
       - targets: ["10.10.10.10:9100"]
@@ -27,6 +27,13 @@ scrape_configs:
         labels: { host: docker01 }
       - targets: ["10.10.10.30:9100"]
         labels: { host: authentik01 }
+
+  # Windows hosts, discovered from a file so you can add one without restarting Prometheus.
+  # See targets/windows.yml. windows_exporter listens on 9182.
+  - job_name: windows
+    file_sd_configs:
+      - files: ["/etc/prometheus/targets/windows.yml"]
+        refresh_interval: 1m
 
   # Loki's own metrics, scraped directly on the internal monitoring network.
   - job_name: loki

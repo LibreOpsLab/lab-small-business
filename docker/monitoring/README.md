@@ -9,6 +9,7 @@ failure exercise: [docs/Monitoring.md](../../docs/Monitoring.md).
 | `prometheus`        | Scrapes and stores metrics, evaluates alert rules                           | `monitoring` network only |
 | `blackbox-exporter` | Probes HTTPS (with certificate validation) and TCP services from outside    | `monitoring` network only |
 | `loki`              | Stores logs pushed by Alloy on each host ([Logging.md](../../docs/Logging.md)) | Traefik, push only, basic auth |
+| `alloy-syslog`      | Receives pfSense syslog on `10.10.10.20:1514` and forwards it to Loki ([remote-logging.md](../../pfsense/remote-logging.md)) | LAN, bind address only |
 | `grafana`           | Dashboards; reads Prometheus and Loki                                       | Traefik, behind SSO   |
 
 ## Access control: forward-auth

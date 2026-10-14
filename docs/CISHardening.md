@@ -99,8 +99,12 @@ Windows hardening goes through **Group Policy**, so it reaches every domain-join
 once. Use the **Microsoft Security Baselines** (free, in the Security Compliance Toolkit) or the
 CIS Windows benchmarks, import them into a GPO linked to the Windows OU, and measure with the
 same loop: baseline, snapshot, apply, test, re-measure, record exceptions. The Samba AD
-limitations that affect this are in [SambaVsWindowsAD.md](SambaVsWindowsAD.md). Not automated in
-this repo yet.
+limitations that affect this are in [SambaVsWindowsAD.md](SambaVsWindowsAD.md).
+
+[`scripts/windows/Import-BaselineGpo.ps1`](../scripts/windows/Import-BaselineGpo.ps1) imports a
+baseline GPO from a backup folder and links it to an OU, previewable with `-WhatIf`. Link to a
+test OU first. Measure before and after with the Microsoft Security Compliance Toolkit's policy
+analyzer or CIS-CAT, since Lynis does not run on Windows. Untested against the lab domain.
 
 ## Gotchas
 

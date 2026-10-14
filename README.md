@@ -73,6 +73,7 @@ repo-root/
 | [DomainJoin.md](docs/DomainJoin.md)             | Joining every Windows and Linux machine to the domain, verifying it, Proxmox realm logins             |
 | [HostFirewalls.md](docs/HostFirewalls.md)       | Host-level firewalls: ufw, nftables, Windows Defender Firewall, and how they relate to pfSense        |
 | [SFTP.md](docs/SFTP.md)                         | Jailed SFTP accounts and why plain FTP is not offered                                                 |
+| [pfsense/remote-logging.md](pfsense/remote-logging.md) | Send pfSense firewall logs to Loki                                                              |
 | [pfsense/squid.md](pfsense/squid.md)            | Filtering web proxy (Squid) on pfSense                                                                |
 | [Backup.md](docs/Backup.md)                     | Backup/restore for AD, Authentik, Docker volumes, PKI, config                                         |
 | [Troubleshooting.md](docs/Troubleshooting.md)   | DNS, Kerberos, LDAP, certs, OIDC, Docker/proxy issues                                                 |
