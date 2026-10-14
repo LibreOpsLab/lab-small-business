@@ -27,14 +27,6 @@ the LAN Segment every other VM's NIC will use.
    lab VM's NIC will pick `LAN-LAB` from the same dropdown once it exists — there's nothing
    further to create.
 
-### On Proxmox
-
-The VMware-GUI steps above don't apply — create the VM through the Proxmox web console instead:
-**Datacenter > *node* > Create VM**, same specs (2 vCPU, 2048 MB RAM, 20 GB disk), pfSense CE
-ISO attached. NIC 1 on `vmbr-wan`, NIC 2 on `vmbr-lan` — both bridges are prerequisites you
-create once, per [`../proxmox/README.md`](../proxmox/README.md)'s WAN-networking section, before
-building this VM. Everything from "## Install" onward is identical regardless of hypervisor.
-
 ## Install (manual — no unattended installer available for pfSense on Workstation)
 
 1. Boot from ISO, run the installer with the default ZFS/UFS choice (UFS is fine for a lab).

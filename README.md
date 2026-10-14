@@ -40,7 +40,7 @@ and [docs/MultiBusiness.md](docs/MultiBusiness.md)). Full addressing and compone
 repo-root/
 ├── docs/           Architecture, deployment, admin, and student documentation
 ├── diagrams/        Mermaid source for network/auth/PKI/OIDC/DNS/federation diagrams
-├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation or Proxmox VE)
+├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation/Fusion Pro)
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
@@ -90,20 +90,16 @@ repo-root/
 ## Quick start
 
 ```bash
-# 1. pfSense + admin desktop (VMware Workstation GUI, fully manual — see
+# 1. pfSense + admin desktop (VMware Workstation/Fusion GUI, fully manual — see
 #    docs/DeploymentGuide.md steps 1-2). Building pfSense's second NIC is what creates the
 #    LAN-LAB LAN Segment every other VM's NIC uses.
 
-# 2. Remaining VM shells
-#    Windows host, elevated PowerShell:
-hypervisor\vmware-windows\scripts\create-vms.ps1
-#    ...or a Linux host:
-./hypervisor/vmware-linux/scripts/create-vms.sh
-#    ...or Proxmox VE (see hypervisor/proxmox/README.md — automates 3 of the 4 VMs, not 4):
-cd hypervisor/proxmox && terraform apply
+# 2. Remaining VMs — same hypervisor GUI, hand-built, one per hypervisor/vms/*.md:
+#    samba-dc01, docker01, authentik01, win-client01. Apply hypervisor/desktop/baseline.md
+#    (patch, VM tools, locale, SSH keys) to each after its OS install.
 
-# 3. Samba AD, endpoints — see docs/DeploymentGuide.md for the full sequence (OS installs for
-#    the four VMs above are unattended; domain-join for the two clients is manual)
+# 3. Samba AD, endpoints — see docs/DeploymentGuide.md for the full sequence (every OS install
+#    above is interactive; domain-join for the two clients is manual)
 
 # 4. PKI + identity + application layers, once VMs exist and are reachable over SSH — run
 #    from linux-client01, the control host (docs/DeploymentGuide.md step 2)
@@ -113,8 +109,7 @@ make deploy   # wraps scripts/deploy-all.sh: runs ansible/playbooks/site.yml end
 ```
 
 See [docs/DeploymentGuide.md](docs/DeploymentGuide.md) for the complete step-by-step, including
-the manual steps that have no scriptable equivalent (pfSense and linux-client01 builds, Windows
-domain join).
+every hand-built VM (all six, on the desktop-hypervisor path) and the Windows domain join.
 
 ## Optional: multi-business & federation
 

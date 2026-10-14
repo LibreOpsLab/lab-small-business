@@ -5,9 +5,9 @@ Guidance for Claude Code (or any agent) working in this repository.
 ## What this is
 
 A self-contained, IaC-driven homelab simulating a small organisation's IT estate on VMware
-Workstation (Windows or Linux) or Proxmox VE — see
-[hypervisor/README.md](hypervisor/README.md) for the trade-offs between them: pfSense, Samba
-AD, an internal PKI, Authentik SSO, a Docker application platform, and Windows/Linux endpoints.
+Workstation Pro (Windows/Linux) or Fusion Pro (macOS) — see
+[hypervisor/README.md](hypervisor/README.md). Covers pfSense, Samba AD, an internal PKI,
+Authentik SSO, a Docker application platform, and Windows/Linux endpoints.
 It's a **teaching artifact** — code quality and doc clarity are
 the product, not just a means to an end. Read [docs/Architecture.md](docs/Architecture.md)
 before making structural changes; it explains the design principles and the trade-offs behind

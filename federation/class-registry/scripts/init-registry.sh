@@ -3,6 +3,9 @@
 # rndc/TSIG key BIND9 and the registry container share, seeds the initial zone file, and
 # initialises the class CA. Safe to re-run (skips anything already present).
 #
+# This is the fast-path version of 4 steps worth understanding individually the first time —
+# see docs/ClassRegistry.md#end-to-end-workflow for what each one does and why.
+#
 # Usage: ./scripts/init-registry.sh --ns-ip <this-host's-IP-students-will-reach-it-on>
 
 set -euo pipefail

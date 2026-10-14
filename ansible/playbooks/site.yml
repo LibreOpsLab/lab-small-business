@@ -1,10 +1,12 @@
 ---
 # Master playbook — runs every component playbook in dependency order across the full
-# inventory. See docs/DeploymentGuide.md for how this fits into the overall bring-up sequence
-# (pfSense and the two desktop clients are provisioned outside Ansible — see their own docs).
+# inventory. See docs/DeploymentGuide.md for how this fits into the overall bring-up sequence.
+# pfSense and the two desktop clients are entirely outside this inventory (provisioned and
+# managed by hand — see their own docs). samba-dc01 IS in inventory — hardening, PKI trust, and
+# backups below all apply to it — but its AD domain provisioning happens outside Ansible,
+# directly via samba/scripts/bootstrap-ad.sh (see hypervisor/vms/samba-dc.md).
 
 - import_playbook: 00-common-hardening.yml
-- import_playbook: 01-samba-ad.yml
 - import_playbook: 04-linux-client-join.yml
 - import_playbook: 05-pki-trust.yml
 - import_playbook: 02-docker-server.yml

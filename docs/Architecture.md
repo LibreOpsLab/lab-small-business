@@ -6,8 +6,8 @@ This repository defines a self-contained, IaC-driven homelab that simulates a sm
 organisation's IT estate: perimeter firewall, Active Directory, identity federation, a Docker
 application platform, and both Windows and Linux endpoints. It exists to teach realistic
 sysadmin/DevOps workflows — domain administration, PKI, IAM/SSO, reverse proxying,
-containerised applications — end to end, on a single VMware Workstation host or a Proxmox VE
-node — see [hypervisor/README.md](../hypervisor/README.md) for the trade-offs between them.
+containerised applications — end to end, on a single VMware Workstation/Fusion Pro host — see
+[hypervisor/README.md](../hypervisor/README.md).
 
 ## Domain and subnet naming
 
@@ -22,7 +22,9 @@ mDNS collision risk. Every hostname, DN, and cert SAN in this repository derives
 `lab_domain`/`lab_realm` (Ansible) or the equivalent shell variables (scripts), so the whole
 tree can be re-based onto a different domain/realm/NetBIOS/subnet with
 [`scripts/provision-business.sh`](../scripts/provision-business.sh) — see
-[docs/MultiBusiness.md](MultiBusiness.md) for why you'd want more than one.
+[docs/MultiBusiness.md](MultiBusiness.md) for why you'd want more than one. If you only need a
+different subnet, [`scripts/set-subnet.sh`](../scripts/set-subnet.sh) does just that without
+the domain/NetBIOS rename.
 
 ## Component inventory
 
@@ -121,7 +123,7 @@ flowchart LR
 repo-root/
 ├── docs/           Architecture, deployment, admin, and student documentation
 ├── diagrams/        Mermaid source for all architecture diagrams
-├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation or Proxmox VE)
+├── hypervisor/      VM inventory, network config, provisioning notes (VMware Workstation/Fusion Pro)
 ├── pfsense/         pfSense config.xml template + post-install hardening script
 ├── samba/           samba-tool automation: AD provisioning, users, groups, OUs, backup
 ├── pki/             Two-tier internal CA: root/intermediate init, issuance, renewal, revocation
