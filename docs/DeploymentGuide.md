@@ -140,7 +140,8 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
    SSH hardening, `ufw`, `unattended-upgrades`, and NTP against `samba-dc01`, applied to all
    three servers (`samba-dc01`, `docker01`, `authentik01`) — plus Fail2Ban on `docker01`/
    `authentik01`. This is `samba-dc01`'s first contact with Ansible: everything in step 3 ran
-   directly on the DC over SSH, not through a playbook.
+   directly on the DC over SSH, not through a playbook. Every server also gets `node_exporter`,
+   so Prometheus can watch it ([Monitoring.md](Monitoring.md)).
 
    ```bash
    ansible-playbook playbooks/04-linux-client-join.yml --ask-vault-pass
@@ -161,8 +162,8 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
    ansible-playbook playbooks/02-docker-server.yml --ask-vault-pass
    ```
 
-   Installs Docker Engine and brings up all 5 Compose stacks (`docker/{reverse-proxy,nextcloud,
-   onlyoffice,mail,wordpress,stirling-pdf}`) on `docker01` in one run.
+   Installs Docker Engine and brings up all 7 Compose stacks (`docker/{reverse-proxy,nextcloud,
+   onlyoffice,mail,wordpress,stirling-pdf,monitoring}`) on `docker01` in one run.
 
    ```bash
    ansible-playbook playbooks/03-authentik.yml --ask-vault-pass
@@ -172,6 +173,14 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
    [`bootstrap-authentik.sh`](../authentik/scripts/bootstrap-authentik.sh) — the actual
    bootstrap logic; Ansible's role here is just plumbing (copy the repo, render `.env`, invoke
    the script).
+
+   ```bash
+   ansible-playbook playbooks/06-sftp.yml --ask-vault-pass
+   ```
+
+   Creates jailed, key-only SFTP accounts on `docker01` from `sftp_users` in
+   `group_vars/docker_server.yml`. That list is empty by default, so it changes nothing until
+   you add a user. See [SFTP.md](SFTP.md).
 
    ```bash
    ansible-playbook playbooks/99-backups.yml --ask-vault-pass
@@ -185,7 +194,7 @@ issued `samba-dc01.lab.internal` cert/key into `/etc/samba/tls/` on the DC and e
 
 ## 6. Applications
 
-NextCloud, OnlyOffice, Dovecot+Postfix, WordPress, and Stirling PDF all came up already, as part
+NextCloud, OnlyOffice, Dovecot+Postfix, WordPress, Stirling PDF, and the monitoring stack all came up already, as part
 of step 5's `02-docker-server.yml` run — this step is about understanding what you now have, not
 deploying anything new. (To reapply this layer later, after editing a Compose file or `.env`,
 re-run `ansible-playbook playbooks/02-docker-server.yml --ask-vault-pass` — it's idempotent, so
@@ -210,6 +219,10 @@ re-running the whole playbook to pick up one app's change is safe and cheap.)
   forward-auth. Traefik asks Authentik "is this request allowed?" *before* proxying the request
   at all, rather than the app itself handling an OIDC login like NextCloud does. See
   [docker/stirling-pdf/README.md](../docker/stirling-pdf/README.md).
+- **Grafana** (`https://grafana.lab.internal`) — the same forward-auth pattern as Stirling PDF,
+  in front of Prometheus-backed dashboards. Open "LAB core services": every host and probe
+  should be green. A service is not finished until it is monitored; see
+  [Monitoring.md](Monitoring.md).
 
 ### 6a. Groupware apps and optional WordPress SSO
 

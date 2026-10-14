@@ -5,7 +5,8 @@ Guidance for Claude Code (or any agent) working in this repository.
 ## What this is
 
 A self-contained, IaC-driven homelab simulating a small organisation's IT estate on VMware
-Workstation Pro (Windows/Linux) or Fusion Pro (macOS) — see
+Workstation Pro (Windows/Linux) or Fusion Pro (macOS), or on Proxmox VE (nested in Workstation, or
+on hardware) — three build scenarios, see [scenarios/README.md](scenarios/README.md) and
 [hypervisor/README.md](hypervisor/README.md). Covers pfSense, Samba AD, an internal PKI,
 Authentik SSO, a Docker application platform, and Windows/Linux endpoints.
 It's a **teaching artifact** — code quality and doc clarity are
@@ -24,13 +25,21 @@ for spinning up additional "businesses" — see [docs/MultiBusiness.md](docs/Mul
   the link — an undocumented component is an unfinished one here.
 - `docker/` — one subdirectory per application stack (`docker-compose.yml`, `.env.example`,
   `README.md`). Base stacks (`reverse-proxy`, `authentik`, `nextcloud`, `onlyoffice`, `mail`,
-  `wordpress`, `stirling-pdf`) are wired into `ansible/group_vars/docker_server.yml`'s
+  `wordpress`, `stirling-pdf`, `monitoring`) are wired into `ansible/group_vars/docker_server.yml`'s
   `docker_compose_stacks` list and brought up automatically by `site.yml`.
 - `federation/` — **optional, advanced, opt-in.** Multi-business bridging (IPSec/VPN), the
   class registry (shared CA + DNS), edge proxies, SPF/DKIM/DMARC. **Nothing under here is ever
   referenced by `ansible/playbooks/site.yml` or `docker_compose_stacks`.** If you add something
   to this layer, keep it that way — the base single-business lab must always deploy and run
   with `federation/` deleted entirely.
+- `scenarios/` — the story of the three build paths (hand-built VMware, nested Proxmox, native
+  Proxmox): what to do in what order, host sizing, and why. Mechanism lives elsewhere.
+- `hypervisor/proxmox/` — **optional, opt-in** Terraform (`terraform/`), host scripts (`host/`) and
+  guest scripts (`guests/`) for the two Proxmox scenarios. Brought back in October 2026 after
+  being extracted to `lab-scale-business` in August (decision recorded in
+  `docs/superpowers/specs/2026-10-14-three-build-scenarios-design.md`). Same rule as `federation/`:
+  the hand-built VMware path must always work with `hypervisor/proxmox/` deleted entirely, so
+  nothing in `ansible/`, `docker/`, `pki/` or `samba/` may depend on it.
 - `pki/`, `samba/`, `authentik/`, `ansible/`, `scripts/`, `desktop-apps/`, `hypervisor/`,
   `pfsense/` — see `docs/Architecture.md`'s repository layout section for what each owns.
 

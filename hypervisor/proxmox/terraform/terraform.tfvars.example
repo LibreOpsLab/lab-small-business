@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars (gitignored) and fill in. Never commit the real file.
+proxmox_api_url   = "https://pve.lab.internal:8006/api2/json"
+proxmox_api_token = "terraform@pve!lab=REPLACE_WITH_SECRET_PRINTED_BY_create-terraform-user.sh"
+proxmox_node      = "pve"
+storage_pool      = "local-lvm"
+image_datastore   = "local"
+lan_bridge        = "vmbr-lan"
+ssh_public_key    = "ssh-ed25519 AAAA... you@your-machine"
+
+# If the host has a second disk added as storage, put the PBS datastore on it:
+# backup_storage_pool = "backup-disk"

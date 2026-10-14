@@ -7,10 +7,30 @@ prepares the Windows host; VMware Workstation then exposes VT-x/EPT to a guest).
 Proxmox VE installable *inside* VMware Workstation, which unlocks far more automation than the
 VMware-only path allows: Terraform, LXC containers, templates, snapshots, and an API.
 
-The repo today has one primary path (hand-run VMware Workstation, `hypervisor/vmware-*`) and an
-add-on Proxmox path (`hypervisor/proxmox`, three Terraform VMs). This design reorganises the repo
-around three explicit **build scenarios** that share one core of Ansible, Docker, PKI, Samba and
-Authentik content.
+The repo today (after the 26 August 2026 restructure) has one path: hand-built VMware, in
+`hypervisor/desktop/`. The `vmrun` automation was removed, and Proxmox with its Terraform module
+was **deliberately extracted** to a separate repository, `lab-scale-business`
+([extraction design](2026-08-26-extract-proxmox-server-automation-design.md)). `hypervisor/README.md`
+still says that automation lives elsewhere. This design brings Proxmox-based scenarios back as
+first-class paths, so it reverses part of that decision; **where the Proxmox/Terraform code
+lives is an open question** (see Open questions). Three explicit **build scenarios** share one
+core of Ansible, Docker, PKI, Samba and Authentik content.
+
+## Decisions log
+
+| Date | Decision | By |
+|------|----------|----|
+| 2026-10-14 | Provisioning on Proxmox uses **Terraform** (worth teaching). Host scripts only for what Terraform cannot do | user |
+| 2026-10-14 | Terraform comes back into this repo at `hypervisor/proxmox/terraform/`, reversing the August extraction. Chosen because all three scenarios share one core. `lab-scale-business` is no longer needed for this | assistant, delegated by user |
+| 2026-10-14 | Assume more than 200 GB free disk on lab PCs. A Windows AD comparison is wanted in this lab even though other labs also build Windows AD | user |
+| 2026-10-14 | No privileged LXC. Docker hosts and the DC are VMs. Small services are unprivileged LXC (spike: LXC networking and package installs work) | user |
+| 2026-10-14 | Squid lives on pfSense (or external hardware), outside Proxmox | user |
+| 2026-10-14 | **Windows machines are native VMware VMs, never nested.** On native Proxmox they may be Proxmox VMs | user |
+| 2026-10-14 | Each student builds their **own** nested Proxmox. A shared class server is optional, never required. With one, students run a client PC in local VMware and connect to it | user |
+| 2026-10-14 | Proxmox VM sizing lives in the scenario READMEs | user |
+| 2026-10-14 | Add Proxmox Backup Server, a vulnerability scanner (Greenbone; Kali is taught elsewhere) and CIS hardening (important for assessments) | user |
+| 2026-10-14 | Central logging is Loki | user |
+| 2026-10-14 | All Windows and Linux machines are AD-joined. Demonstrate Samba AD and document its limitations against Windows AD | user |
 
 ## The scenarios
 
@@ -36,7 +56,7 @@ Scenarios 1 and 2 both run on VMware Workstation Pro on **either a Windows or a 
 
 | | Windows host | Linux host |
 |---|---|---|
-| Scenario 1 VM creation | `hypervisor/vmware-windows/scripts/create-vms.ps1` | `hypervisor/vmware-linux/scripts/create-vms.sh` |
+| Scenario 1 VM creation | Hand-built through the GUI, `hypervisor/desktop/` | Same |
 | Scenario 2 nested prep | `scripts/Set-NestedVirtualisation.ps1` (Check / Disable / Restore) | `scripts/check-nested-virtualisation.sh` (read-only check) |
 | What blocks nesting | Hyper-V, VBS, Memory Integrity, Credential Guard | `kvm_intel`/`kvm_amd` `nested` parameter off, no `vmx`/`svm` flag, firmware VT-x off |
 | Scenario 2 Admin PC | Ubuntu desktop or Windows 11 | same |
@@ -51,22 +71,30 @@ deleted, and nothing in the shared core may depend on Proxmox.
 
 ## Scenario 2 topology (matches the course spine lab)
 
-The Advanced Server Security plan fixes the nested design as **three VMware VMs**, with all lab
-guests inside Proxmox. Scenario 2 adopts it exactly:
+The course plan's nested design is pfSense, Proxmox and an Admin PC as VMware VMs with the lab
+guests inside Proxmox. Scenario 2 follows it, with one refinement from the user: **every Windows
+machine is also a native VMware VM**, never nested.
 
 ```
-Internet - VMware NAT - pfSense (VMware VM) - LAN Segment (LAN-LAB) - Admin PC (VMware VM)
-                                                      |
-                                                Proxmox VE (VMware VM, nested KVM + LXC)
-                                                      |  vmbr-lan bridged to the LAN Segment
-                                         LXCs + VMs: docker01, authentik01, samba-dc01, Windows Server...
+Internet - VMware NAT - pfSense (+Squid) - LAN Segment (LAN-LAB) -+- Windows Server (member)
+                                                                   +- Windows 11 client
+                                                                   +- Linux client / admin PC
+                                                                   +- scanner01 (on demand)
+                                                                   +- Proxmox VE (nested KVM + LXC)
+                                                                          |  vmbr-lan
+                                                       samba-dc01, docker01, authentik01 (VMs); PBS (LXC)
 ```
 
 Why pfSense stays outside Proxmox here: it avoids a second level of nesting for the firewall,
-reuses the repo's existing `LAN-LAB` LAN Segment design unchanged, and frees RAM (32 GB host:
-about 4 GB Windows, 1 GB pfSense, 3-4 GB Admin PC, 20 GB for Proxmox and its guests). In
-scenario 3 there is no VMware, so pfSense becomes a Proxmox VM on `vmbr-wan` / `vmbr-lan`.
-Terraform therefore never manages pfSense in scenario 2.
+reuses the repo's `LAN-LAB` LAN Segment unchanged, and Squid belongs on the path all traffic
+crosses. In scenario 3 there is no VMware, so pfSense and the Windows machines become Proxmox VMs
+on `vmbr-wan` / `vmbr-lan`. Terraform therefore manages pfSense only in scenario 3. The RAM
+budget and per-VM sizes are in the
+[scenario 2 README](../../../scenarios/2-nested-proxmox/README.md#reference-lab-pc-and-sizing).
+
+Every machine, Windows and Linux, is joined to the Samba AD domain: Windows by
+`samba/scripts/join-windows-client.ps1`, Linux by `samba/scripts/join-linux-client.sh` or the
+`sssd_client` role. LXC guests join the same way as any other Linux host.
 
 ## Workload placement on Proxmox (scenarios 2 and 3)
 
@@ -74,7 +102,7 @@ Terraform therefore never manages pfSense in scenario 2.
 |------|------|--------|
 | `pfsense01` | VM (scenario 3 only) | FreeBSD, no LXC option. Native VMware VM in scenario 2 |
 | Squid proxy | On pfSense, outside Proxmox | It must sit on the path all traffic crosses. See `pfsense/squid.md` |
-| `win-client01`, Windows Server | VM | Windows |
+| `win-client01`, Windows Server | Native VMware VM (scenario 2); Proxmox VM (scenario 3) | Windows. Never nested |
 | `linux-client01` | VM | Needs a desktop |
 | `docker01` | **VM** | Decision: no privileged LXC. See below |
 | `authentik01` | **VM** | Runs Docker, same reasoning |
@@ -104,13 +132,13 @@ already built. LXC is kept for services that need no Docker and no privileges.
 | Failure mode | Provider limits (the single-CD-ROM limit already forced a workaround) | A bug in your script |
 | Transferable skill | High (industry IaC) | Medium (Proxmox admin) |
 
-Recommendation: **default to host scripts, keep Terraform as an optional extension.** The
-course says hand-build first, then rebuild by code, and "automation as the default, hand
-building as the skill-builder". A script that wraps the exact commands students typed by hand
-is the shortest honest step from week 2 to week 8, with none of the token and certificate
-prerequisites in front of the first lesson. Terraform then becomes a worthwhile contrast
-("here is the same lab, declared"). The existing `hypervisor/proxmox/` module stays and keeps
-working. This is a recommendation; the final choice is yours.
+**Decision (user, 14 Oct): use Terraform, because it is worth teaching.** The comparison above
+stays as teaching material: it is the honest cost of the choice. Terraform's setup cost is cut
+by a small host script that creates the API role, user and token (so students do not click
+through the permissions UI) and by installing the Proxmox certificate into the trust store.
+Host scripts remain only for what Terraform cannot do: `post-install.sh`, the API bootstrap, and
+anything run inside a guest. Because students hand-build first (week 2) and then rebuild from
+code (week 8), the Terraform lesson is "here is the same lab, declared".
 
 ### Risks to resolve in the spike, not assume away
 
@@ -121,8 +149,9 @@ working. This is a recommendation; the final choice is yours.
 - **Static IPs and the pfSense dependency.** LXCs boot before pfSense is configured. IPs are
   static on `vmbr-lan`, so this is fine, but the order in the runbook must be pfSense first
   for anything that needs internet.
-- **Nested performance.** Three-level nesting is slow for Windows guests. Budget RAM accordingly
-  and treat `win-client01` as optional in scenario 2.
+- **RAM, not CPU, is the limit.** On a 32 GB lab PC the Proxmox VM gets about 14 GB and fills
+  it. The run-only-what-the-week-needs rules are in the scenario 2 README; confirm them in the
+  spike.
 
 ## Target repository layout
 
@@ -134,10 +163,10 @@ scenarios/
 └── 3-native-proxmox/              # bare-metal notes, then hands off to proxmox/
 hypervisor/
 ├── proxmox/
-│   ├── host/post-install.sh       # repo + nag cleanup (this change)
-│   ├── (Terraform: VMs and LXCs)
-│   └── README.md
-├── vmware-windows/, vmware-linux/ # unchanged; used by scenario 1
+│   ├── host/                      # post-install.sh, create-terraform-user.sh
+│   ├── terraform/                 # VMs and LXCs
+│   └── guests/                    # pbs-install.sh
+├── desktop/                       # hand-built VMware path, used by scenario 1 (and the VMware VMs of 2)
 └── vms/, networks/                # shared specs
 ```
 
@@ -230,7 +259,7 @@ Points to settle with the course owner:
 
 ## Open questions
 
-- Windows Server guests under nested KVM are slow (the course plan says so). Confirm one
-  Windows Server guest at a time is the supported design, and whether `win-client01` is optional.
-- One Proxmox VM per student, or one shared nested host per bench?
-- Where to keep the Proxmox VM sizing: a table here, or the `scenarios/2-nested-proxmox` README.
+- Shared class server: the isolation, reachability and capacity questions in the scenario 3 README.
+- Windows AD comparison: included here even though other labs build Windows AD. Plan: Samba AD
+  stays the lab domain; a throwaway Windows Server DC in a separate domain is run one at a time
+  (RAM), with a limitations document (`docs/SambaVsWindowsAD.md`, not yet written).

@@ -26,12 +26,22 @@ The lab's default subnet (`10.10.10.0/24`) is a suggested starter, not a require
 - [`vms/`](vms/) — one spec sheet per VM (CPU/RAM/disk/NIC, OS, static IP where applicable, and
   build/install steps).
 
+## Proxmox VE (scenarios 2 and 3)
+
+A second platform, opt-in: [`proxmox/`](proxmox/README.md) provisions the Linux guests on Proxmox
+VE with Terraform, either nested inside VMware Workstation (scenario 2) or on hardware
+(scenario 3). The hand-built VMware path above works with `proxmox/` deleted entirely. The
+scenarios, host sizing and the order of steps are in [`../scenarios/`](../scenarios/README.md).
+
 ## Why hand-built, not scripted?
 
 Earlier versions of this repo drove VM creation on the desktop path with a `vmrun`-scripted
-helper (PowerShell on Windows, Bash on Linux). That automation is gone by design: in a teaching
-lab, watching a script create a VM teaches nothing, while clicking through the New VM wizard
-yourself — and understanding why each setting is what it is — is the point. If you want the
-"spin up a whole environment in a box" automated experience instead, that's a separate project,
-`lab-scale-business` — a Terraform-driven take on this same environment, deliberately kept out
-of this repo so the two don't get tangled together.
+helper. That automation is gone by design: in a teaching lab, watching a script create a VM
+teaches nothing, while clicking through the New VM wizard yourself, and understanding why each
+setting is what it is, is the point. That is why scenario 1 stays hand-built.
+
+Automation has its place once you have built it by hand. The course builds each machine by hand
+first, then rebuilds the same lab from code. Scenarios 2 and 3 are that second half, and they
+use Terraform because declarative infrastructure as code is worth teaching in its own right.
+(An earlier version of this section pointed to a separate `lab-scale-business` repo for that;
+the code now lives in [`proxmox/`](proxmox/) so all three scenarios share one core.)
