@@ -1,11 +1,15 @@
 ---
-# Applied to docker_server + authentik_host (see inventory/hosts.ini [linux_clients:children]).
+# Applied to every host in [linux_clients:children] in inventory/hosts.ini: docker01,
+# authentik01, and pbs01 / scanner01 once they are uncommented there.
 # These hosts are domain-joined Linux machines like linux-client01, but managed via Ansible
 # rather than the interactive samba/scripts/join-linux-client.sh flow.
 
 sssd_enumerate: true
 sssd_use_fully_qualified_names: false
-sssd_computer_ou: "OU=Linux,OU=Workstations,OU=LAB,DC=lab,DC=internal"
+# Servers join the Servers OU. linux-client01, the one workstation, joins OU=Workstations via
+# samba/scripts/join-linux-client.sh. (Older builds put docker01 and authentik01 under
+# Workstations; a host that is already joined is not moved by this playbook.)
+sssd_computer_ou: "OU=Linux,OU=Servers,OU=LAB,DC=lab,DC=internal"
 
 # join_domain_user/join_domain_password are defined per-host in
 # ansible/inventory/host_vars/<host>/vault.yml (Ansible Vault encrypted).

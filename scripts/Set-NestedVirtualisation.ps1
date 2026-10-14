@@ -44,7 +44,7 @@
 
 .NOTES
     Run from an elevated PowerShell (Run as administrator). Works on Windows PowerShell 5.1 and PowerShell 7.
-    Not run on a managed lab image yet: the Stage 0 spike (plan/lab-spike.md) confirms it on real hardware.
+    Confirmed working on a lab PC in the October 2026 spike (nested Proxmox runs, KVM available).
     Group Policy or Intune can switch these settings back on; Check mode reports when a policy is set.
 #>
 #Requires -Version 5.1

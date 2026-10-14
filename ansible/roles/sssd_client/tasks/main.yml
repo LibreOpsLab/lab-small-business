@@ -1,7 +1,8 @@
 ---
 # Joins Ansible-managed Linux hosts to LAB.INTERNAL via SSSD. Mirrors
 # samba/scripts/join-linux-client.sh but driven declaratively for hosts already under
-# Ansible control (docker01, authentik01). See docs/SambaAdmin.md#linux-client-integration-sssd.
+# Ansible control (docker01, authentik01, and optionally pbs01 and scanner01). Works on Ubuntu
+# and Debian, including unprivileged LXC containers. See docs/DomainJoin.md. See docs/SambaAdmin.md#linux-client-integration-sssd.
 
 - name: Install SSSD + realmd + Kerberos client packages
   ansible.builtin.apt:
@@ -14,6 +15,7 @@
       - packagekit
       - libnss-sss
       - libpam-sss
+      - python3-pexpect   # the expect module below needs it on the target
     state: present
     update_cache: true
     cache_valid_time: 3600
@@ -26,7 +28,7 @@
 - name: Join the domain
   ansible.builtin.expect:
     command: >
-      realm join --client-software=sssd --os-name=Ubuntu
+      realm join --client-software=sssd --os-name={{ ansible_distribution }}
       --computer-ou="{{ sssd_computer_ou }}"
       -U {{ join_domain_user }} {{ lab_domain }}
     responses:

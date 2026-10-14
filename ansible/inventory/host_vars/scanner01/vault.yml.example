@@ -1,0 +1,9 @@
+---
+# Copy to vault.yml and encrypt with: ansible-vault encrypt vault.yml
+# Only needed once this host exists and is uncommented in inventory/hosts.ini.
+
+join_domain_user: "administrator"
+join_domain_password: "changeme-strong-password"
+
+# Must be identical on every host. Pushes logs to Loki (docs/Logging.md)
+loki_push_password: "changeme-generate-with-openssl-rand"

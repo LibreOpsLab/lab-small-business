@@ -14,3 +14,4 @@
 - import_playbook: 06-sftp.yml
 - import_playbook: 07-logging.yml
 - import_playbook: 99-backups.yml
+- import_playbook: 10-verify-ad-join.yml

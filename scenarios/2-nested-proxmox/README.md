@@ -109,8 +109,25 @@ deliberate lab-only trade-off, and WSL 2 and Docker Desktop stop working until `
 
 `docker01`, `authentik01` and `samba-dc01` are **VMs** (no privileged LXC). LXC is for small
 single-purpose services such as PBS. The Squid proxy lives on pfSense
-([`pfsense/squid.md`](../../pfsense/squid.md)). The LXC spike result: LXC guests reach the LAN,
-ping and install packages without issues.
+([`pfsense/squid.md`](../../pfsense/squid.md)).
+
+**Set every VM's processor type to `host`** (Terraform does this; do it by hand for any VM you
+create yourself). See [`hypervisor/proxmox/README.md`](../../hypervisor/proxmox/README.md#things-that-surprise-people).
+
+## Lab spike results
+
+Reported by the lab owner on a lab PC, 14 October 2026. Everything below works as intended.
+
+| Check | Result |
+|---|---|
+| Windows host prepared for nesting (`Set-NestedVirtualisation.ps1`) | Confirmed |
+| Proxmox VE runs inside VMware Workstation with KVM available | Confirmed |
+| LXC container reaches the LAN, pings, and installs packages | Confirmed |
+| Linux VM boots inside Proxmox | Confirmed, **after setting the processor type to `host`**. It would not start with the default. Now the default for all VMs |
+
+Not yet reported, so treat as untested on real hardware: `post-install.sh`,
+`create-terraform-user.sh`, the Terraform module, `pbs-install.sh`, the Linux-host check script,
+Windows Server and the scanner, and the memory figures in the sizing table (record real use).
 
 ## Not done yet
 

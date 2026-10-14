@@ -1,0 +1,48 @@
+---
+# Proves every Ansible-managed Linux host is really joined to the domain, not just configured to
+# be. Checks three things that fail independently: the machine is enrolled (realm), it can look
+# up a domain user (SSSD, which needs DNS, Kerberos and LDAP all working), and its clock agrees
+# with the DC (Kerberos tolerates five minutes). Read-only. See docs/DomainJoin.md.
+#
+#   ansible-playbook playbooks/10-verify-ad-join.yml --ask-vault-pass
+#   ansible-playbook playbooks/10-verify-ad-join.yml -l pbs01
+
+- name: Verify domain join on Linux hosts
+  hosts: linux_clients
+  become: true
+  vars:
+    ad_verify_user: "administrator"
+  tasks:
+    - name: Ask realmd what this host is joined to
+      ansible.builtin.command: realm list
+      register: realm_list
+      changed_when: false
+
+    - name: Look up a domain user through SSSD
+      ansible.builtin.command: "getent passwd {{ ad_verify_user }}"
+      register: user_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Read the clock offset from chrony
+      ansible.builtin.command: chronyc tracking
+      register: chrony
+      changed_when: false
+      failed_when: false
+
+    - name: Report
+      ansible.builtin.debug:
+        msg:
+          - "{{ inventory_hostname }}: enrolled in {{ lab_domain }}: {{ lab_domain in realm_list.stdout }}"
+          - "{{ inventory_hostname }}: can resolve {{ ad_verify_user }}: {{ user_lookup.rc == 0 }}"
+          - "{{ inventory_hostname }}: {{ (chrony.stdout_lines | select('match', '^System time') | list | first) | default('chrony not reporting') }}"
+
+    - name: Fail loudly if the join is not healthy
+      ansible.builtin.assert:
+        that:
+          - lab_domain in realm_list.stdout
+          - user_lookup.rc == 0
+        fail_msg: >-
+          {{ inventory_hostname }} is not properly joined. Check DNS points at the DC
+          ({{ samba_dc_ip }}), the clock is within five minutes, and journalctl -u sssd.
+          See docs/DomainJoin.md.

@@ -36,6 +36,8 @@ comfortably on 64 GB.
 4. **Create the Terraform API user** with `create-terraform-user.sh` (same folder as `post-install.sh`).
 5. **Build the lab** with Terraform: [`hypervisor/proxmox/README.md`](../../hypervisor/proxmox/README.md).
 
+For every VM you create by hand, set the processor type to **host** (Hardware > Processor > Type).
+
 Everything after step 3 matches scenario 2, except pfSense and the Windows machines become
 Proxmox VMs.
 

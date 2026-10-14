@@ -28,6 +28,7 @@ core of Ansible, Docker, PKI, Samba and Authentik content.
 | 2026-10-14 | **Windows machines are native VMware VMs, never nested.** On native Proxmox they may be Proxmox VMs | user |
 | 2026-10-14 | Each student builds their **own** nested Proxmox. A shared class server is optional, never required. With one, students run a client PC in local VMware and connect to it | user |
 | 2026-10-14 | Proxmox VM sizing lives in the scenario READMEs | user |
+| 2026-10-14 | Every Proxmox VM uses processor type `host`. A VM would not start on the default in the spike | user |
 | 2026-10-14 | Add Proxmox Backup Server, a vulnerability scanner (Greenbone; Kali is taught elsewhere) and CIS hardening (important for assessments) | user |
 | 2026-10-14 | Central logging is Loki | user |
 | 2026-10-14 | All Windows and Linux machines are AD-joined. Demonstrate Samba AD and document its limitations against Windows AD | user |
@@ -216,7 +217,7 @@ Lab capability against the weekly schedule:
 
 | Wk | Course need | Lab capability today | Status |
 |----|-------------|----------------------|--------|
-| 1 | Host prep, Proxmox install, bridges, templates, snapshots, Git/SSH | `Set-NestedVirtualisation.ps1`, `post-install.sh`, Proxmox README | Have (spike to prove) |
+| 1 | Host prep, Proxmox install, bridges, templates, snapshots, Git/SSH | `Set-NestedVirtualisation.ps1`, `post-install.sh`, Proxmox README | Have. Nested prep, nested Proxmox and LXC networking confirmed in the Oct 2026 spike; `post-install.sh` not yet reported |
 | 2 | Hand-install Linux + Windows; cloud-init template; rescue environment | `hypervisor/vms/*.md`, seed files | Partial: no template step, no rescue exercise |
 | 3 | Requirements and design | `docs/Architecture.md`, diagrams | Have |
 | 4 | NTP, DNS, DHCP; **monitoring stack** | Samba DNS/NTP, pfSense DHCP/Unbound | Prometheus, Grafana, blackbox, node_exporter: **done** (`docker/monitoring`, `docs/Monitoring.md`). Still open: Pulse (Proxmox-side), DNS/DHCP failure exercise |

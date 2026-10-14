@@ -70,6 +70,7 @@ repo-root/
 | [CISHardening.md](docs/CISHardening.md)         | CIS Level 1 hardening process, Lynis before/after, exceptions register                                |
 | [SambaVsWindowsAD.md](docs/SambaVsWindowsAD.md) | Samba AD limitations against Windows AD, when to choose each, comparison exercise                     |
 | [VulnerabilityScanning.md](docs/VulnerabilityScanning.md) | Greenbone scanner: rules, the scan-fix-rescan loop, exercises                                |
+| [DomainJoin.md](docs/DomainJoin.md)             | Joining every Windows and Linux machine to the domain, verifying it, Proxmox realm logins             |
 | [HostFirewalls.md](docs/HostFirewalls.md)       | Host-level firewalls: ufw, nftables, Windows Defender Firewall, and how they relate to pfSense        |
 | [SFTP.md](docs/SFTP.md)                         | Jailed SFTP accounts and why plain FTP is not offered                                                 |
 | [pfsense/squid.md](pfsense/squid.md)            | Filtering web proxy (Squid) on pfSense                                                                |

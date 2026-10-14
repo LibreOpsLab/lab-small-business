@@ -28,8 +28,13 @@ resource "proxmox_virtual_environment_vm" "linux" {
   node_name = var.proxmox_node
   tags      = ["lab", "terraform"]
 
+  # "host" passes the real CPU model through. The provider default (qemu64) is a very old,
+  # minimal CPU that current Ubuntu images can fail to boot on, and it hides instructions the
+  # guest could use for speed. Confirmed in the lab spike (Oct 2026): a VM would not start
+  # until its processor type was set to Host.
   cpu {
     cores = each.value.vcpu
+    type  = "host"
   }
 
   memory {

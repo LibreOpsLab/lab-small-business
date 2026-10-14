@@ -268,6 +268,13 @@ Run through [StudentLabManual.md](StudentLabManual.md)'s "Day 1 checklist" as an
 smoke test: domain logon from both clients, SSO into NextCloud, cert trust with no browser
 warnings, mail send+receive round trip via Betterbird.
 
+Then confirm every machine is really in the domain ([DomainJoin.md](DomainJoin.md)):
+
+```bash
+ansible-playbook playbooks/10-verify-ad-join.yml --ask-vault-pass   # from the control host
+sudo samba/scripts/check-joins.sh                                    # on samba-dc01
+```
+
 ## One-shot re-runs
 
 [`scripts/deploy-all.sh`](../scripts/deploy-all.sh) chains steps 4-6a (PKI issuance +

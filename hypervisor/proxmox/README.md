@@ -87,6 +87,13 @@ Either way, point `proxmox_api_url` at a name that matches the certificate.
 
 ## Things that surprise people
 
+- **Set the CPU type to `host` on every VM.** Terraform does this for the VMs it builds. For any
+  VM you create by hand (pfSense, Windows, a template), choose Hardware > Processor > Type >
+  `host`. Proxmox's default is a generic virtual CPU: it can leave a modern guest unable to
+  start, as one did in the lab spike, and it hides CPU features the guest could use for speed.
+  The trade-off is that a `host` VM cannot live-migrate between different CPU models, which does
+  not matter on a single lab node.
+
 - **Terraform state holds secrets.** `terraform.tfstate` is gitignored. Do not commit it or
   paste it into a chat.
 - **Re-running is safe.** `terraform plan` shows what would change; a second `apply` with no
