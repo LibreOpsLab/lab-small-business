@@ -1,0 +1,40 @@
+---
+# Runs scripts/windows/Optimize-Windows.ps1 on a Windows host. The script is the engine and the
+# profile (optimize-profile.psd1) is the decision; Ansible's job is to deliver them, run them,
+# and report. The script's Audit mode exits 0 when nothing differs and 2 when something does, so
+# this role only applies changes when there is drift (idempotent). See docs/WindowsTuning.md.
+
+- name: Create the working directory
+  ansible.windows.win_file:
+    path: "{{ optimize_dir }}"
+    state: directory
+
+- name: Copy the tuning script and its profile
+  ansible.windows.win_copy:
+    src: "{{ playbook_dir }}/../../scripts/windows/{{ item }}"
+    dest: "{{ optimize_dir }}\\{{ item }}"
+  loop:
+    - Optimize-Windows.ps1
+    - optimize-profile.psd1
+
+- name: Audit the host against the profile
+  ansible.windows.win_command: >-
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{ optimize_dir }}\Optimize-Windows.ps1"
+    -Mode Audit {{ ('-Category ' ~ (optimize_categories | join(','))) if optimize_categories else '' }}
+  register: optimize_audit
+  changed_when: false
+  failed_when: optimize_audit.rc not in [0, 2]
+
+- name: Apply the profile where the host differs
+  ansible.windows.win_command: >-
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{{ optimize_dir }}\Optimize-Windows.ps1"
+    -Mode Apply {{ ('-Category ' ~ (optimize_categories | join(','))) if optimize_categories else '' }}
+  register: optimize_apply
+  when:
+    - optimize_audit.rc == 2
+    - not ansible_check_mode
+  notify: restart windows host
+
+- name: Show what changed
+  ansible.builtin.debug:
+    msg: "{{ optimize_apply.stdout_lines | default(['Already matches the profile: nothing to change.']) }}"

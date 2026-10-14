@@ -71,6 +71,11 @@ repo-root/
 | [SambaVsWindowsAD.md](docs/SambaVsWindowsAD.md) | Samba AD limitations against Windows AD, when to choose each, comparison exercise                     |
 | [VulnerabilityScanning.md](docs/VulnerabilityScanning.md) | Greenbone scanner: rules, the scan-fix-rescan loop, exercises                                |
 | [DomainJoin.md](docs/DomainJoin.md)             | Joining every Windows and Linux machine to the domain, verifying it, Proxmox realm logins             |
+| [WindowsManagement.md](docs/WindowsManagement.md) | Managing Windows with Ansible over WinRM: setup, Kerberos, what is automated                       |
+| [WindowsTuning.md](docs/WindowsTuning.md)       | Windows performance and security tuning: telemetry, debloat, services, hardening, logging, revert   |
+| [PatchManagement.md](docs/PatchManagement.md)   | The patching process, rings, Group Policy and Ansible for Windows, rollback                          |
+| [LAPS.md](docs/LAPS.md)                         | Unique local admin passwords, and how Samba AD differs from Windows AD                                |
+| [RMM.md](docs/RMM.md)                           | Optional: remote monitoring and management consoles; Breeze RMM evaluation                            |
 | [HostFirewalls.md](docs/HostFirewalls.md)       | Host-level firewalls: ufw, nftables, Windows Defender Firewall, and how they relate to pfSense        |
 | [SFTP.md](docs/SFTP.md)                         | Jailed SFTP accounts and why plain FTP is not offered                                                 |
 | [pfsense/remote-logging.md](pfsense/remote-logging.md) | Send pfSense firewall logs to Loki                                                              |

@@ -1,0 +1,8 @@
+---
+# Limit to some profile categories, e.g. ["Telemetry", "Security"]. Empty means all of them.
+optimize_categories: []
+
+# Restart afterwards. Services, features and some policies only fully apply after a restart.
+optimize_reboot: false
+
+optimize_dir: 'C:\ProgramData\LabHostPrep\optimize'

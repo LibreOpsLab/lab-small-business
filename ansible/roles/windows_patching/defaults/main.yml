@@ -1,0 +1,20 @@
+---
+# What to install. Security and critical fixes by default; feature updates are a separate,
+# planned decision, not something that arrives during a patch window.
+patching_categories:
+  - SecurityUpdates
+  - CriticalUpdates
+  - UpdateRollups
+
+# installed = download and install. searched = report only, change nothing (use this for the
+# "what would patching install?" step of a change request).
+patching_state: installed
+
+# Restart when an update needs it, and carry on installing afterwards.
+patching_reboot: true
+patching_reboot_timeout: 1800
+
+# KB numbers or title patterns to skip, for an update that is known to break something here.
+patching_reject_list: []
+
+patching_log_dir: 'C:\ProgramData\LabHostPrep'

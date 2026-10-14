@@ -1,0 +1,20 @@
+---
+# Applies to every host in [windows:children] (see inventory/hosts.ini). docs/WindowsManagement.md
+# explains the choices.
+#
+# Windows is managed over WinRM on HTTPS (port 5986) with Kerberos, so the connection is
+# encrypted and both ends are authenticated. The lab CA certificate is verified, never skipped.
+# Before running anything: kinit administrator@LAB.INTERNAL  (no password is stored in Ansible).
+
+ansible_connection: winrm
+ansible_port: 5986
+ansible_winrm_scheme: https
+ansible_winrm_transport: kerberos
+ansible_winrm_server_cert_validation: validate
+ansible_winrm_ca_trust_path: /etc/ssl/certs/ca-certificates.crt
+ansible_winrm_kinit_mode: manual
+ansible_user: administrator@LAB.INTERNAL
+
+# ansible.cfg turns on sudo escalation for Linux. Windows does not use sudo, so switch it off here
+# and ask for escalation (runas) only on the tasks that need it, such as installing updates.
+ansible_become: false

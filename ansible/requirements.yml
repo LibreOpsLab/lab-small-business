@@ -8,6 +8,16 @@
 #
 # Pinned to a release tag so a class builds the same thing every time. Review the role's
 # changelog before bumping the version, and re-run the audit afterwards.
+collections:
+  - name: ansible.windows      # win_updates, win_command, win_copy: managing Windows over WinRM
+  - name: community.windows
+  - name: community.general
+  - name: community.docker
+  - name: ansible.posix
+
+# Windows management also needs the pywinrm Python package, with Kerberos support, on the
+# control host: pip install "pywinrm[kerberos]"  (see docs/WindowsManagement.md)
+
 roles:
   - name: ubuntu24_cis
     src: https://github.com/ansible-lockdown/UBUNTU24-CIS.git

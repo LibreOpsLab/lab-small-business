@@ -1,0 +1,21 @@
+---
+# Patches Windows machines in two rings. Ring 0 is a test group patched first, one host at a
+# time. Ring 1 only runs if every ring 0 host succeeded: a failed play stops here. Opt-in: not part
+# of site.yml. See docs/PatchManagement.md.
+#
+#   kinit administrator@LAB.INTERNAL
+#   ansible-playbook playbooks/12-windows-patching.yml -e patching_state=searched   # report only
+#   ansible-playbook playbooks/12-windows-patching.yml                              # install
+
+- name: Patch ring 0 (test group)
+  hosts: windows_ring0
+  gather_facts: false
+  serial: 1
+  roles:
+    - windows_patching
+
+- name: Patch ring 1 (everything else), only if ring 0 succeeded
+  hosts: windows_ring1
+  gather_facts: false
+  roles:
+    - windows_patching

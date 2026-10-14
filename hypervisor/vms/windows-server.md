@@ -59,6 +59,10 @@ nested KVM is slow. In scenario 3 it is a Proxmox VM. Sizing and the weeks it ru
 - Install the monitoring and logging agents with
   [`scripts/windows/Install-MonitoringAgents.ps1`](../../scripts/windows/Install-MonitoringAgents.ps1):
   [Monitoring.md](../../docs/Monitoring.md#windows-hosts), [Logging.md](../../docs/Logging.md#windows-hosts).
+- Tune it for performance and security: [WindowsTuning.md](../../docs/WindowsTuning.md), then manage
+  and patch it with Ansible: [WindowsManagement.md](../../docs/WindowsManagement.md),
+  [PatchManagement.md](../../docs/PatchManagement.md). Give it a unique local admin password:
+  [LAPS.md](../../docs/LAPS.md).
 - Harden it with Group Policy, using
   [`scripts/windows/Import-BaselineGpo.ps1`](../../scripts/windows/Import-BaselineGpo.ps1):
   [CISHardening.md](../../docs/CISHardening.md#windows-server-and-clients).

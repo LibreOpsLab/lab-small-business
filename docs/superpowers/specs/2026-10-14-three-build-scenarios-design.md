@@ -29,6 +29,8 @@ core of Ansible, Docker, PKI, Samba and Authentik content.
 | 2026-10-14 | Each student builds their **own** nested Proxmox. A shared class server is optional, never required. With one, students run a client PC in local VMware and connect to it | user |
 | 2026-10-14 | Proxmox VM sizing lives in the scenario READMEs | user |
 | 2026-10-14 | Every Proxmox VM uses processor type `host`. A VM would not start on the default in the spike | user |
+| 2026-10-14 | Windows tuning (telemetry, debloat, unneeded services/apps/features, hardening, logging) is **required**, as a reviewable PowerShell profile rather than a GUI tool; Ansible may orchestrate Windows patching and tuning | user |
+| 2026-10-14 | Breeze RMM Community Edition is the RMM to evaluate. Kept optional and out of the base lab (RAM, young project, SSO unvalidated, `ee/` commercial licence) | user, assistant |
 | 2026-10-14 | Add Proxmox Backup Server, a vulnerability scanner (Greenbone; Kali is taught elsewhere) and CIS hardening (important for assessments) | user |
 | 2026-10-14 | Central logging is Loki | user |
 | 2026-10-14 | All Windows and Linux machines are AD-joined. Demonstrate Samba AD and document its limitations against Windows AD | user |
@@ -227,7 +229,7 @@ Lab capability against the weekly schedule:
 | 8 | Prototype by code, test plan | Ansible roles, Terraform | Partial: roles cover the base only; no test-plan template |
 | 9 | Backup, restore, RPO/RTO | `docs/Backup.md` | PBS **done** (`terraform/lxc.tf`, `guests/pbs-install.sh`). Still open: timed restore exercise, immutable copy |
 | 12-14 | Threat model, risk, security design | Course templates applied to this lab | Content, not lab; lab supplies diagrams and an asset list |
-| 15 | CIS/Essential Eight hardening via Ansible and GPO; MFA; PKI; patching | `common`/`fail2ban` roles, Authentik MFA, PKI | CIS **done** (`playbooks/08-09`, `docs/CISHardening.md`); unattended-upgrades exists. Windows GPO import **scripted** (untested). Still open: WSUS/patch service for Windows, LAPS |
+| 15 | CIS/Essential Eight hardening via Ansible and GPO; MFA; PKI; patching | `common`/`fail2ban` roles, Authentik MFA, PKI | CIS **done** (`playbooks/08-09`, `docs/CISHardening.md`); unattended-upgrades exists. Windows GPO import, patching (Group Policy for clients, Ansible rings for servers, WSUS documented as an option), LAPS (with Samba schema extension) and a profile-driven Windows tuning script **written**, untested except the tuning audit, which ran on a real Windows 11 PC. Still open: benchmark baseline report |
 | 16 | Central logging, alerts, baselines, Wazuh | Fail2ban only | Loki + Alloy **done** (`docs/Logging.md`). pfSense syslog and Windows agents **scripted** (untested). Still open: benchmark baseline report |
 | 17 | Vulnerability scan, audit, remediate | none | Greenbone **documented** (`hypervisor/vms/scanner.md`, `docs/VulnerabilityScanning.md`); not automated. Scan targets exist |
 | 18 | IR runbook, timed recovery drill, handover | none in the lab | **Gap:** drill scenario using the monitoring stack |

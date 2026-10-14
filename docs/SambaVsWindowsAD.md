@@ -32,6 +32,7 @@ the same.
 | Mixed DCs | n/a | Windows Server 2008 to 2012 R2 are listed as supported to join; the FAQ lists 2016 as not supported, which later guides contradict: test before committing |
 | Functional level | Current Windows levels | Behind Windows. Newer Samba releases (4.20 onwards) raised the level; older ones top out lower |
 | PowerShell AD module (`New-ADUser`, `Get-ADUser`) | Works: the DC runs Active Directory Web Services (ADWS) | **Does not work.** Samba does not implement ADWS; the cmdlets fail with "Unable to find a default server with Active Directory Web Services running". Use LDAP-based scripts ([`New-LabUsers.ps1`](../scripts/windows/New-LabUsers.ps1)), `samba-tool`, or the RSAT GUI tools |
+| Windows LAPS | Schema extension with one cmdlet; passwords can be encrypted | Schema extended by hand with LDIF; **no password encryption**, so passwords are stored in clear text behind AD permissions ([LAPS.md](LAPS.md)) |
 | Certificate Authority (AD CS) | Built in as a role | Not provided. This lab uses its own OpenSSL PKI ([PKI.md](PKI.md)) and distributes trust by Group Policy |
 | Trusts with other domains | Full forest and external trusts | Marked experimental in the FAQ: SID filtering not applied |
 | Hybrid cloud (Entra ID / Azure) | Supported, with Microsoft tooling | Not supported by Microsoft tooling |

@@ -1,0 +1,36 @@
+---
+# Installs Windows updates through the Windows Update Agent. Patching is a process, not a button:
+# see docs/PatchManagement.md for rings, change windows and rollback. This role is the "install"
+# step. Run it against ring 0 first (playbooks/12-windows-patching.yml does).
+
+- name: Create the log directory (the module requires it to exist)
+  ansible.windows.win_file:
+    path: "{{ patching_log_dir }}"
+    state: directory
+
+# runas SYSTEM lets the update run without Task Scheduler and survives the WinRM connection
+# dropping when the network adapter resets during an update.
+- name: Install updates
+  ansible.windows.win_updates:
+    category_names: "{{ patching_categories }}"
+    state: "{{ patching_state }}"
+    reboot: "{{ patching_reboot | bool }}"
+    reboot_timeout: "{{ patching_reboot_timeout }}"
+    reject_list: "{{ patching_reject_list }}"
+    log_path: "{{ patching_log_dir }}\\patching.log"
+  become: true
+  become_method: ansible.builtin.runas
+  become_user: SYSTEM
+  register: patch_result
+
+- name: Report
+  ansible.builtin.debug:
+    msg:
+      - "{{ inventory_hostname }}: {{ patch_result.installed_update_count | default(0) }} installed, {{ patch_result.failed_update_count | default(0) }} failed"
+      - "restart still required: {{ patch_result.reboot_required | default(false) }}"
+
+- name: Fail the host if any update failed, so ring 1 does not start
+  ansible.builtin.assert:
+    that:
+      - patch_result.failed_update_count | default(0) | int == 0
+    fail_msg: "{{ inventory_hostname }} had failed updates. See {{ patching_log_dir }}\\patching.log on the host. Ring 1 will not run."

@@ -1,0 +1,15 @@
+---
+# Tunes Windows machines for performance and security with scripts/windows/Optimize-Windows.ps1:
+# telemetry, bloat, unneeded services and components off; risky defaults tightened; auditing on.
+# Opt-in: not part of site.yml. Snapshot first. See docs/WindowsTuning.md.
+#
+#   kinit administrator@LAB.INTERNAL
+#   ansible-playbook playbooks/11-windows-optimize.yml -l winsrv01 --check      # preview
+#   ansible-playbook playbooks/11-windows-optimize.yml -l winsrv01              # apply
+#   ansible-playbook playbooks/11-windows-optimize.yml -e optimize_reboot=true  # and restart
+
+- name: Tune Windows hosts
+  hosts: windows
+  gather_facts: false
+  roles:
+    - windows_optimize

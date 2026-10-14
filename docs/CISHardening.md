@@ -106,6 +106,10 @@ baseline GPO from a backup folder and links it to an OU, previewable with `-What
 test OU first. Measure before and after with the Microsoft Security Compliance Toolkit's policy
 analyzer or CIS-CAT, since Lynis does not run on Windows. Untested against the lab domain.
 
+Performance and security tuning (telemetry, services, SMB1, logging) is a separate, required step
+before the benchmark: [WindowsTuning.md](WindowsTuning.md). Its profile and the benchmark overlap on
+purpose; where they disagree, record the decision in the exceptions register.
+
 ## Gotchas
 
 - **Locking yourself out.** SSH hardening can disable the method you are using. Keep a console
